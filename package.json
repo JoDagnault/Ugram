@@ -1,0 +1,16 @@
+{
+  "name": "UGram",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky && husky install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.28.1",
+  "devDependencies": {
+    "husky": "^8.0.0"
+  }
+}
