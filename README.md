@@ -1,3 +1,4 @@
+
 # ugram-h2026-ugram-h2026-team-01
 ## 1. Technologies utilisées
 
@@ -45,3 +46,4 @@ Afin d’assurer une qualité de code constante, les outils suivants sont utilis
 ## 7. Infrastructure et outils complémentaires
 - **Conteneurisation** : Docker ;
 - **Gestionnaire de paquets** : pnpm.
+
