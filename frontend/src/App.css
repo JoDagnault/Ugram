@@ -3,6 +3,12 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+
+  --color-primary: #E30613;
+  --color-secondary: #FFCC00;
+  --color-accent: #009FE3;
+
+  --color-background-dark: #131313;
 }
 
 .logo {
