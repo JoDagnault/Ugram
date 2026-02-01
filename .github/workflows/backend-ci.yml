@@ -1,0 +1,50 @@
+name: Backend CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'eslint.config.js'
+      - '.prettierrc'
+      - 'package.json'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'eslint.config.js'
+      - '.prettierrc'
+      - 'package.json'
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install root dependencies (ESLint, Prettier)
+        run: pnpm install
+
+      - name: Install backend dependencies
+        run: pnpm --dir backend install
+
+      - name: Check formatting
+        run: pnpm exec prettier --check "backend/**/*.{ts,js,json}"
+
+      - name: Lint code with ESLint
+        run: pnpm exec eslint "backend/**/*.{ts,js}"
+
+      - name: Build project
+        run: pnpm --dir backend run build

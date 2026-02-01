@@ -1,32 +1,41 @@
-# Ignore build output
+# Build output
 /build
 /dist
 /out
 
-# Ignore node modules
+# Node modules
 /node_modules
 
-# Ignore environment files
+# Environment files
 .env
 .env.local
 .env.development
 .env.test
 .env.production
 
-# Ignore public assets (optional, usually you don't want Prettier to touch images)
+# Public assets (usually images/fonts)
 /public
 
-# Ignore logs
+# Logs
 *.log
 
-# Ignore coverage reports
+# Coverage reports
 /coverage
 
-# Ignore temporary files
+# Temporary files
 *.tmp
 *.temp
 
-# Ignore lock files (if you don't want Prettier formatting them)
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+# Lock files (optional)
+/package-lock.json
+/yarn.lock
+/pnpm-lock.yaml
+
+# Config & metadata files (avoid Prettier warnings)
+*.config.js
+*.config.ts
+tsconfig*.json
+.eslintrc.*
+.vitest.config.*
+vite.config.ts
+README.md
