@@ -2,25 +2,25 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
-  --color-primary: #e30613;
-  --color-secondary: #ffcc00;
-  --color-accent: #009fe3;
+    --color-primary: #e30613;
+    --color-secondary: #ffcc00;
+    --color-accent: #009fe3;
 
-  --color-dark: #131313;
-  --color-white: #ffffff;
+    --color-dark: #131313;
+    --color-white: #ffffff;
 
-  --font-primary: system-ui, sans-serif;
+    --font-primary: system-ui, sans-serif;
 }
 
 :root {
-  color-scheme: light dark;
-  color: var(--color-white);
-  background-color: var(--color-dark);
+    color-scheme: light dark;
+    color: var(--color-white);
+    background-color: var(--color-dark);
 }
 
 @media (prefers-color-scheme: light) {
-  :root {
-    color: var(--color-dark);
-    background-color: var(--color-white);
-  }
+    :root {
+        color: var(--color-dark);
+        background-color: var(--color-white);
+    }
 }
