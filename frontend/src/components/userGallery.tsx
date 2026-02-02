@@ -1,0 +1,24 @@
+import type { ImageListItem } from '../types/image';
+import GalleryImageCard from './galleryImageCard.tsx';
+
+type Props = {
+    images: ImageListItem[];
+};
+
+const UserGallery = ({ images }: Props) => {
+    if (images.length === 0) {
+        return <p>No posts yet</p>;
+    }
+
+    return (
+        <div className="w-full flex justify-center">
+            <div className="grid grid-cols-3 gap-1 max-w-[1200px]">
+                {images.map((image) => (
+                    <GalleryImageCard key={image.id} image={image} />
+                ))}
+            </div>
+        </div>
+    );
+};
+
+export default UserGallery;

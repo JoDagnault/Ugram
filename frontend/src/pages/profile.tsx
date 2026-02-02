@@ -1,29 +1,35 @@
 import { useEffect, useState } from 'react';
-import { getMe } from '../api/users/usersService.ts';
-import type { MyUser } from '../types/user.ts';
+import { getMe } from '../api/users/usersService';
+import { getUserImages } from '../api/images/imagesService';
+import type { MyUser } from '../types/user';
+import type { ImageListItem } from '../types/image';
 
-const dateFormatter = new Intl.DateTimeFormat('en-US', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-});
+import ProfileInfo from '../components/profileInfo.tsx';
+import UserGallery from '../components/userGallery.tsx';
 
 const Profile = () => {
     const [me, setMe] = useState<MyUser | null>(null);
+    const [images, setImages] = useState<ImageListItem[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         let ignore = false;
-        getMe()
-            .then((result) => {
+
+        Promise.all([getMe()])
+            .then(([user]) => {
                 if (!ignore) {
-                    setMe(result);
+                    setMe(user);
+                    return getUserImages(user.id);
+                }
+            })
+            .then((imgs) => {
+                if (!ignore && imgs) {
+                    setImages(imgs);
+                    console.log(imgs);
                 }
             })
             .finally(() => {
-                if (!ignore) {
-                    setLoading(false);
-                }
+                if (!ignore) setLoading(false);
             });
 
         return () => {
@@ -31,19 +37,13 @@ const Profile = () => {
         };
     }, []);
 
-    if (loading) return <p>Loading..</p>;
+    if (loading) return <p>Loading…</p>;
     if (!me) return <p>No user found</p>;
 
     return (
-        <div className="p-3 mt-1">
-            <h1 className="mb-1 text-lg">Profile</h1>
-            <p>Username : {me.username}</p>
-            <p>
-                Name : {me.firstName} {me.lastName}
-            </p>
-            <p>Email : {me.email}</p>
-            <p>Phone : {me.phone}</p>
-            <p>Member since : {dateFormatter.format(new Date(me.createdAt))}</p>
+        <div>
+            <ProfileInfo user={me} />
+            <UserGallery images={images} />
         </div>
     );
 };

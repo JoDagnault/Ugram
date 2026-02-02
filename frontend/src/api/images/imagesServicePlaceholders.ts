@@ -38,6 +38,33 @@ let images: ImageDetails[] = [
         hashtags: [],
         mentionUserIds: [],
     },
+    {
+        id: 'img-3',
+        userId: ME_USER_ID,
+        imageUrl: 'https://picsum.photos/seed/img-3/800/600',
+        createdAt: '2025-12-02T00:00:00.000Z',
+        description: '',
+        hashtags: [],
+        mentionUserIds: [],
+    },
+    {
+        id: 'img-4',
+        userId: ME_USER_ID,
+        imageUrl: 'https://picsum.photos/seed/img-4/700/600',
+        createdAt: '2025-12-03T00:00:00.000Z',
+        description: '',
+        hashtags: [],
+        mentionUserIds: [],
+    },
+    {
+        id: 'img-5',
+        userId: ME_USER_ID,
+        imageUrl: 'https://picsum.photos/seed/img-5/500/600',
+        createdAt: '2025-12-04T00:00:00.000Z',
+        description: '',
+        hashtags: [],
+        mentionUserIds: [],
+    },
 ];
 
 export const getUserImagesPlaceholder = (userId: string): ImageListItem[] =>

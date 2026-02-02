@@ -2,7 +2,7 @@ import { NavLink } from 'react-router';
 
 export default function Navbar() {
     return (
-        <nav className="sticky top-0 w-full flex justify-between p-3">
+        <nav className="sticky top-0 w-full flex justify-between p-3 bg-white dark:bg-dark">
             <NavLink to="/" className="hover:text-accent">
                 Home
             </NavLink>
