@@ -1,0 +1,41 @@
+# Build output
+/build
+/dist
+/out
+
+# Node modules
+/node_modules
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Public assets (usually images/fonts)
+/public
+
+# Logs
+*.log
+
+# Coverage reports
+/coverage
+
+# Temporary files
+*.tmp
+*.temp
+
+# Lock files (optional)
+/package-lock.json
+/yarn.lock
+/pnpm-lock.yaml
+
+# Config & metadata files (avoid Prettier warnings)
+*.config.js
+*.config.ts
+tsconfig*.json
+.eslintrc.*
+.vitest.config.*
+vite.config.ts
+README.md

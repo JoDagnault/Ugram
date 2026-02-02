@@ -1,0 +1,50 @@
+name: Frontend CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - 'eslint.config.js'
+      - '.prettierrc'
+      - 'package.json'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - 'eslint.config.js'
+      - '.prettierrc'
+      - 'package.json'
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install root dependencies (ESLint, Prettier)
+        run: pnpm install
+
+      - name: Install frontend dependencies
+        run: pnpm --dir frontend install
+
+      - name: Check formatting
+        run: pnpm exec prettier --check "frontend/**/*.{ts,tsx,js,jsx,json,css,scss,md}"
+
+      - name: Lint code with ESLint
+        run: pnpm exec eslint "frontend/**/*.{ts,tsx,js,jsx}"
+
+      - name: Build project
+        run: pnpm --dir frontend run build
