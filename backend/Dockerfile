@@ -5,14 +5,11 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copie les fichiers du workspace
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 
-# Copie les manifests des deux packages
 COPY backend/package.json backend/package.json
 COPY frontend/package.json frontend/package.json
 
-# Copie le code du workspace
 COPY backend backend
 COPY frontend frontend
 
