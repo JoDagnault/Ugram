@@ -21,16 +21,11 @@ export default function ImageSearchResults({ images }: Props) {
                     key={img.id}
                     className="border rounded-lg shadow-sm bg-white dark:bg-dark"
                 >
-                    {/* Image and core info */}
                     <ImageCard image={img} />
-
-                    {/* Extra info block (ID + potential future actions) */}
                     <div className="px-3 pb-3 text-xs text-gray-600 dark:text-gray-400">
                         <div className="font-medium text-gray-800 dark:text-gray-200 mb-1">
                             ID: {img.id}
                         </div>
-
-                        {/* INLINE metadata */}
                         <div className="flex flex-wrap gap-1">
                             <span className="opacity-70 italic">
                                 Posted on{' '}

@@ -28,21 +28,29 @@ export default function Search() {
             });
     }, []);
 
-    // ALWAYS call useMemo (even if empty string)
-    const filteredUsers = useMemo(() => {
-        const q = userQuery.trim().toLowerCase();
-        return q
-            ? users.filter((u) => u.username.toLowerCase().includes(q))
-            : [];
-    }, [users, userQuery]);
+    // nettoie la saisie pour la comparer
+    const normalizedUserQuery = userQuery.trim().toLowerCase();
+    const normalizedImageQuery = imageQuery.trim().toLowerCase();
 
-    const filteredImages = useMemo(() => {
-        const q = imageQuery.trim().toLowerCase();
-        return q
-            ? images.filter((img) => img.id.toLowerCase().includes(q))
-            : [];
-    }, [images, imageQuery]);
+    // filtre les utilisateurs
+    let filteredUsers: UserListItem[] = [];
+    if (normalizedUserQuery.length > 0) {
+        filteredUsers = users.filter((u) => {
+            const username = u.username.toLowerCase();
+            return username.includes(normalizedUserQuery);
+        });
+    }
 
+    // filtre les images par id
+    let filteredImages: ImageDetails[] = [];
+    if (normalizedImageQuery.length > 0) {
+        filteredImages = images.filter((img) => {
+            const id = img.id.toLowerCase();
+            return id.includes(normalizedImageQuery);
+        });
+    }
+
+    // affiche un loader pendant le chargement
     if (loading) {
         return <p className="p-4">Loading…</p>;
     }
@@ -58,7 +66,6 @@ export default function Search() {
                     onChange={(e) => setUserQuery(e.target.value)}
                     className="w-full border p-2 rounded"
                 />
-                {/* Show results only if there is query */}
                 {userQuery.trim().length > 0 && (
                     <UserSearchResults users={filteredUsers} />
                 )}
@@ -73,7 +80,6 @@ export default function Search() {
                     onChange={(e) => setImageQuery(e.target.value)}
                     className="w-full border p-2 rounded"
                 />
-                {/* Show results only if there is query */}
                 {imageQuery.trim().length > 0 && (
                     <ImageSearchResults images={filteredImages} />
                 )}
