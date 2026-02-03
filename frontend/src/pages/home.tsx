@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getFeedImages } from '../api/images/imagesService';
 import type { ImageDetails } from '../types/image';
-import FeedImageCard from '../components/feedImageCard';
+import ImageCard from '../components/imageCard.tsx';
 
 const Home = () => {
     const [images, setImages] = useState<ImageDetails[]>([]);
@@ -35,9 +35,9 @@ const Home = () => {
     }
 
     return (
-        <div className="flex flex-col items-center mt-6 gap-6">
+        <div className="space-y-6 p-4 max-w-3xl mx-auto">
             {images.map((image) => (
-                <FeedImageCard key={image.id} image={image} />
+                <ImageCard key={image.id} image={image} />
             ))}
         </div>
     );
