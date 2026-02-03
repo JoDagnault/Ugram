@@ -1,0 +1,30 @@
+# -------------------------
+# 1 — BUILDER
+# -------------------------
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY backend/package.json backend/package.json
+COPY frontend/package.json frontend/package.json
+
+COPY backend backend
+COPY frontend frontend
+
+RUN npm install -g pnpm
+
+RUN pnpm install
+
+WORKDIR /app/frontend
+RUN pnpm run build
+
+
+# -------------------------
+# 2 — RUNTIME
+# -------------------------
+FROM nginx:stable-alpine AS runtime
+
+COPY --from=builder /app/frontend/dist /usr/share/nginx/html
+
+EXPOSE 80
