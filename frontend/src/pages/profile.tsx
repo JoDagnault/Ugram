@@ -25,7 +25,6 @@ const Profile = () => {
             .then((imgs) => {
                 if (!ignore && imgs) {
                     setImages(imgs);
-                    console.log(imgs);
                 }
             })
             .finally(() => {
