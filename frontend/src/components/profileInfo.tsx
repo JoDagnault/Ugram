@@ -24,7 +24,7 @@ const ProfileInfo = ({ user }: Props) => {
             setCurrentUser(savedUser);
             setIsModalOpen(false);
         } catch (error) {
-            console.error('Failed to update profile', error);
+            // TODO: deal with backend error
         }
     };
 
