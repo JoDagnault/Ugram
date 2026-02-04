@@ -1,4 +1,4 @@
-import type { MyUser, UserListItem, UserProfile } from '../../types/user.ts';
+import type { MyUser, UserListItem } from '../../types/user.ts';
 
 export const ME_USER_ID = '21550515-d7c8-4fae-a759-7dfb437c8442';
 export const ALICE_USER_ID = '8c1b9c62-2f0d-4f21-9a76-8c0a1f0e6a11';
@@ -45,15 +45,6 @@ const toUserListItem = (user: MyUser): UserListItem => ({
     username: user.username,
 });
 
-const toUserProfile = (user: MyUser): UserProfile => ({
-    id: user.id,
-    profilePictureUrl: user.profilePictureUrl,
-    username: user.username,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    createdAt: user.createdAt,
-});
-
 export const getMePlaceholder = (): MyUser => me;
 
 export const updateMePlaceholder = (nextMe: MyUser): MyUser => {
@@ -64,8 +55,3 @@ export const updateMePlaceholder = (nextMe: MyUser): MyUser => {
 
 export const getUsersPlaceholder = (): UserListItem[] =>
     users.map(toUserListItem);
-
-export const getUserPlaceholder = (id: string): UserProfile | undefined => {
-    const user = users.find((u) => u.id === id);
-    return user ? toUserProfile(user) : undefined;
-};
