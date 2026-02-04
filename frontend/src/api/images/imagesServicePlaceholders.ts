@@ -25,9 +25,9 @@ let images: ImageDetails[] = [
         userId: ME_USER_ID,
         imageUrl: 'https://picsum.photos/seed/img-1/600/600',
         createdAt: '2026-01-02T00:00:00.000Z',
-        description: '',
-        hashtags: [],
-        mentionUserIds: [],
+        description: 'Ma description test ici',
+        hashtags: ['GoodLife', 'TryingHashtags'],
+        mentionUserIds: ['8c1b9c62-2f0d-4f21-9a76-8c0a1f0e6a11'],
     },
     {
         id: 'img-2',
