@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getUsers } from '../api/users/usersService';
 import { getFeedImages } from '../api/images/imagesService';
 import type { UserListItem } from '../types/user';
