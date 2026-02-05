@@ -3,12 +3,12 @@ import Navbar from './components/navbar.tsx';
 
 function App() {
     return (
-        <>
+        <div className="min-h-dvh bg-dark text-white">
             <Navbar />
-            <main>
+            <main className="pt-1">
                 <Outlet />
             </main>
-        </>
+        </div>
     );
 }
 
