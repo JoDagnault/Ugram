@@ -1,6 +1,4 @@
 @import 'tailwindcss';
-@import url('https://fonts.googleapis.com/css2?family=Climate+Crisis:YEAR@1979&display=swap');
-
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
@@ -14,5 +12,17 @@
     --color-white: #f9f9f9;
 
     --font-primary: system-ui, sans-serif;
-    --font-accent: 'Climate Crisis', sans-serif;
+}
+
+:root {
+    color-scheme: light dark;
+    color: var(--color-white);
+    background-color: var(--color-dark);
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        color: var(--color-dark);
+        background-color: var(--color-white);
+    }
 }
