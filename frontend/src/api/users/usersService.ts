@@ -1,7 +1,7 @@
 import type { MyUser, UserListItem, UserProfile } from '../../types/user.ts';
-import { apiGetJsonOrUndefinedOn404 } from '../http.ts';
 import {
     getMePlaceholder,
+    getUserPlaceholder,
     getUsersPlaceholder,
     updateMePlaceholder,
 } from './usersServicePlaceholders.ts';
@@ -15,4 +15,4 @@ export const getUsers = async (): Promise<UserListItem[]> =>
     getUsersPlaceholder();
 
 export const getUser = async (id: string): Promise<UserProfile | undefined> =>
-    apiGetJsonOrUndefinedOn404<UserProfile>(`/users/${encodeURIComponent(id)}`);
+    getUserPlaceholder(id);

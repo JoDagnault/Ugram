@@ -1,6 +1,6 @@
-import type { MyUser } from '../types/user';
+import type { MyUser, UserProfile } from '../types/user';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import EditProfileModal from './editProfileModal.tsx';
 import { updateMe } from '../api/users/usersService.ts';
 
@@ -11,12 +11,17 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 });
 
 type Props = {
-    user: MyUser;
+    user: MyUser | UserProfile;
+    isMyProfile: boolean;
 };
 
-const ProfileInfo = ({ user }: Props) => {
+const ProfileInfo = ({ user, isMyProfile }: Props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [currentUser, setCurrentUser] = useState<MyUser>(user);
+    const [currentUser, setCurrentUser] = useState(user);
+
+    useEffect(() => {
+        setCurrentUser(user);
+    }, [user]);
 
     const handleUpdateProfile = async (updatedUser: MyUser) => {
         try {
@@ -43,20 +48,27 @@ const ProfileInfo = ({ user }: Props) => {
                             {user.username}
                         </h1>
 
-                        <button
-                            onClick={() => setIsModalOpen(true)}
-                            className="p-1"
-                        >
-                            <PencilSquareIcon className="size-5 hover:text-accent" />
-                        </button>
+                        {isMyProfile && (
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="p-1"
+                            >
+                                <PencilSquareIcon className="size-5 hover:text-accent" />
+                            </button>
+                        )}
                     </div>
 
                     <div className="mt-3">
-                        <p>
-                            {currentUser.firstName} {currentUser.lastName}
-                        </p>
-                        <p>{currentUser.email}</p>
-                        <p>{currentUser.phone}</p>
+                        {isMyProfile && 'email' in currentUser && (
+                            <>
+                                <p>
+                                    {user.firstName} {user.lastName}
+                                </p>
+                                <p>{currentUser.email}</p>
+                                <p>{currentUser.phone}</p>
+                            </>
+                        )}
+
                         <p>
                             Member since{' '}
                             {dateFormatter.format(new Date(user.createdAt))}
@@ -65,7 +77,7 @@ const ProfileInfo = ({ user }: Props) => {
                 </div>
             </div>
 
-            {isModalOpen && (
+            {isMyProfile && isModalOpen && 'email' in currentUser && (
                 <EditProfileModal
                     user={currentUser}
                     onClose={() => setIsModalOpen(false)}
