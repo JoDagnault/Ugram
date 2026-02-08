@@ -1,47 +1,58 @@
 import { useEffect, useState } from 'react';
-import { getMe } from '../api/users/usersService';
+import { useParams } from 'react-router';
+import { getMe, getUser } from '../api/users/usersService';
 import { getUserImages } from '../api/images/imagesService';
-import type { MyUser } from '../types/user';
+import type { MyUser, UserProfile } from '../types/user';
 import type { ImageListItem } from '../types/image';
 
 import ProfileInfo from '../components/profileInfo.tsx';
 import UserGallery from '../components/userGallery.tsx';
 
 const Profile = () => {
-    const [me, setMe] = useState<MyUser | null>(null);
+    const { userId } = useParams();
+    const [user, setUser] = useState<MyUser | UserProfile | null>(null);
     const [images, setImages] = useState<ImageListItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const isMyProfile = !userId;
 
     useEffect(() => {
         let ignore = false;
 
-        Promise.all([getMe()])
-            .then(([user]) => {
-                if (!ignore) {
-                    setMe(user);
-                    return getUserImages(user.id);
+        const fetchData = async () => {
+            try {
+                if (isMyProfile) {
+                    const me = await getMe();
+                    if (!ignore) {
+                        setUser(me);
+                        const imgs = await getUserImages(me.id);
+                        setImages(imgs);
+                    }
+                } else {
+                    const otherUser = await getUser(userId);
+                    if (!ignore && otherUser) {
+                        setUser(otherUser);
+                        const imgs = await getUserImages(otherUser.id);
+                        setImages(imgs);
+                    }
                 }
-            })
-            .then((imgs) => {
-                if (!ignore && imgs) {
-                    setImages(imgs);
-                }
-            })
-            .finally(() => {
+            } finally {
                 if (!ignore) setLoading(false);
-            });
+            }
+        };
+
+        fetchData();
 
         return () => {
             ignore = true;
         };
-    }, []);
+    }, [userId, isMyProfile]);
 
     if (loading) return <p>Loading…</p>;
-    if (!me) return <p>No user found</p>;
+    if (!user) return <p>No user found</p>;
 
     return (
         <div>
-            <ProfileInfo user={me} />
+            <ProfileInfo user={user} isMyProfile={isMyProfile} />
             <UserGallery images={images} />
         </div>
     );

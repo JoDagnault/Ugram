@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import type { UserListItem } from '../types/user';
 
 type Props = {
@@ -12,9 +13,10 @@ export default function UserSearchResults({ users }: Props) {
     return (
         <div className="mt-4 space-y-2">
             {users.map((u) => (
-                <div
+                <Link
                     key={u.id}
-                    className="flex items-center gap-3 border-b pb-2"
+                    to={`/profile/${u.id}`}
+                    className="flex items-center gap-3 border-b pb-2 hover:bg-gray-100 transition-colors cursor-pointer"
                 >
                     <img
                         src={u.profilePictureUrl}
@@ -22,7 +24,7 @@ export default function UserSearchResults({ users }: Props) {
                         className="w-10 h-10 rounded-full object-cover"
                     />
                     <span className="font-semibold">@{u.username}</span>
-                </div>
+                </Link>
             ))}
         </div>
     );
