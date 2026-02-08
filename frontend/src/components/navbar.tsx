@@ -8,7 +8,7 @@ export default function Navbar() {
     return (
         <div className="bg-gradient-to-r from-primary to-secondary pb-[2px] rounded sticky top-0 w-full ">
             <nav className="flex justify-between px-3 pt-3 pb-2 md:pb-1 bg-dark">
-                <UgramLettering className="hidden md:block"></UgramLettering>
+                <UgramLettering className="hover:text-accent hidden md:block"></UgramLettering>
                 <div className="flex justify-between w-full md:w-fit">
                     <NavLink
                         to="/"

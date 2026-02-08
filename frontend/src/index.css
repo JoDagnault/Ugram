@@ -1,4 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Climate+Crisis:YEAR@1990&display=swap');
 @import 'tailwindcss';
+
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
@@ -14,15 +16,12 @@
     --font-primary: system-ui, sans-serif;
 }
 
-:root {
-    color-scheme: light dark;
-    color: var(--color-white);
-    background-color: var(--color-dark);
-}
-
-@media (prefers-color-scheme: light) {
-    :root {
-        color: var(--color-dark);
-        background-color: var(--color-white);
+@layer utilities {
+    .font-secondary {
+        font-family: 'Climate Crisis', sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+        font-variation-settings: 'YEAR' 1990;
     }
 }
