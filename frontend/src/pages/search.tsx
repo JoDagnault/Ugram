@@ -1,88 +1,68 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getUsers } from '../api/users/usersService';
-import { getFeedImages } from '../api/images/imagesService';
 import type { UserListItem } from '../types/user';
-import type { ImageDetails } from '../types/image';
-
-import UserSearchResults from '../components/userSearchResults.tsx';
 import ImageSearchResults from '../components/imageSearchResults.tsx';
+import UserSearchResults from '../components/userSearchResults.tsx';
 
 export default function Search() {
+    const [query, setQuery] = useState('');
     const [users, setUsers] = useState<UserListItem[]>([]);
-    const [images, setImages] = useState<ImageDetails[]>([]);
-    const [userQuery, setUserQuery] = useState('');
-    const [imageQuery, setImageQuery] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        Promise.all([getUsers(), getFeedImages()])
-            .then(([u, imgs]) => {
-                setUsers(u);
-                setImages(imgs);
-            })
-            .catch((err) => {
-                console.error('Search load error', err);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+        getUsers()
+            .then((u) => setUsers(u))
+            .catch(() => setUsers([]))
+            .finally(() => setLoading(false));
     }, []);
 
-    // nettoie la saisie pour la comparer
-    const normalizedUserQuery = userQuery.trim().toLowerCase();
-    const normalizedImageQuery = imageQuery.trim().toLowerCase();
+    const normalizedQuery = useMemo(() => query.trim().toLowerCase(), [query]);
 
-    // filtre les utilisateurs
-    let filteredUsers: UserListItem[] = [];
-    if (normalizedUserQuery.length > 0) {
-        filteredUsers = users.filter((u) => {
-            const username = u.username.toLowerCase();
-            return username.includes(normalizedUserQuery);
-        });
-    }
+    const usersSortedAlphabetically = useMemo(() => {
+        return [...users].sort((a, b) =>
+            a.username.localeCompare(b.username, undefined, {
+                sensitivity: 'base',
+            }),
+        );
+    }, [users]);
 
-    // filtre les images par id
-    let filteredImages: ImageDetails[] = [];
-    if (normalizedImageQuery.length > 0) {
-        filteredImages = images.filter((img) => {
-            const id = img.id.toLowerCase();
-            return id.includes(normalizedImageQuery);
-        });
-    }
+    const displayedUsers = useMemo(() => {
+        if (normalizedQuery.length === 0) return usersSortedAlphabetically;
 
-    // affiche un loader pendant le chargement
-    if (loading) {
-        return <p className="p-4">Loading…</p>;
-    }
+        return usersSortedAlphabetically.filter((u) =>
+            u.username.toLowerCase().includes(normalizedQuery),
+        );
+    }, [normalizedQuery, usersSortedAlphabetically]);
+
+    if (loading) return <p className="p-4">Loading…</p>;
 
     return (
-        <div className="p-4 space-y-8 max-w-3xl mx-auto">
-            {/* Users search */}
-            <div>
+        <div className="p-4 max-w-3xl mx-auto space-y-6">
+            {/* Search bar */}
+            <div className="rounded bg-gray-100 dark:bg-dark p-4">
+                <label className="block text-sm font-medium mb-2">Search</label>
                 <input
                     type="search"
-                    placeholder="Search users…"
-                    value={userQuery}
-                    onChange={(e) => setUserQuery(e.target.value)}
-                    className="w-full border p-2 rounded"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search users or images…"
+                    className="w-full border rounded p-3 bg-white dark:bg-dark"
                 />
-                {userQuery.trim().length > 0 && (
-                    <UserSearchResults users={filteredUsers} />
-                )}
             </div>
 
-            {/* Images search */}
-            <div>
-                <input
-                    type="search"
-                    placeholder="Search images by ID…"
-                    value={imageQuery}
-                    onChange={(e) => setImageQuery(e.target.value)}
-                    className="w-full border p-2 rounded"
-                />
-                {imageQuery.trim().length > 0 && (
-                    <ImageSearchResults images={filteredImages} />
+            {/* Results */}
+            <div className="rounded bg-gray-100 dark:bg-dark p-4">
+                <div className="text-sm font-medium mb-4">Results</div>
+
+                <div className="text-base font-semibold">
+                    <ImageSearchResults query={query} />
+                </div>
+
+                {query.trim().length > 0 && (
+                    <hr className="my-4 border-gray-300 dark:border-gray-700" />
                 )}
+
+                <UserSearchResults users={displayedUsers} />
             </div>
         </div>
     );
