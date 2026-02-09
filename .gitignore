@@ -39,3 +39,4 @@ Thumbs.db
 .tmp/
 .cache/
 
+/backend/src/generated/

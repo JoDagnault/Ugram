@@ -1,4 +1,4 @@
-export class UserProfile {
+export class UserResponseDTO {
     constructor(
         readonly id: string,
         readonly profilePictureUrl: string,
@@ -6,7 +6,7 @@ export class UserProfile {
         readonly firstName: string,
         readonly lastName: string,
         readonly email: string,
-        readonly phoneNumber: string,
+        readonly phoneNumber: string | null,
         readonly createdAt: string,
     ) {}
 }
