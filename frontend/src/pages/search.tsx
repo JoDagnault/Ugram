@@ -12,7 +12,7 @@ export default function Search() {
     useEffect(() => {
         getUsers()
             .then((u) => setUsers(u))
-            .catch((err) => console.error('Search load error', err))
+            .catch(() => setUsers([]))
             .finally(() => setLoading(false));
     }, []);
 
