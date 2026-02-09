@@ -1,40 +1,25 @@
-import type { ImageDetails } from '../types/image';
-import ImageCard from './imageCard.tsx';
-
 type Props = {
-    images: ImageDetails[];
+    query: string;
 };
 
-export default function ImageSearchResults({ images }: Props) {
-    if (images.length === 0) {
-        return (
-            <p className="mt-2 text-center text-sm text-gray-500">
-                No images found
-            </p>
-        );
+export default function ImageSearchResults({ query }: Props) {
+    const trimmedQuery = query.trim();
+
+    if (trimmedQuery.length === 0) {
+        return null;
     }
 
     return (
-        <div className="mt-4 space-y-6">
-            {images.map((img) => (
-                <div
-                    key={img.id}
-                    className="border rounded-lg shadow-sm bg-white dark:bg-dark"
-                >
-                    <ImageCard image={img} />
-                    <div className="px-3 pb-3 text-xs text-gray-600 dark:text-gray-400">
-                        <div className="font-medium text-gray-800 dark:text-gray-200 mb-1">
-                            ID: {img.id}
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                            <span className="opacity-70 italic">
-                                Posted on{' '}
-                                {new Date(img.createdAt).toLocaleDateString()}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            ))}
+        <div
+            className="mb-4 cursor-pointer hover:text-accent transition-colors"
+            title="Clickable later (open image search page)"
+        >
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+                Search images for:{' '}
+            </span>
+            <span className="text-sm font-semibold">
+                &quot;{trimmedQuery}&quot;
+            </span>
         </div>
     );
 }
