@@ -7,17 +7,15 @@ type Props = {
     image: ImageDetails;
 };
 
-const formatDate = (iso: string): string => new Date(iso).toLocaleDateString();
+const dateFormat = (iso: string): string => new Date(iso).toLocaleDateString();
 
 export default function ImageCard({ image }: Props) {
     const [users, setUsers] = useState<UserListItem[]>([]);
-    const [loadingUsers, setLoadingUsers] = useState(true);
 
     useEffect(() => {
         getUsers()
-            .then((u) => setUsers(u))
-            .catch(() => setUsers([]))
-            .finally(() => setLoadingUsers(false));
+            .then(setUsers)
+            .catch(() => setUsers([]));
     }, []);
 
     const userIdToUsername = useMemo(() => {
@@ -33,46 +31,25 @@ export default function ImageCard({ image }: Props) {
         return image.mentionUserIds.map((id) => userIdToUsername.get(id) ?? id);
     }, [image.mentionUserIds, userIdToUsername]);
 
-    const headline = image.description?.trim()
-        ? image.description.trim()
-        : 'Untitled image';
+    const hasDescription = image.description.trim().length > 0;
 
     return (
-        <div className="border rounded-lg overflow-hidden bg-white dark:bg-dark shadow-sm">
-            <div className="p-3">
-                <div className="text-base font-semibold leading-snug">
-                    {headline}
-                </div>
-
-                <div className="mt-1 text-xs text-gray-600 dark:text-gray-400 flex flex-wrap gap-x-3 gap-y-1">
-                    <span>
-                        Published by{' '}
-                        <span className="font-medium text-gray-800 dark:text-gray-200">
-                            @{publisherUsername}
-                        </span>
-                    </span>
-
-                    <span className="opacity-70">
-                        {formatDate(image.createdAt)}
-                    </span>
-
-                    {loadingUsers && (
-                        <span className="opacity-70 italic">
-                            loading users…
-                        </span>
-                    )}
-                </div>
-            </div>
-
-            {/* Image */}
+        <div className="border rounded-lg overflow-hidden shadow-sm bg-white dark:bg-dark">
             <img
                 src={image.imageUrl}
                 alt={image.id}
                 className="w-full object-cover"
             />
 
-            {/* Footer info */}
-            <div className="p-3 space-y-2 text-sm">
+            <div className="p-3 space-y-1 text-sm">
+                <div className="text-gray-500 text-xs">
+                    {dateFormat(image.createdAt)}
+                </div>
+
+                {hasDescription && (
+                    <p className="text-base font-medium">{image.description}</p>
+                )}
+
                 {image.hashtags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                         {image.hashtags.map((h) => (
@@ -85,9 +62,6 @@ export default function ImageCard({ image }: Props) {
 
                 {taggedUsernames.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                        <span className="text-gray-600 dark:text-gray-400">
-                            Tagged:
-                        </span>
                         {taggedUsernames.map((name) => (
                             <span key={name} className="text-blue-500">
                                 @{name}
@@ -95,6 +69,13 @@ export default function ImageCard({ image }: Props) {
                         ))}
                     </div>
                 )}
+
+                <div className="text-xs text-gray-500">
+                    Published by{' '}
+                    <span className="font-medium text-gray-800 dark:text-gray-200">
+                        @{publisherUsername}
+                    </span>
+                </div>
             </div>
         </div>
     );
