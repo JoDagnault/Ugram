@@ -24,8 +24,6 @@ const Home = () => {
 
             setMe(currentMe);
             setImages(feedImages);
-        } catch (error) {
-            console.error('Failed to load feed', error);
         } finally {
             setIsLoading(false);
         }
@@ -41,12 +39,8 @@ const Home = () => {
     }, [me, selectedImage]);
 
     const refreshFeed = async () => {
-        try {
-            const feedImages = await getFeedImages();
-            setImages(feedImages);
-        } catch (error) {
-            console.error('Failed to refresh feed', error);
-        }
+        const feedImages = await getFeedImages();
+        setImages(feedImages);
     };
 
     if (isLoading) {

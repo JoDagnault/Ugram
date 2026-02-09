@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ImageDetails, ImageDetailsFields } from '../types/image';
 import {
     deleteMyImage,
@@ -7,14 +7,18 @@ import {
 } from '../api/images/imagesService';
 import ImageActionsMenu from './imageActionsMenu';
 import EditImageForm from './editImageForm';
+import { getUsers } from '../api/users/usersService';
+import type { UserListItem } from '../types/user';
 
 type Props = {
     imageId: string;
-    isOwner: boolean; // déterminé par le parent (profile page)
+    isOwner: boolean;
     onClose: () => void;
-    onDeleted?: (imageId: string) => void; // parent can refresh list
+    onDeleted?: (imageId: string) => void;
     onUpdated?: (next: ImageDetails) => void;
 };
+
+const dateFormat = (iso: string): string => new Date(iso).toLocaleDateString();
 
 export default function ImageModal({
     imageId,
@@ -26,6 +30,29 @@ export default function ImageModal({
     const [image, setImage] = useState<ImageDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [mode, setMode] = useState<'view' | 'edit'>('view');
+
+    const [users, setUsers] = useState<UserListItem[]>([]);
+
+    useEffect(() => {
+        let ignore = false;
+        getUsers()
+            .then((u) => {
+                if (!ignore) setUsers(u);
+            })
+            .catch(() => {
+                if (!ignore) setUsers([]);
+            });
+
+        return () => {
+            ignore = true;
+        };
+    }, []);
+
+    const userIdToUsername = useMemo(() => {
+        const map = new Map<string, string>();
+        for (const u of users) map.set(u.id, u.username);
+        return map;
+    }, [users]);
 
     useEffect(() => {
         let ignore = false;
@@ -53,11 +80,7 @@ export default function ImageModal({
         }
     };
 
-    const handleReport = () => {
-        // UI only for now
-        // later: open report modal / send request
-        console.log('Report (TODO)');
-    };
+    const handleReport = () => {};
 
     const handleSave = async (nextFields: ImageDetailsFields) => {
         if (!isOwner) return;
@@ -99,10 +122,13 @@ export default function ImageModal({
         );
     }
 
+    const taggedUsernames = image.mentionUserIds.map(
+        (id) => userIdToUsername.get(id) ?? id,
+    );
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="bg-white dark:bg-dark rounded-lg w-[95%] max-w-3xl overflow-hidden">
-                {/* Header */}
                 <div className="flex items-center justify-between p-3 border-b">
                     <div className="font-semibold truncate">
                         {image.description?.trim() || 'Image'}
@@ -126,7 +152,6 @@ export default function ImageModal({
                     </div>
                 </div>
 
-                {/* Body */}
                 <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-black/5 rounded overflow-hidden">
                         <img
@@ -150,10 +175,7 @@ export default function ImageModal({
                         ) : (
                             <div className="space-y-3">
                                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                                    Posted on{' '}
-                                    {new Date(
-                                        image.createdAt,
-                                    ).toLocaleDateString()}
+                                    Posted on {dateFormat(image.createdAt)}
                                 </div>
 
                                 {image.hashtags.length > 0 && (
@@ -169,18 +191,20 @@ export default function ImageModal({
                                     </div>
                                 )}
 
-                                {image.mentionUserIds.length > 0 && (
+                                {taggedUsernames.length > 0 && (
                                     <div className="text-sm">
                                         <span className="text-gray-600 dark:text-gray-400">
                                             Tagged:{' '}
                                         </span>
-                                        {image.mentionUserIds.join(', ')}
+                                        {taggedUsernames
+                                            .map((name) =>
+                                                name.startsWith('@')
+                                                    ? name
+                                                    : `@${name}`,
+                                            )
+                                            .join(', ')}
                                     </div>
                                 )}
-
-                                <div className="text-xs text-gray-500 italic">
-                                    Comments / likes coming soon…
-                                </div>
                             </div>
                         )}
                     </div>
