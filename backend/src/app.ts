@@ -11,6 +11,7 @@ import { InMemoryPostsRepository } from './infrastructure/posts/in-memory-posts-
 import path from 'path';
 import { PostsAssembler } from './api/posts/assembler/posts.assembler';
 import { authMiddleware } from './middleware/auth.middleware';
+import { GetMe } from './application/users/GetMe';
 
 dotenv.config();
 
@@ -24,8 +25,9 @@ app.use(authMiddleware);
 
 const userRepository = new InMemoryUserRepository();
 const getUser = new GetUser(userRepository);
+const getMe = new GetMe(userRepository);
 
-app.use('/users', createUsersRouter({ getUser }));
+app.use('/users', createUsersRouter({ getUser, getMe }));
 
 const postsRepository = new InMemoryPostsRepository();
 const postsService = new PostsService(postsRepository);

@@ -12,6 +12,8 @@ const SEED_USERS: UserProfile[] = [
         'BobTheBuilder',
         'Bob',
         'LeBricoleur',
+        'bob@example.com',
+        '514-555-1234',
         '2026-01-15T14:10:00.000Z',
     ),
     new UserProfile(
@@ -20,6 +22,8 @@ const SEED_USERS: UserProfile[] = [
         'AliceInCodeLand',
         'Alice',
         'Tremblay',
+        'alice@example.com',
+        '438-555-9876',
         '2026-01-10T09:30:00.000Z',
     ),
     new UserProfile(
@@ -28,6 +32,8 @@ const SEED_USERS: UserProfile[] = [
         'CharlieTech',
         'Charlie',
         'Gagnon',
+        'charlie@example.com',
+        '450-555-2222',
         '2026-01-05T16:45:00.000Z',
     ),
 ];

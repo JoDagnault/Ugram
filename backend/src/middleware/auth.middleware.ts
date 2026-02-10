@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { ME_USER_ID } from '../infrastructure/users/InMemoryUserRepository';
 
 declare global {
     namespace Express {
@@ -13,6 +14,6 @@ export const authMiddleware = (
     res: Response,
     next: NextFunction,
 ) => {
-    req.userId = 'user-123-hardcoded';
+    req.userId = ME_USER_ID;
     next();
 };
