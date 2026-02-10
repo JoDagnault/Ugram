@@ -14,7 +14,7 @@ export class UsersController {
         const userId = req.userId;
         const user = await this.getMe.execute(userId);
 
-        if (!user) return res.sendStatus(404);
+        if (!user) return res.status(404).json({ message: 'User not found' });
         return res.status(200).json(this.assembler.toDTO(user));
     };
 
