@@ -1,9 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { GetUser } from './application/users/GetUser';
-import { createUsersRouter } from './api/users/usersRouter';
-import { InMemoryUserRepository } from './infrastructure/users/InMemoryUserRepository';
 import { PostsRouter } from './api/posts/posts.router';
 import { PostsService } from './application/posts/posts.service';
 import { PostsController } from './api/posts/posts.controller';
@@ -11,7 +8,7 @@ import { InMemoryPostsRepository } from './infrastructure/posts/in-memory-posts-
 import path from 'path';
 import { PostsAssembler } from './api/posts/assembler/posts.assembler';
 import { authMiddleware } from './middleware/auth.middleware';
-import { GetMe } from './application/users/GetMe';
+import { createUsersModule } from './api/users/users.module';
 
 dotenv.config();
 
@@ -23,11 +20,8 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(authMiddleware);
 
-const userRepository = new InMemoryUserRepository();
-const getUser = new GetUser(userRepository);
-const getMe = new GetMe(userRepository);
-
-app.use('/users', createUsersRouter({ getUser, getMe }));
+const usersModule = createUsersModule();
+app.use('/users', usersModule.router);
 
 const postsRepository = new InMemoryPostsRepository();
 const postsService = new PostsService(postsRepository);

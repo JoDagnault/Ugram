@@ -2,11 +2,13 @@ import type { Request, Response } from 'express';
 import type { GetMe } from '../../application/users/GetMe';
 import type { GetUser } from '../../application/users/GetUser';
 import { UsersAssembler } from './assembler/users.assembler';
+import { GetAllUsers } from '../../application/users/GetAllUsers';
 
 export class UsersController {
     constructor(
         private readonly getUser: GetUser,
         private readonly getMe: GetMe,
+        private readonly getAllUsers: GetAllUsers,
         private readonly assembler: UsersAssembler,
     ) {}
 
@@ -27,5 +29,11 @@ export class UsersController {
 
         if (!user) return res.sendStatus(404);
         return res.status(200).json(this.assembler.toDTO(user));
+    };
+
+    getAllUsersHandler = async (_req: Request, res: Response) => {
+        const users = await this.getAllUsers.execute();
+        const dto = users.map((user) => this.assembler.toDTO(user));
+        return res.status(200).json(dto);
     };
 }
