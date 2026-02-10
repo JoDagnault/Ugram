@@ -48,4 +48,8 @@ export class InMemoryUserRepository implements UserRepository {
     async getById(id: string): Promise<UserProfile | undefined> {
         return this.usersById.get(id);
     }
+
+    async getAll(): Promise<UserProfile[]> {
+        return Array.from(this.usersById.values());
+    }
 }
