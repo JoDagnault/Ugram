@@ -4,14 +4,14 @@ import { PostsController } from './posts.controller';
 import path from 'path';
 import fs from 'fs';
 import { authMiddleware } from '../../middleware/auth.middleware';
+import { UPLOAD_DIR } from '../../config/storage';
 
-const uploadDir = path.join(__dirname, '../../../uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, uploadDir);
+        cb(null, UPLOAD_DIR);
     },
     filename: function (req, file, cb) {
         const ext = path.extname(file.originalname);

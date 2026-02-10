@@ -5,9 +5,9 @@ import { PostsRouter } from './api/posts/posts.router';
 import { PostsService } from './application/posts/posts.service';
 import { PostsController } from './api/posts/posts.controller';
 import { InMemoryPostsRepository } from './infrastructure/posts/in-memory-posts-repository';
-import path from 'path';
 import { PostsAssembler } from './api/posts/assembler/posts.assembler';
 import { authMiddleware } from './middleware/auth.middleware';
+import { UPLOAD_DIR } from './config/storage';
 import { createUsersModule } from './api/users/users.module';
 
 dotenv.config();
@@ -17,7 +17,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(UPLOAD_DIR));
 app.use(authMiddleware);
 
 const usersModule = createUsersModule();

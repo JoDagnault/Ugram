@@ -14,7 +14,7 @@ export type ImageDetailsFields = {
 export type ImageDetails = ImageListItem & ImageDetailsFields;
 
 export type CreateImageRequest = ImageDetailsFields & {
-    file?: File;
+    file: File;
 };
 
 export type UpdateImageRequest = Partial<ImageDetailsFields>;

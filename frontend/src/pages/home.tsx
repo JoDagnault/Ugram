@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getFeedImages } from '../api/images/imagesService';
 import { getMe } from '../api/users/usersService';
 import type { ImageDetails } from '../types/image';
 import type { MyUser } from '../types/user';
 import ImageCard from '../components/imageCard.tsx';
-import ImageModal from '../components/imageModal.tsx';
+import ImageModal from '../components/imageModal/ImageModal.tsx';
 
 const Home = () => {
     const [images, setImages] = useState<ImageDetails[]>([]);
@@ -33,10 +33,7 @@ const Home = () => {
         loadFeed();
     }, []);
 
-    const isOwner = useMemo(() => {
-        if (!me || !selectedImage) return false;
-        return selectedImage.userId === me.id;
-    }, [me, selectedImage]);
+    const isOwner = !!me && !!selectedImage && selectedImage.userId === me.id;
 
     const refreshFeed = async () => {
         const feedImages = await getFeedImages();
@@ -80,9 +77,7 @@ const Home = () => {
                         setSelectedImage(null);
                         refreshFeed();
                     }}
-                    onUpdated={() => {
-                        refreshFeed();
-                    }}
+                    onUpdated={refreshFeed}
                 />
             )}
         </div>

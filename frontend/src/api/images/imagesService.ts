@@ -4,14 +4,16 @@ import type {
     UpdateImageRequest,
     ImageListItem,
 } from '../../types/image.ts';
+import { apiUrl } from '../http.ts';
 import {
-    createMyImagePlaceholder,
     deleteMyImagePlaceholder,
     getFeedImagesPlaceholder,
     getImagePlaceholder,
     getUserImagesPlaceholder,
     updateMyImagePlaceholder,
 } from './imagesServicePlaceholders.ts';
+import { mapPostResponseToImageDetails } from './imagesMappers.ts';
+import type { PostResponseDto } from './imagesResponses.ts';
 
 export const getUserImages = async (userId: string): Promise<ImageListItem[]> =>
     getUserImagesPlaceholder(userId);
@@ -24,8 +26,26 @@ export const getImage = async (
 ): Promise<ImageDetails | undefined> => getImagePlaceholder(imageId);
 
 export const createMyImage = async (
-    input: CreateImageRequest,
-): Promise<ImageDetails> => createMyImagePlaceholder(input);
+    request: CreateImageRequest,
+): Promise<ImageDetails> => {
+    const formData = new FormData();
+    formData.append('image', request.file);
+    formData.append('description', request.description);
+    formData.append('hashtags', JSON.stringify(request.hashtags));
+    formData.append('mentions', JSON.stringify(request.mentionUserIds));
+
+    const response = await fetch(apiUrl('/posts'), {
+        method: 'POST',
+        body: formData,
+    });
+
+    if (!response.ok) {
+        throw new Error(`API request failed (${response.status})`);
+    }
+
+    const createdPost = (await response.json()) as PostResponseDto;
+    return mapPostResponseToImageDetails(createdPost);
+};
 
 export const updateMyImage = async (
     imageId: string,

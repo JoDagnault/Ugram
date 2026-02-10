@@ -7,7 +7,7 @@ import type { ImageListItem } from '../types/image';
 
 import ProfileInfo from '../components/profileInfo.tsx';
 import UserGallery from '../components/userGallery.tsx';
-import ImageModal from '../components/imageModal.tsx';
+import ImageModal from '../components/imageModal/ImageModal.tsx';
 
 const Profile = () => {
     const { userId } = useParams();
@@ -16,6 +16,7 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
 
     const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const isMyProfile = !userId;
 
@@ -24,28 +25,22 @@ const Profile = () => {
 
         const fetchData = async () => {
             try {
-                if (isMyProfile) {
-                    const me = await getMe();
-                    if (!ignore) {
-                        setUser(me);
-                        const imgs = await getUserImages(me.id);
-                        setImages(imgs);
-                    }
-                } else {
-                    const otherUser = await getUser(userId);
-                    if (!ignore && otherUser) {
-                        setUser(otherUser);
-                        const imgs = await getUserImages(otherUser.id);
-                        setImages(imgs);
-                    }
-                }
+                const nextUser = isMyProfile
+                    ? await getMe()
+                    : await getUser(userId!);
+                if (!nextUser) return;
+
+                const nextImages = await getUserImages(nextUser.id);
+                if (ignore) return;
+
+                setUser(nextUser);
+                setImages(nextImages);
             } finally {
                 if (!ignore) setLoading(false);
             }
         };
 
         fetchData();
-
         return () => {
             ignore = true;
         };
@@ -64,18 +59,39 @@ const Profile = () => {
         <div>
             <ProfileInfo user={user} isMyProfile={isMyProfile} />
 
+            {isMyProfile && (
+                <div className="flex justify-center mb-4">
+                    <button
+                        type="button"
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="px-4 py-2 rounded bg-dark-gray text-white hover:bg-accent"
+                    >
+                        Create post
+                    </button>
+                </div>
+            )}
+
             <UserGallery
                 images={images}
                 onImageClick={(id) => setSelectedImageId(id)}
             />
+
+            {isMyProfile && isCreateModalOpen && (
+                <ImageModal
+                    mode="create"
+                    isOwner={isMyProfile}
+                    onClose={() => setIsCreateModalOpen(false)}
+                    onCreated={refreshImages}
+                />
+            )}
 
             {selectedImageId && (
                 <ImageModal
                     imageId={selectedImageId}
                     isOwner={isMyProfile}
                     onClose={() => setSelectedImageId(null)}
-                    onDeleted={() => refreshImages()}
-                    onUpdated={() => refreshImages()}
+                    onDeleted={refreshImages}
+                    onUpdated={refreshImages}
                 />
             )}
         </div>
