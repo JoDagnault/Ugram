@@ -1,5 +1,5 @@
 import type { UserProfile } from '../../domain/users/UserProfile';
-import type { UserRepository } from '../../domain/users/UserRepository';
+import type { UserRepository } from '../../domain/users/user.repository';
 
 export class GetAllUsers {
     constructor(private readonly userRepository: UserRepository) {}
