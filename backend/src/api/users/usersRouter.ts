@@ -1,4 +1,4 @@
-import { Router, type Request, type Response } from 'express';
+import { Router } from 'express';
 import type { GetUser } from '../../application/users/GetUser';
 import type { GetMe } from '../../application/users/GetMe';
 import { UsersController } from './usersController';
@@ -7,10 +7,6 @@ import { UsersAssembler } from './assembler/users.assembler';
 type Dependencies = {
     getUser: GetUser;
     getMe: GetMe;
-};
-
-type UserParams = {
-    id: string;
 };
 
 export const createUsersRouter = ({ getUser, getMe }: Dependencies): Router => {

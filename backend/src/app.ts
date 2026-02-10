@@ -12,8 +12,6 @@ import path from 'path';
 import { PostsAssembler } from './api/posts/assembler/posts.assembler';
 import { authMiddleware } from './middleware/auth.middleware';
 import { GetMe } from './application/users/GetMe';
-import { UsersAssembler } from './api/users/assembler/users.assembler';
-import { UsersController } from './api/users/usersController';
 
 dotenv.config();
 
@@ -28,8 +26,6 @@ app.use(authMiddleware);
 const userRepository = new InMemoryUserRepository();
 const getUser = new GetUser(userRepository);
 const getMe = new GetMe(userRepository);
-const usersAssembler = new UsersAssembler();
-const usersController = new UsersController(getUser, getMe, usersAssembler);
 
 app.use('/users', createUsersRouter({ getUser, getMe }));
 
