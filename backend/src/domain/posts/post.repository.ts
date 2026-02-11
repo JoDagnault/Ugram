@@ -1,6 +1,6 @@
 import { Post } from './post';
 
-export interface PostsRepository {
+export interface PostRepository {
     save(post: Post): Promise<void>;
     findAll(): Promise<Post[]>;
     findById(id: string): Promise<Post>;

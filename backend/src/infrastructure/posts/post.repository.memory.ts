@@ -1,7 +1,7 @@
-import { PostsRepository } from '../../domain/posts/posts.repository';
+import { PostRepository } from '../../domain/posts/post.repository';
 import { Post } from '../../domain/posts/post';
 
-export class InMemoryPostsRepository implements PostsRepository {
+export class InMemoryPostsRepository implements PostRepository {
     private posts: Post[] = [];
 
     async save(post: Post): Promise<void> {

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ME_USER_ID } from '../infrastructure/users/InMemoryUserRepository';
+import { ME_USER_ID } from '../infrastructure/users/user.repository.memory';
 
 declare global {
     namespace Express {

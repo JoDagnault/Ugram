@@ -1,4 +1,4 @@
-import { UserProfile } from '../../domain/users/UserProfile';
+import { UserProfile } from '../../domain/users/user-profile';
 import type { UserRepository } from '../../domain/users/user.repository';
 
 export const ME_USER_ID = '21550515-d7c8-4fae-a759-7dfb437c8442';
