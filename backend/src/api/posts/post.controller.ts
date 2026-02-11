@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { Post } from '../../domain/posts/post';
-import { PostAssembler } from './assembler/postAssembler';
+import { PostAssembler } from './assembler/post.assembler';
 import { ResponsePostDTO } from './dto/response-post.dto';
 import { PostFieldsDto } from './dto/post-fields.dto';
 import { CreatePostUsecase } from '../../application/posts/create-post.usecase';

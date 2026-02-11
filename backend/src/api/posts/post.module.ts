@@ -5,7 +5,7 @@ import { DeletePostUsecase } from '../../application/posts/delete-post.usecase';
 import { GetAllPostsUsecase } from '../../application/posts/get-all-posts.usecase';
 import { GetPostByIdUsecase } from '../../application/posts/get-post-by-id.usecase';
 import { UpdatePostUsecase } from '../../application/posts/update-post.usecase';
-import { PostAssembler } from './assembler/postAssembler';
+import { PostAssembler } from './assembler/post.assembler';
 import { PostController } from './post.controller';
 import { PostRouter } from './post.router';
 
