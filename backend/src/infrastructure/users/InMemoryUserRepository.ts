@@ -1,5 +1,5 @@
 import { UserProfile } from '../../domain/users/UserProfile';
-import type { UserRepository } from '../../domain/users/UserRepository';
+import type { UserRepository } from '../../domain/users/user.repository';
 
 export const ME_USER_ID = '21550515-d7c8-4fae-a759-7dfb437c8442';
 export const ALICE_USER_ID = '8c1b9c62-2f0d-4f21-9a76-8c0a1f0e6a11';
@@ -51,5 +51,13 @@ export class InMemoryUserRepository implements UserRepository {
 
     async getAll(): Promise<UserProfile[]> {
         return Array.from(this.usersById.values());
+    }
+
+    async update(user: UserProfile): Promise<void> {
+        if (!this.usersById.has(user.id)) {
+            throw new Error('User not found');
+        }
+
+        this.usersById.set(user.id, user);
     }
 }
