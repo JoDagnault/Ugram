@@ -1,4 +1,4 @@
-import type { UserListItem } from '../types/user';
+import type { UserListItem } from '../../types/user';
 
 type Props = {
     users: UserListItem[];

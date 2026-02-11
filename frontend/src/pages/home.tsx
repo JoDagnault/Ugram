@@ -3,8 +3,8 @@ import { getFeedImages } from '../api/images/imagesService';
 import { getMe } from '../api/users/usersService';
 import type { ImageDetails } from '../types/image';
 import type { MyUser } from '../types/user';
-import ImageCard from '../components/imageCard.tsx';
-import ImageModal from '../components/imageModal/ImageModal.tsx';
+import ImageCard from '../components/image/ImageCard.tsx';
+import ImageModal from '../components/image/ImageModal/ImageModal.tsx';
 
 const Home = () => {
     const [images, setImages] = useState<ImageDetails[]>([]);

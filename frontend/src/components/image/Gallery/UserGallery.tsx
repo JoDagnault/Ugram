@@ -1,5 +1,5 @@
-import type { ImageListItem } from '../types/image';
-import GalleryImageCard from './galleryImageCard.tsx';
+import type { ImageListItem } from '../../../types/image';
+import GalleryImageCard from './GalleryImageCard.tsx';
 
 type Props = {
     images: ImageListItem[];

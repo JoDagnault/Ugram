@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { ImageDetails, ImageDetailsFields } from '../../types/image.ts';
+import type { ImageDetails, ImageDetailsFields } from '../../../types/image.ts';
 import {
     createMyImage,
     deleteMyImage,
     getImage,
     updateMyImage,
-} from '../../api/images/imagesService.ts';
-import { getMe, getUsers } from '../../api/users/usersService.ts';
-import type { UserListItem } from '../../types/user.ts';
+} from '../../../api/images/imagesService.ts';
+import { getMe, getUsers } from '../../../api/users/usersService.ts';
+import type { UserListItem } from '../../../types/user.ts';
 import EditImageForm, {
     type ImageFormSubmission,
-} from '../editImageForm/EditImageForm.tsx';
-import ImageActionsMenu from '../imageActionsMenu.tsx';
+} from '../EditImageForm/EditImageForm.tsx';
+import ImageActionsMenu from './ImageActionsMenu.tsx';
 import ImageModalFrame from './ImageModalFrame.tsx';
 import ImageMetadataSummary from './ImageMetadataSummary.tsx';
 

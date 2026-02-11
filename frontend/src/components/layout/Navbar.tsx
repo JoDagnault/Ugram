@@ -2,7 +2,7 @@ import { NavLink } from 'react-router';
 import { MagnifyingGlassCircleIcon } from '@heroicons/react/24/outline';
 import { HomeIcon } from '@heroicons/react/24/outline';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
-import UgramLettering from '../assets/ugramLettering.tsx';
+import UgramLettering from '../../assets/ugramLettering.tsx';
 
 export default function Navbar() {
     return (

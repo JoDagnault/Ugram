@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState, type FormEvent } from 'react';
-import type { ImageDetailsFields } from '../../types/image.ts';
-import type { UserListItem } from '../../types/user.ts';
-import RemovableChip from '../removableChip.tsx';
+import type { ImageDetailsFields } from '../../../types/image.ts';
+import type { UserListItem } from '../../../types/user.ts';
+import RemovableChip from '../../common/RemovableChip.tsx';
 import useHashtagEditor, { MAX_HASHTAGS } from './useHashtagEditor.ts';
 import useMentionEditor from './useMentionEditor.ts';
 

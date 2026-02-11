@@ -1,4 +1,4 @@
-import type { MyUser } from '../types/user';
+import type { MyUser } from '../../types/user';
 import { useState, type SubmitEvent } from 'react';
 
 type Props = {

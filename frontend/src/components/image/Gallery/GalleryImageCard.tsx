@@ -1,4 +1,4 @@
-import type { ImageListItem } from '../types/image';
+import type { ImageListItem } from '../../../types/image';
 
 type Props = {
     image: ImageListItem;

@@ -5,9 +5,9 @@ import { getUserImages } from '../api/images/imagesService';
 import type { MyUser, UserProfile } from '../types/user';
 import type { ImageListItem } from '../types/image';
 
-import ProfileInfo from '../components/profileInfo.tsx';
-import UserGallery from '../components/userGallery.tsx';
-import ImageModal from '../components/imageModal/ImageModal.tsx';
+import ProfileInfo from '../components/profile/ProfileInfo.tsx';
+import UserGallery from '../components/image/Gallery/UserGallery.tsx';
+import ImageModal from '../components/image/ImageModal/ImageModal.tsx';
 
 const Profile = () => {
     const { userId } = useParams();

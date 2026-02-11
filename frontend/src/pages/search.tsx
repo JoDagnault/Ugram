@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getUsers } from '../api/users/usersService';
 import type { UserListItem } from '../types/user';
-import ImageSearchResults from '../components/imageSearchResults.tsx';
-import UserSearchResults from '../components/userSearchResults.tsx';
+import ImageSearchResults from '../components/search/ImageSearchResults.tsx';
+import UserSearchResults from '../components/search/UserSearchResults.tsx';
 
 export default function Search() {
     const [query, setQuery] = useState('');

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { UserListItem } from '../../types/user.ts';
+import type { UserListItem } from '../../../types/user.ts';
 
 const MAX_MENTION_SUGGESTIONS = 5;
 

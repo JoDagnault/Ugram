@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { ImageDetails } from '../types/image';
-import { getUsers } from '../api/users/usersService';
-import type { UserListItem } from '../types/user';
+import type { ImageDetails } from '../../types/image';
+import { getUsers } from '../../api/users/usersService';
+import type { UserListItem } from '../../types/user';
 
 type Props = {
     image: ImageDetails;

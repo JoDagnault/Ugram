@@ -1,8 +1,8 @@
-import type { MyUser, UserProfile } from '../types/user';
+import type { MyUser, UserProfile } from '../../types/user';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
-import EditProfileModal from './editProfileModal.tsx';
-import { updateMe } from '../api/users/usersService.ts';
+import EditProfileModal from './EditProfileModal.tsx';
+import { updateMe } from '../../api/users/usersService.ts';
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
     day: '2-digit',
