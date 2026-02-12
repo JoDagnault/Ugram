@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router';
 
 import App from './App.tsx';
 import Home from './pages/home.tsx';
+import NotFound from './pages/not-found.tsx';
 import UserProfile from './pages/profile.tsx';
 import Users from './pages/search.tsx';
 
@@ -14,6 +15,7 @@ export const router = createBrowserRouter([
             { path: 'Profile', element: <UserProfile /> },
             { path: 'Profile/:userId', element: <UserProfile /> },
             { path: 'Search', element: <Users /> },
+            { path: '*', element: <NotFound /> },
         ],
     },
 ]);

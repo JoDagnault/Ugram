@@ -26,5 +26,6 @@ RUN pnpm run build
 FROM nginx:stable-alpine AS runtime
 
 COPY --from=builder /app/frontend/dist /usr/share/nginx/html
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
