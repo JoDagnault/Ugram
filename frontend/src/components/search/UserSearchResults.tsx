@@ -1,4 +1,5 @@
 import type { UserListItem } from '../../types/user';
+import { Link } from 'react-router';
 
 type Props = {
     users: UserListItem[];
@@ -12,8 +13,9 @@ export default function UserSearchResults({ users }: Props) {
     return (
         <div className="space-y-2">
             {users.map((u) => (
-                <div
+                <Link
                     key={u.id}
+                    to={`/profile/${u.id}`}
                     className="flex items-center gap-3 border rounded p-2 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-black/20 cursor-pointer"
                     title="Clickable later"
                 >
@@ -23,7 +25,7 @@ export default function UserSearchResults({ users }: Props) {
                         className="w-10 h-10 rounded-full object-cover"
                     />
                     <div className="font-medium">@{u.username}</div>
-                </div>
+                </Link>
             ))}
         </div>
     );
