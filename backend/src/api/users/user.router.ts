@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { UsersController } from './users.controller';
+import { UserController } from './user.controller';
 
-export const createUsersRouter = (controller: UsersController): Router => {
-    const router = Router();
+export const createUsersRouter = (controller: UserController): Router => {
+    const router: Router = Router();
 
     router.get('/me', controller.getMeHandler);
     router.get('/', controller.getAllUsersHandler);

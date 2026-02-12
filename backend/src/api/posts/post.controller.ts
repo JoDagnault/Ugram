@@ -1,20 +1,31 @@
 import { Request, Response } from 'express';
-import { PostsService } from '../../application/posts/posts.service';
 import { Post } from '../../domain/posts/post';
-import { PostsAssembler } from './assembler/posts.assembler';
+import { PostAssembler } from './assembler/post.assembler';
 import { ResponsePostDTO } from './dto/response-post.dto';
 import { PostFieldsDto } from './dto/post-fields.dto';
+import { CreatePostUsecase } from '../../application/posts/create-post.usecase';
+import { GetAllPostsUsecase } from '../../application/posts/get-all-posts.usecase';
+import { GetPostByIdUsecase } from '../../application/posts/get-post-by-id.usecase';
+import { UpdatePostUsecase } from '../../application/posts/update-post.usecase';
+import { DeletePostUsecase } from '../../application/posts/delete-post.usecase';
 
-export class PostsController {
+export class PostController {
     constructor(
-        private postService: PostsService,
-        private postAssembler: PostsAssembler,
+        private readonly createPost: CreatePostUsecase,
+        private readonly getAllPosts: GetAllPostsUsecase,
+        private readonly getPostById: GetPostByIdUsecase,
+        private readonly updatePost: UpdatePostUsecase,
+        private readonly deletePost: DeletePostUsecase,
+        private postAssembler: PostAssembler,
     ) {}
-    createPost = async (req: Request<{}, {}, PostFieldsDto>, res: Response) => {
+    createPostHandler = async (
+        req: Request<{}, {}, PostFieldsDto>,
+        res: Response,
+    ) => {
         try {
-            const post = this.postAssembler.toPost(req);
+            const post: Post = this.postAssembler.toPost(req);
 
-            await this.postService.create(post);
+            await this.createPost.execute(post);
 
             const postDTO: ResponsePostDTO = this.postAssembler.toPostDTO(post);
             return res.status(201).json(postDTO);
@@ -25,18 +36,21 @@ export class PostsController {
         }
     };
 
-    getAllPosts = async (_req: Request, res: Response) => {
-        const posts: Post[] = await this.postService.getAll();
+    getAllPostsHandler = async (_req: Request, res: Response) => {
+        const posts: Post[] = await this.getAllPosts.execute();
         const postsDTO: ResponsePostDTO[] = posts.map((post: Post) =>
             this.postAssembler.toPostDTO(post),
         );
         return res.status(200).json(postsDTO);
     };
 
-    getPostById = async (req: Request<{ id: string }>, res: Response) => {
+    getPostByIdHandler = async (
+        req: Request<{ id: string }>,
+        res: Response,
+    ) => {
         const { id } = req.params;
         try {
-            const post: Post = await this.postService.getById(id);
+            const post: Post = await this.getPostById.execute(id);
             const responsePostDTO: ResponsePostDTO =
                 this.postAssembler.toPostDTO(post);
             return res.status(200).json(responsePostDTO);
@@ -45,7 +59,7 @@ export class PostsController {
         }
     };
 
-    update = async (
+    updatePostHandler = async (
         req: Request<{ id: string }, {}, Partial<PostFieldsDto>>,
         res: Response,
     ) => {
@@ -53,7 +67,10 @@ export class PostsController {
         const fieldsToUpdate: Partial<PostFieldsDto> = req.body;
 
         try {
-            const post = await this.postService.update(id, fieldsToUpdate);
+            const post: Post = await this.updatePost.execute(
+                id,
+                fieldsToUpdate,
+            );
             const responsePostDTO: ResponsePostDTO =
                 this.postAssembler.toPostDTO(post);
             return res.status(200).json(responsePostDTO);
@@ -62,10 +79,10 @@ export class PostsController {
         }
     };
 
-    delete = async (req: Request<{ id: string }>, res: Response) => {
+    deletePostHandler = async (req: Request<{ id: string }>, res: Response) => {
         const { id } = req.params;
         try {
-            await this.postService.delete(id);
+            await this.deletePost.execute(id);
             return res.status(204).send();
         } catch {
             return res.status(404).json({ message: 'Post not found' });

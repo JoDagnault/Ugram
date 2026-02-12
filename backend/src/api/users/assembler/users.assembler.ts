@@ -1,4 +1,4 @@
-import { UserProfile } from '../../../domain/users/UserProfile';
+import { UserProfile } from '../../../domain/users/user-profile';
 import { UserResponseDTO } from '../dto/user-response.dto';
 
 export class UsersAssembler {

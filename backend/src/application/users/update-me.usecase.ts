@@ -1,8 +1,8 @@
 import { UserRepository } from '../../domain/users/user.repository';
 import { UpdateMeDto } from '../../api/users/dto/update-me.dto';
-import { UserProfile } from '../../domain/users/UserProfile';
+import { UserProfile } from '../../domain/users/user-profile';
 
-export class UpdateMe {
+export class UpdateMeUsecase {
     constructor(private readonly userRepository: UserRepository) {}
 
     async execute(userId: string, fields: UpdateMeDto): Promise<UserProfile> {

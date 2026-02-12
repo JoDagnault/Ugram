@@ -1,9 +1,8 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { PostsController } from './posts.controller';
+import { PostController } from './post.controller';
 import path from 'path';
 import fs from 'fs';
-import { authMiddleware } from '../../middleware/auth.middleware';
 import { UPLOAD_DIR } from '../../config/storage';
 
 if (!fs.existsSync(UPLOAD_DIR)) {
@@ -21,9 +20,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-export class PostsRouter {
+export class PostRouter {
     public router: Router;
-    constructor(private postsController: PostsController) {
+    constructor(private postsController: PostController) {
         this.router = Router();
         this.initializeRoutes();
     }
@@ -31,13 +30,12 @@ export class PostsRouter {
     private initializeRoutes() {
         this.router.post(
             '/',
-            authMiddleware,
             upload.single('image'),
-            this.postsController.createPost,
+            this.postsController.createPostHandler,
         );
-        this.router.get('/', this.postsController.getAllPosts);
-        this.router.get('/:id', this.postsController.getPostById);
-        this.router.delete('/:id', this.postsController.delete);
-        this.router.patch('/:id', this.postsController.update);
+        this.router.get('/', this.postsController.getAllPostsHandler);
+        this.router.get('/:id', this.postsController.getPostByIdHandler);
+        this.router.delete('/:id', this.postsController.deletePostHandler);
+        this.router.patch('/:id', this.postsController.updatePostHandler);
     }
 }

@@ -4,7 +4,7 @@ import { Post } from '../../../domain/posts/post';
 import { v4 as uuid } from 'uuid';
 import { ResponsePostDTO } from '../dto/response-post.dto';
 
-export class PostsAssembler {
+export class PostAssembler {
     toPost(req: Request<{}, {}, PostFieldsDto>): Post {
         const file = req.file;
         if (!file) {

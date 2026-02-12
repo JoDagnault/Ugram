@@ -1,4 +1,4 @@
-import type { UserProfile } from './UserProfile';
+import type { UserProfile } from './user-profile';
 
 export interface UserRepository {
     getById(id: string): Promise<UserProfile | undefined>;
