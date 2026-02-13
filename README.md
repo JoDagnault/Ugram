@@ -59,15 +59,41 @@ Afin d’assurer une qualité de code constante, les outils suivants sont utilis
 
 # 2. Exécution
 
-## Prérequis 
+## Prérequis
+
 - Docker
 
-## Lancer l'application
+## Développement
+
 Depuis la racine du projet :
+
+- démarrer l'environnement :
+
 ```bash
-docker compose up --build
+./up.sh
+# ou manuellement :
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 ```
 
+- arrêter l'environnement :
+
+```bash
+./down.sh
+# ou manuellement :
+docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+```
+
+Comportement :
+
+- utilise une base de données éphémère (`tmpfs`)
+- applique automatiquement les migrations Prisma (`migrate`)
+- exécute automatiquement le seed (`seed`)
+- démarre le backend après le succès de `migrate` et `seed`
+
 ## Accès aux services
+
 - Backend : http://localhost:3000
 - Frontend : http://localhost:5173
+
+## Vraies valeurs du .env
+Elles sont à l'intérieur du document dans le lien suivant : https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/edit?usp=sharing

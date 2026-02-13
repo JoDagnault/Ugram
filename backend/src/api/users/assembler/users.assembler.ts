@@ -11,7 +11,7 @@ export class UsersAssembler {
             user.lastName,
             user.email,
             user.phoneNumber,
-            user.createdAt,
+            user.createdAt.toISOString(),
         );
     }
 }

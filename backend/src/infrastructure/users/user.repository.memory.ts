@@ -1,5 +1,5 @@
-import { UserProfile } from '../../domain/users/user-profile';
 import type { UserRepository } from '../../domain/users/user.repository';
+import { UserProfile } from '../../domain/users/user-profile';
 
 export const ME_USER_ID = '21550515-d7c8-4fae-a759-7dfb437c8442';
 export const ALICE_USER_ID = '8c1b9c62-2f0d-4f21-9a76-8c0a1f0e6a11';
@@ -14,7 +14,7 @@ const SEED_USERS: UserProfile[] = [
         'LeBricoleur',
         'bob@example.com',
         '514-555-1234',
-        '2026-01-15T14:10:00.000Z',
+        new Date('2026-01-15T14:10:00.000Z'),
     ),
     new UserProfile(
         ALICE_USER_ID,
@@ -24,7 +24,7 @@ const SEED_USERS: UserProfile[] = [
         'Tremblay',
         'alice@example.com',
         '438-555-9876',
-        '2026-01-10T09:30:00.000Z',
+        new Date('2026-01-10T09:30:00.000Z'),
     ),
     new UserProfile(
         CHARLIE_USER_ID,
@@ -34,7 +34,7 @@ const SEED_USERS: UserProfile[] = [
         'Gagnon',
         'charlie@example.com',
         '450-555-2222',
-        '2026-01-05T16:45:00.000Z',
+        new Date('2026-01-05T16:45:00.000Z'),
     ),
 ];
 

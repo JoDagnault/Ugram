@@ -7,7 +7,7 @@ export class UserProfile {
         readonly lastName: string,
         readonly email: string,
         readonly phoneNumber: string,
-        readonly createdAt: string,
+        readonly createdAt: Date,
     ) {
         if (!id) throw new Error('User id is required');
         if (!username) throw new Error('Username is required');

@@ -17,6 +17,7 @@ RUN npm install -g pnpm
 RUN pnpm install
 
 WORKDIR /app/backend
+RUN pnpm prisma generate
 RUN pnpm run build
 
 # -------------------------
@@ -28,10 +29,13 @@ WORKDIR /app
 
 COPY --from=builder /app/backend/dist dist
 COPY --from=builder /app/backend/package.json package.json
+COPY --from=builder /app/backend/src/generated dist/src/generated
+COPY --from=builder /app/backend/prisma prisma
+COPY --from=builder /app/backend/prisma.config.ts prisma.config.ts
 
 RUN npm install -g pnpm
 RUN pnpm install --prod
 
 EXPOSE 3000
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/src/index.js"]
