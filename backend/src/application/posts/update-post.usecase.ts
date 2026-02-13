@@ -5,14 +5,19 @@ export class UpdatePostUsecase {
     constructor(private readonly postsRepository: PostRepository) {}
 
     async execute(
-        id: string,
+        postId: string,
+        userId: string,
         fields: {
             description?: string;
             hashtags?: string[];
             mentions?: string[];
         },
     ): Promise<Post> {
-        const post = await this.postsRepository.findById(id);
+        const post: Post = await this.postsRepository.findById(postId);
+        if (post.userId !== userId) {
+            throw new Error('Forbidden: cannot update another users post');
+        }
+
         post.updateFields(fields);
         return await this.postsRepository.update(post);
     }

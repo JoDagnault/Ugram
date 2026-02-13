@@ -23,7 +23,7 @@ export class PostController {
         res: Response,
     ) => {
         try {
-            const post: Post = this.postAssembler.toPost(req);
+            const post: Post = this.postAssembler.toPost(req, req.userId!);
 
             await this.createPost.execute(post);
 
@@ -36,8 +36,18 @@ export class PostController {
         }
     };
 
-    getAllPostsHandler = async (_req: Request, res: Response) => {
-        const posts: Post[] = await this.getAllPosts.execute();
+    getAllPostsHandler = async (
+        req: Request<{ userId?: string }>,
+        res: Response,
+    ) => {
+        const { userId: userIdParam } = req.params;
+        const userId: string | undefined =
+            userIdParam === 'me' ? req.userId : userIdParam;
+
+        const posts: Post[] = userId
+            ? await this.getAllPosts.executeForUser(userId)
+            : await this.getAllPosts.execute();
+
         const postsDTO: ResponsePostDTO[] = posts.map((post: Post) =>
             this.postAssembler.toPostDTO(post),
         );
@@ -45,12 +55,14 @@ export class PostController {
     };
 
     getPostByIdHandler = async (
-        req: Request<{ id: string }>,
+        req: Request<{ id: string; userId?: string }>,
         res: Response,
     ) => {
-        const { id } = req.params;
+        const { id: postId, userId: userIdParam } = req.params;
+        const userId: string | undefined =
+            userIdParam === 'me' ? req.userId : userIdParam;
         try {
-            const post: Post = await this.getPostById.execute(id);
+            const post: Post = await this.getPostById.execute(postId, userId);
             const responsePostDTO: ResponsePostDTO =
                 this.postAssembler.toPostDTO(post);
             return res.status(200).json(responsePostDTO);
@@ -60,29 +72,35 @@ export class PostController {
     };
 
     updatePostHandler = async (
-        req: Request<{ id: string }, {}, Partial<PostFieldsDto>>,
+        req: Request<
+            { id: string; userId: string },
+            {},
+            Partial<PostFieldsDto>
+        >,
         res: Response,
     ) => {
-        const { id } = req.params;
         const fieldsToUpdate: Partial<PostFieldsDto> = req.body;
+        const postId: string = req.params.id;
+        const userId: string = req.userId;
 
         try {
             const post: Post = await this.updatePost.execute(
-                id,
+                postId,
+                userId,
                 fieldsToUpdate,
             );
             const responsePostDTO: ResponsePostDTO =
                 this.postAssembler.toPostDTO(post);
             return res.status(200).json(responsePostDTO);
-        } catch {
+        } catch (error) {
             return res.status(404).json({ message: 'Post not found' });
         }
     };
 
     deletePostHandler = async (req: Request<{ id: string }>, res: Response) => {
-        const { id } = req.params;
+        const postId: string = req.params.id;
         try {
-            await this.deletePost.execute(id);
+            await this.deletePost.execute(postId, req.userId!);
             return res.status(204).send();
         } catch {
             return res.status(404).json({ message: 'Post not found' });

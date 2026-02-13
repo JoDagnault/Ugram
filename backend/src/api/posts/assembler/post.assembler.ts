@@ -5,12 +5,11 @@ import { v4 as uuid } from 'uuid';
 import { ResponsePostDTO } from '../dto/response-post.dto';
 
 export class PostAssembler {
-    toPost(req: Request<{}, {}, PostFieldsDto>): Post {
+    toPost(req: Request<{}, {}, PostFieldsDto>, userId: string): Post {
         const file = req.file;
         if (!file) {
             throw new Error('No image uploaded');
         }
-        const userId: string = req.userId;
 
         const fields: PostFieldsDto = this.validatePostFields(req.body);
 
@@ -30,7 +29,7 @@ export class PostAssembler {
     toPostDTO(post: Post): ResponsePostDTO {
         return new ResponsePostDTO(
             post.id,
-            post.authorId,
+            post.userId,
             post.imageURL,
             post.description,
             Array.isArray(post.hashtags)

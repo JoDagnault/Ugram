@@ -31,7 +31,11 @@ export function PostModule() {
         deletePost,
         assembler,
     );
-    const router = new PostRouter(controller);
+    const routers = new PostRouter(controller);
 
-    return { router: router.router };
+    return {
+        publicRouter: routers.publicRouter,
+        meRouter: routers.meRouter,
+        anotherUserRouter: routers.anotherUserRouter,
+    };
 }

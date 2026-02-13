@@ -2,7 +2,7 @@ export class Post {
     createdAt: string;
     constructor(
         private readonly _id: string,
-        private readonly _authorId: string,
+        private readonly _userId: string,
         private _imageURL: string,
         private _description: string,
         private _hashtags: string[],
@@ -17,8 +17,8 @@ export class Post {
         return this._imageURL;
     }
 
-    get authorId(): string {
-        return this._authorId;
+    get userId(): string {
+        return this._userId;
     }
 
     get description(): string {

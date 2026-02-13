@@ -21,21 +21,43 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 export class PostRouter {
-    public router: Router;
+    public meRouter: Router;
+    public publicRouter: Router;
+    public anotherUserRouter: Router;
+
     constructor(private postsController: PostController) {
-        this.router = Router();
-        this.initializeRoutes();
+        this.meRouter = Router({ mergeParams: true });
+        this.anotherUserRouter = Router({ mergeParams: true });
+        this.publicRouter = Router();
+        this.initializeMeRoutes();
+        this.initializePublicRoutes();
+        this.initializeAnotherUserRoutes();
     }
 
-    private initializeRoutes() {
-        this.router.post(
+    private initializeMeRoutes() {
+        this.meRouter.post(
             '/',
             upload.single('image'),
             this.postsController.createPostHandler,
         );
-        this.router.get('/', this.postsController.getAllPostsHandler);
-        this.router.get('/:id', this.postsController.getPostByIdHandler);
-        this.router.delete('/:id', this.postsController.deletePostHandler);
-        this.router.patch('/:id', this.postsController.updatePostHandler);
+        this.meRouter.get('/', this.postsController.getAllPostsHandler);
+        this.meRouter.get('/:id', this.postsController.getPostByIdHandler);
+        this.meRouter.delete('/:id', this.postsController.deletePostHandler);
+        this.meRouter.patch('/:id', this.postsController.updatePostHandler);
+    }
+
+    private initializePublicRoutes() {
+        this.publicRouter.get('/', this.postsController.getAllPostsHandler);
+    }
+
+    private initializeAnotherUserRoutes() {
+        this.anotherUserRouter.get(
+            '/',
+            this.postsController.getAllPostsHandler,
+        );
+        this.anotherUserRouter.get(
+            '/:id',
+            this.postsController.getPostByIdHandler,
+        );
     }
 }

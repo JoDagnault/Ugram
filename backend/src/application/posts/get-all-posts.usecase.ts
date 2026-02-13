@@ -7,4 +7,8 @@ export class GetAllPostsUsecase {
     async execute(): Promise<Post[]> {
         return await this.postsRepository.findAll();
     }
+
+    async executeForUser(userId: string): Promise<Post[]> {
+        return await this.postsRepository.findByUserId(userId);
+    }
 }

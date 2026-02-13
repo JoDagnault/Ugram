@@ -16,11 +16,13 @@ app.use(express.json());
 app.use('/uploads', express.static(UPLOAD_DIR));
 app.use(authMiddleware);
 
-const userModule = UserModule();
-app.use('/users', userModule.router);
-
 const postModule = PostModule();
-app.use('/posts', postModule.router);
+const userModule = UserModule();
+
+app.use('/posts', postModule.publicRouter);
+app.use('/users', userModule.router);
+userModule.router.use('/:userId/posts', postModule.anotherUserRouter);
+userModule.router.use('/me/posts', postModule.meRouter);
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello, World!');

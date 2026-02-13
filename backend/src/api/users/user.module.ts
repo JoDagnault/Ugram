@@ -19,14 +19,14 @@ export function UserModule() {
     const updateMe: UpdateMeUsecase = new UpdateMeUsecase(userRepository);
 
     const assembler: UsersAssembler = new UsersAssembler();
-    const controller: UserController = new UserController(
+    const userController: UserController = new UserController(
         getUser,
         getMe,
         getAllUsers,
         updateMe,
         assembler,
     );
-    const router: Router = createUsersRouter(controller);
+    const router: Router = createUsersRouter(userController);
 
     return { router };
 }
