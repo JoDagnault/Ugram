@@ -46,7 +46,9 @@ export class InMemoryUserRepository implements UserRepository {
     }
 
     async getById(id: string): Promise<UserProfile | undefined> {
-        return this.usersById.get(id);
+        const user: UserProfile | undefined = this.usersById.get(id);
+        if (!user) throw new Error('User not found');
+        return user;
     }
 
     async getAll(): Promise<UserProfile[]> {

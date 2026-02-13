@@ -8,6 +8,7 @@ import { GetAllPostsUsecase } from '../../application/posts/get-all-posts.usecas
 import { GetPostByIdUsecase } from '../../application/posts/get-post-by-id.usecase';
 import { UpdatePostUsecase } from '../../application/posts/update-post.usecase';
 import { DeletePostUsecase } from '../../application/posts/delete-post.usecase';
+import { PostFieldsValidator } from './assembler/post-fields-validator';
 
 export class PostController {
     constructor(
@@ -29,9 +30,9 @@ export class PostController {
 
             const postDTO: ResponsePostDTO = this.postAssembler.toPostDTO(post);
             return res.status(201).json(postDTO);
-        } catch (err: any) {
+        } catch (error: any) {
             return res.status(400).json({
-                message: err.message || 'Invalid request',
+                message: error.message || 'Invalid request',
             });
         }
     };
@@ -66,8 +67,10 @@ export class PostController {
             const responsePostDTO: ResponsePostDTO =
                 this.postAssembler.toPostDTO(post);
             return res.status(200).json(responsePostDTO);
-        } catch {
-            return res.status(404).json({ message: 'Post not found' });
+        } catch (error: any) {
+            return res.status(400).json({
+                message: error.message || 'Invalid request',
+            });
         }
     };
 
@@ -79,21 +82,24 @@ export class PostController {
         >,
         res: Response,
     ) => {
-        const fieldsToUpdate: Partial<PostFieldsDto> = req.body;
-        const postId: string = req.params.id;
-        const userId: string = req.userId;
-
         try {
+            const postId: string = req.params.id;
+            const userId: string = req.userId;
+            const validatedFields: Partial<PostFieldsDto> =
+                PostFieldsValidator.validatePostFields(req.body);
+
             const post: Post = await this.updatePost.execute(
                 postId,
                 userId,
-                fieldsToUpdate,
+                validatedFields,
             );
             const responsePostDTO: ResponsePostDTO =
                 this.postAssembler.toPostDTO(post);
             return res.status(200).json(responsePostDTO);
-        } catch (error) {
-            return res.status(404).json({ message: 'Post not found' });
+        } catch (error: any) {
+            return res.status(400).json({
+                message: error.message || 'Invalid request',
+            });
         }
     };
 
@@ -102,8 +108,10 @@ export class PostController {
         try {
             await this.deletePost.execute(postId, req.userId!);
             return res.status(204).send();
-        } catch {
-            return res.status(404).json({ message: 'Post not found' });
+        } catch (error: any) {
+            return res.status(400).json({
+                message: error.message || 'Invalid request',
+            });
         }
     };
 }

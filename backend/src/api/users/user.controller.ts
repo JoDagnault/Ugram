@@ -7,6 +7,7 @@ import { UpdateMeUsecase } from '../../application/users/update-me.usecase';
 import { UpdateMeDto } from './dto/update-me.dto';
 import { UserProfile } from '../../domain/users/user-profile';
 import { UserResponseDTO } from './dto/user-response.dto';
+import { UserValidator } from './assembler/user-fields-validator';
 
 export class UserController {
     constructor(
@@ -29,11 +30,23 @@ export class UserController {
         req: Request<{ id: string }>,
         res: Response,
     ) => {
-        const { id } = req.params;
-        const user: UserProfile | undefined = await this.getUser.execute(id);
+        try {
+            const { id } = req.params;
+            const user: UserProfile | undefined =
+                await this.getUser.execute(id);
 
-        if (!user) return res.sendStatus(404);
-        return res.status(200).json(this.assembler.toDTO(user));
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            return res.status(200).json(this.assembler.toDTO(user));
+        } catch (error: any) {
+            let message: string = 'Internal server error';
+            if (error instanceof Error) {
+                message = error.message;
+            }
+            return res.status(500).json({ message });
+        }
     };
 
     getAllUsersHandler = async (_req: Request, res: Response) => {
@@ -48,6 +61,8 @@ export class UserController {
         try {
             const usedId: string = req.userId;
             const fields: UpdateMeDto = req.body;
+
+            UserValidator.validateUser(fields);
 
             const updated: UserProfile = await this.updateMe.execute(
                 usedId,
