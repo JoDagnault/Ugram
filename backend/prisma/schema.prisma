@@ -16,6 +16,19 @@ model User {
   createdAt         DateTime @default(now())
   email             String
   phoneNumber       String
+  posts             Post[]
 
   @@map("users")
+}
+
+model Post {
+  id          String   @id @default(uuid())
+  authorId    String
+  imageURL    String
+  description String
+  hashtags    String[]
+  mentions    String[]
+  createdAt   DateTime @default(now())
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }

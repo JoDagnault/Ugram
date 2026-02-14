@@ -33,6 +33,21 @@ services:
     command: sh -c "pnpm prisma:migrate:deploy"
     restart: "no"
 
+  seed:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: ugram-seed
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    networks:
+      - ugram-net
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: sh -c "pnpm prisma db seed"
+    restart: "no"
+
   backend:
     build:
       context: .
@@ -42,12 +57,11 @@ services:
       - "3000:3000"
     environment:
       DATABASE_URL: ${DATABASE_URL}
+      NODE_ENV: production
     networks:
       - ugram-net
     depends_on:
-      postgres:
-        condition: service_healthy
-      migrate:
+      seed:
         condition: service_completed_successfully
 
   frontend:

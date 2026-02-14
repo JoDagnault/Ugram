@@ -1,24 +1,40 @@
 export class Post {
-    createdAt: string;
+    private readonly _id: string;
+    private readonly _userId: string;
+    private _imageURL: string;
+    private _description: string;
+    private _hashtags: string[];
+    private _mentions: string[];
+    private readonly _createdAt: string;
+
     constructor(
-        private readonly _id: string,
-        private readonly _userId: string,
-        private _imageURL: string,
-        private _description: string,
-        private _hashtags: string[],
-        private _mentions: string[],
+        id: string,
+        userId: string,
+        imageURL: string,
+        description: string,
+        hashtags: string[],
+        mentions: string[],
+        createdAt?: string,
     ) {
-        this.createdAt = new Date().toISOString();
+        this._id = id;
+        this._userId = userId;
+        this._imageURL = imageURL;
+        this._description = description;
+        this._hashtags = hashtags;
+        this._mentions = mentions;
+        this._createdAt = createdAt ?? new Date().toISOString();
     }
+
     get id(): string {
         return this._id;
-    }
-    get imageURL(): string {
-        return this._imageURL;
     }
 
     get userId(): string {
         return this._userId;
+    }
+
+    get imageURL(): string {
+        return this._imageURL;
     }
 
     get description(): string {
@@ -28,8 +44,13 @@ export class Post {
     get hashtags(): string[] {
         return this._hashtags;
     }
+
     get mentions(): string[] {
         return this._mentions;
+    }
+
+    get createdAt(): string {
+        return this._createdAt;
     }
 
     updateFields(fields: {

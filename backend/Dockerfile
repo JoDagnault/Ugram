@@ -28,6 +28,7 @@ FROM node:22-alpine AS runtime
 WORKDIR /app
 
 COPY --from=builder /app/backend/dist dist
+COPY --from=builder /app/backend/dist/prisma dist/prisma
 COPY --from=builder /app/backend/package.json package.json
 COPY --from=builder /app/backend/src/generated dist/src/generated
 COPY --from=builder /app/backend/prisma prisma

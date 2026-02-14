@@ -1,4 +1,3 @@
-import { PostRepository } from '../../domain/posts/post.repository';
 import { InMemoryPostsRepository } from '../../infrastructure/posts/post.repository.memory';
 import { CreatePostUsecase } from '../../application/posts/create-post.usecase';
 import { DeletePostUsecase } from '../../application/posts/delete-post.usecase';
@@ -8,9 +7,16 @@ import { UpdatePostUsecase } from '../../application/posts/update-post.usecase';
 import { PostAssembler } from './assembler/post.assembler';
 import { PostController } from './post.controller';
 import { PostRouter } from './post.router';
+import { PrismaPostRepository } from '../../infrastructure/posts/post.repository.prisma';
+import { getPrismaClient } from '../../infrastructure/prisma/client';
 
 export function PostModule() {
-    const postRepository: PostRepository = new InMemoryPostsRepository();
+    const env = process.env.NODE_ENV ?? 'development';
+    const useInMemory = env === 'development' || env === 'test';
+
+    const postRepository = useInMemory
+        ? new InMemoryPostsRepository()
+        : new PrismaPostRepository(getPrismaClient());
 
     const createPost: CreatePostUsecase = new CreatePostUsecase(postRepository);
     const deletePost: DeletePostUsecase = new DeletePostUsecase(postRepository);
