@@ -1,6 +1,7 @@
 import { PrismaClient } from '../../generated/prisma';
 import { UserProfile } from '../../domain/users/user-profile';
 import type { UserRepository } from '../../domain/users/user.repository';
+import { NotFoundError } from '../../errors/not-found.error';
 
 export class PrismaUserRepository implements UserRepository {
     private readonly prisma: PrismaClient;
@@ -9,13 +10,13 @@ export class PrismaUserRepository implements UserRepository {
         this.prisma = prismaClient;
     }
 
-    async getById(id: string): Promise<UserProfile | undefined> {
+    async getById(id: string): Promise<UserProfile> {
         const user = await this.prisma.user.findUnique({
             where: { id },
         });
 
         if (!user) {
-            return undefined;
+            throw new NotFoundError('User not found');
         }
 
         return new UserProfile(

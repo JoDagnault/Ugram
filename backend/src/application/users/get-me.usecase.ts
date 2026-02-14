@@ -4,7 +4,7 @@ import type { UserRepository } from '../../domain/users/user.repository';
 export class GetMeUsecase {
     constructor(private readonly userRepository: UserRepository) {}
 
-    async execute(userId: string): Promise<UserProfile | undefined> {
+    async execute(userId: string): Promise<UserProfile> {
         return this.userRepository.getById(userId);
     }
 }

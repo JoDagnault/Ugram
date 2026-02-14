@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { Post } from '../../domain/posts/post';
 import { PostAssembler } from './assembler/post.assembler';
 import { ResponsePostDTO } from './dto/response-post.dto';
@@ -22,6 +22,7 @@ export class PostController {
     createPostHandler = async (
         req: Request<{}, {}, PostFieldsDto>,
         res: Response,
+        next: NextFunction,
     ) => {
         try {
             const post: Post = this.postAssembler.toPost(req, req.userId!);
@@ -31,9 +32,7 @@ export class PostController {
             const postDTO: ResponsePostDTO = this.postAssembler.toPostDTO(post);
             return res.status(201).json(postDTO);
         } catch (error: any) {
-            return res.status(400).json({
-                message: error.message || 'Invalid request',
-            });
+            next(error);
         }
     };
 
@@ -49,8 +48,8 @@ export class PostController {
             ? await this.getAllPosts.executeForUser(userId)
             : await this.getAllPosts.execute();
 
-        const postsDTO: ResponsePostDTO[] = posts.map((post: Post) =>
-            this.postAssembler.toPostDTO(post),
+        const postsDTO: ResponsePostDTO[] = posts.map(
+            (post: Post): ResponsePostDTO => this.postAssembler.toPostDTO(post),
         );
         return res.status(200).json(postsDTO);
     };
@@ -58,6 +57,7 @@ export class PostController {
     getPostByIdHandler = async (
         req: Request<{ id: string; userId?: string }>,
         res: Response,
+        next: NextFunction,
     ) => {
         const { id: postId, userId: userIdParam } = req.params;
         const userId: string | undefined =
@@ -68,9 +68,7 @@ export class PostController {
                 this.postAssembler.toPostDTO(post);
             return res.status(200).json(responsePostDTO);
         } catch (error: any) {
-            return res.status(400).json({
-                message: error.message || 'Invalid request',
-            });
+            next(error);
         }
     };
 
@@ -81,6 +79,7 @@ export class PostController {
             Partial<PostFieldsDto>
         >,
         res: Response,
+        next: NextFunction,
     ) => {
         try {
             const postId: string = req.params.id;
@@ -97,21 +96,21 @@ export class PostController {
                 this.postAssembler.toPostDTO(post);
             return res.status(200).json(responsePostDTO);
         } catch (error: any) {
-            return res.status(400).json({
-                message: error.message || 'Invalid request',
-            });
+            next(error);
         }
     };
 
-    deletePostHandler = async (req: Request<{ id: string }>, res: Response) => {
+    deletePostHandler = async (
+        req: Request<{ id: string }>,
+        res: Response,
+        next: NextFunction,
+    ) => {
         const postId: string = req.params.id;
         try {
             await this.deletePost.execute(postId, req.userId!);
             return res.status(204).send();
         } catch (error: any) {
-            return res.status(400).json({
-                message: error.message || 'Invalid request',
-            });
+            next(error);
         }
     };
 }

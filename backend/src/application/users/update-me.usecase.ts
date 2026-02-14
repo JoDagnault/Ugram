@@ -6,10 +6,7 @@ export class UpdateMeUsecase {
     constructor(private readonly userRepository: UserRepository) {}
 
     async execute(userId: string, fields: UpdateMeDto): Promise<UserProfile> {
-        const user = await this.userRepository.getById(userId);
-        if (!user) {
-            throw new Error('User not found');
-        }
+        const user: UserProfile = await this.userRepository.getById(userId);
 
         const updated = new UserProfile(
             user.id,

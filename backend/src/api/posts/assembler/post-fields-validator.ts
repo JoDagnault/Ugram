@@ -1,4 +1,5 @@
 import { PostFieldsDto } from '../dto/post-fields.dto';
+import { BadRequestError } from '../../../errors/bad-request.error';
 
 export class PostFieldsValidator {
     static validatePostFields(fields: PostFieldsDto): PostFieldsDto {
@@ -42,16 +43,16 @@ export class PostFieldsValidator {
                 const parsed = JSON.parse(value);
 
                 if (!Array.isArray(parsed)) {
-                    throw new Error();
+                    throw new BadRequestError('Hashtags must be an array');
                 }
 
                 return parsed.filter((x) => typeof x === 'string');
             } catch {
-                throw new Error('Must be an array of strings');
+                throw new BadRequestError('Must be an array of strings');
             }
         }
 
-        throw new Error('Must be an array of strings');
+        throw new BadRequestError('Must be an array of strings');
     }
 
     private static validateHashtags(tags: string[]) {
@@ -59,7 +60,7 @@ export class PostFieldsValidator {
 
         tags.forEach((tag) => {
             if (!regex.test(tag)) {
-                throw new Error(`Invalid hashtag: "${tag}"`);
+                throw new BadRequestError(`Invalid hashtag: "${tag}"`);
             }
         });
     }
@@ -69,7 +70,7 @@ export class PostFieldsValidator {
 
         mentions.forEach((m) => {
             if (!regex.test(m)) {
-                throw new Error(`Invalid mention: "${m}"`);
+                throw new BadRequestError(`Invalid mention: "${m}"`);
             }
         });
     }

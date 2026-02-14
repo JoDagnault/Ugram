@@ -1,5 +1,6 @@
 import { PostRepository } from '../../domain/posts/post.repository';
 import { Post } from '../../domain/posts/post';
+import { NotFoundError } from '../../errors/not-found.error';
 
 export class InMemoryPostsRepository implements PostRepository {
     private posts: Post[] = [];
@@ -20,7 +21,7 @@ export class InMemoryPostsRepository implements PostRepository {
         const post: Post | undefined = this.posts.find(
             (post: Post) => post.id === id,
         );
-        if (!post) throw new Error('Post not found');
+        if (!post) throw new NotFoundError('Post not found');
         return post;
     }
 
@@ -28,14 +29,14 @@ export class InMemoryPostsRepository implements PostRepository {
         const index: number = this.posts.findIndex(
             (p: Post) => p.id === post.id,
         );
-        if (index === -1) throw new Error('Post not found');
+        if (index === -1) throw new NotFoundError('Post not found');
         this.posts[index] = post;
         return post;
     }
 
     async deleteById(id: string): Promise<void> {
         const index: number = this.posts.findIndex((post) => post.id === id);
-        if (index === -1) throw new Error('Post not found');
+        if (index === -1) throw new NotFoundError('Post not found');
         this.posts.splice(index, 1);
     }
 

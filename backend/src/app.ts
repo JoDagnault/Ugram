@@ -5,6 +5,7 @@ import { authMiddleware } from './middleware/auth.middleware';
 import { UPLOAD_DIR } from './config/storage';
 import { UserModule } from './api/users/user.module';
 import { PostModule } from './api/posts/post.module';
+import { errorHandler } from './middleware/error.handler';
 
 dotenv.config();
 
@@ -27,5 +28,7 @@ userModule.router.use('/me/posts', postModule.meRouter);
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello, World!');
 });
+
+app.use(errorHandler);
 
 export default app;

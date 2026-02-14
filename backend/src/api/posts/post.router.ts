@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import multer from 'multer';
+import multer, { Multer, StorageEngine } from 'multer';
 import { PostController } from './post.controller';
 import path from 'path';
 import fs from 'fs';
@@ -8,7 +8,7 @@ import { UPLOAD_DIR } from '../../config/storage';
 if (!fs.existsSync(UPLOAD_DIR)) {
     fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
-const storage = multer.diskStorage({
+const storage: StorageEngine = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, UPLOAD_DIR);
     },
@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
     },
 });
 
-const upload = multer({ storage });
+const upload: Multer = multer({ storage });
 
 export class PostRouter {
     public meRouter: Router;

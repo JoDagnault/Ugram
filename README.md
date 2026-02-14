@@ -63,6 +63,18 @@ Afin d’assurer une qualité de code constante, les outils suivants sont utilis
 
 - Docker
 
+## Variables d'environnement
+
+Créer et utiliser le fichier `.env` à la racine du dépôt :
+
+```env
+POSTGRES_USER=your_username
+POSTGRES_PASSWORD=your_password
+POSTGRES_DB=your_database
+POSTGRES_PORT=5432
+DATABASE_URL=postgresql://your_username:your_password@postgres:5432/your_database?schema=public
+```
+
 ## Développement
 
 Depuis la racine du projet :
@@ -89,6 +101,8 @@ Comportement :
 - applique automatiquement les migrations Prisma (`migrate`)
 - exécute automatiquement le seed (`seed`)
 - démarre le backend après le succès de `migrate` et `seed`
+
+Concernant les migrations, aller voir le README du backend.
 
 ## Accès aux services
 

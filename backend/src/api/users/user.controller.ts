@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import type { GetMeUsecase } from '../../application/users/get-me.usecase';
 import type { GetUserUsecase } from '../../application/users/get-user.usecase';
 import { UsersAssembler } from './assembler/users.assembler';
@@ -18,17 +18,23 @@ export class UserController {
         private readonly assembler: UsersAssembler,
     ) {}
 
-    getMeHandler = async (req: Request, res: Response) => {
-        const userId = req.userId;
-        const user: UserProfile | undefined = await this.getMe.execute(userId);
+    getMeHandler = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userId = req.userId;
+            const user: UserProfile = await this.getMe.execute(userId);
 
-        if (!user) return res.status(404).json({ message: 'User not found' });
-        return res.status(200).json(this.assembler.toDTO(user));
+            if (!user)
+                return res.status(404).json({ message: 'User not found' });
+            return res.status(200).json(this.assembler.toDTO(user));
+        } catch (error) {
+            next(error);
+        }
     };
 
     getUserByIdHandler = async (
         req: Request<{ id: string }>,
         res: Response,
+        next: NextFunction,
     ) => {
         try {
             const { id } = req.params;
@@ -41,11 +47,7 @@ export class UserController {
 
             return res.status(200).json(this.assembler.toDTO(user));
         } catch (error: any) {
-            let message: string = 'Internal server error';
-            if (error instanceof Error) {
-                message = error.message;
-            }
-            return res.status(500).json({ message });
+            next(error);
         }
     };
 
@@ -57,7 +59,11 @@ export class UserController {
         return res.status(200).json(dto);
     };
 
-    updateMeHandler = async (req: Request, res: Response) => {
+    updateMeHandler = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) => {
         try {
             const usedId: string = req.userId;
             const fields: UpdateMeDto = req.body;
@@ -70,7 +76,7 @@ export class UserController {
             );
             return res.status(200).json(this.assembler.toDTO(updated));
         } catch (err: any) {
-            return res.status(400).json({ message: err.message });
+            next(err);
         }
     };
 }

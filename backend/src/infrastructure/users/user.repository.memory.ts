@@ -1,5 +1,6 @@
 import type { UserRepository } from '../../domain/users/user.repository';
 import { UserProfile } from '../../domain/users/user-profile';
+import { NotFoundError } from '../../errors/not-found.error';
 
 export const ME_USER_ID = '21550515-d7c8-4fae-a759-7dfb437c8442';
 export const ALICE_USER_ID = '8c1b9c62-2f0d-4f21-9a76-8c0a1f0e6a11';
@@ -45,9 +46,9 @@ export class InMemoryUserRepository implements UserRepository {
         this.usersById = new Map(seedUsers.map((user) => [user.id, user]));
     }
 
-    async getById(id: string): Promise<UserProfile | undefined> {
+    async getById(id: string): Promise<UserProfile> {
         const user: UserProfile | undefined = this.usersById.get(id);
-        if (!user) throw new Error('User not found');
+        if (!user) throw new NotFoundError('User not found');
         return user;
     }
 
@@ -57,7 +58,7 @@ export class InMemoryUserRepository implements UserRepository {
 
     async update(user: UserProfile): Promise<void> {
         if (!this.usersById.has(user.id)) {
-            throw new Error('User not found');
+            throw new NotFoundError('User not found');
         }
 
         this.usersById.set(user.id, user);

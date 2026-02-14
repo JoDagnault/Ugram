@@ -1,21 +1,22 @@
 import { UpdateMeDto } from '../dto/update-me.dto';
+import { BadRequestError } from '../../../errors/bad-request.error';
 
 export class UserValidator {
     static validateUsername(username?: string) {
         if (username !== undefined && username.trim().length === 0) {
-            throw new Error('Username cannot be empty');
+            throw new BadRequestError('Username cannot be empty');
         }
     }
 
     static validateFirstName(firstName?: string) {
         if (firstName !== undefined && firstName.trim().length === 0) {
-            throw new Error('First name cannot be empty');
+            throw new BadRequestError('First name cannot be empty');
         }
     }
 
     static validateLastName(lastName?: string) {
         if (lastName !== undefined && lastName.trim().length === 0) {
-            throw new Error('Last name cannot be empty');
+            throw new BadRequestError('Last name cannot be empty');
         }
     }
 
@@ -26,7 +27,7 @@ export class UserValidator {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailRegex.test(trimmed)) {
-            throw new Error('Invalid email format');
+            throw new BadRequestError('Invalid email format');
         }
     }
 
@@ -35,7 +36,7 @@ export class UserValidator {
             phoneNumber !== undefined &&
             !phoneNumber.match(/^[0-9+\-\s()]{7,20}$/)
         ) {
-            throw new Error('Invalid phone number');
+            throw new BadRequestError('Invalid phone number format');
         }
     }
 
