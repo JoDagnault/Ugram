@@ -4,26 +4,51 @@ import type {
     UpdateImageRequest,
     ImageListItem,
 } from '../../types/image.ts';
-import { apiUrl } from '../http.ts';
-import {
-    deleteMyImagePlaceholder,
-    getFeedImagesPlaceholder,
-    getImagePlaceholder,
-    getUserImagesPlaceholder,
-    updateMyImagePlaceholder,
-} from './imagesServicePlaceholders.ts';
+import { apiFetch, apiGetJsonOrUndefinedOn404 } from '../http.ts';
 import { mapPostResponseToImageDetails } from './imagesMappers.ts';
 import type { PostResponseDto } from './imagesResponses.ts';
 
-export const getUserImages = async (userId: string): Promise<ImageListItem[]> =>
-    getUserImagesPlaceholder(userId);
+const toImageListItem = (image: ImageDetails): ImageListItem => ({
+    id: image.id,
+    userId: image.userId,
+    imageUrl: image.imageUrl,
+    createdAt: image.createdAt,
+});
 
-export const getFeedImages = async (): Promise<ImageDetails[]> =>
-    getFeedImagesPlaceholder();
+export const getUserImages = async (
+    userId: string,
+): Promise<ImageListItem[]> => {
+    const posts = await apiGetJsonOrUndefinedOn404<PostResponseDto[]>(
+        `/users/${userId}/posts`,
+    );
+
+    if (!posts) return [];
+
+    return posts.map(mapPostResponseToImageDetails).map(toImageListItem);
+};
+
+export const getFeedImages = async (): Promise<ImageDetails[]> => {
+    const posts = await apiGetJsonOrUndefinedOn404<PostResponseDto[]>('/posts');
+    if (!posts) return [];
+
+    return posts.map(mapPostResponseToImageDetails);
+};
 
 export const getImage = async (
     imageId: string,
-): Promise<ImageDetails | undefined> => getImagePlaceholder(imageId);
+): Promise<ImageDetails | undefined> => {
+    const post = await apiGetJsonOrUndefinedOn404<PostResponseDto>(
+        `/users/me/posts/${imageId}`,
+    );
+
+    if (post) return mapPostResponseToImageDetails(post);
+
+    const publicPost = await apiGetJsonOrUndefinedOn404<PostResponseDto>(
+        `/posts/${imageId}`,
+    );
+
+    return publicPost ? mapPostResponseToImageDetails(publicPost) : undefined;
+};
 
 export const createMyImage = async (
     request: CreateImageRequest,
@@ -34,7 +59,7 @@ export const createMyImage = async (
     formData.append('hashtags', JSON.stringify(request.hashtags));
     formData.append('mentions', JSON.stringify(request.mentionUserIds));
 
-    const response = await fetch(apiUrl('/posts'), {
+    const response = await apiFetch('/users/me/posts', {
         method: 'POST',
         body: formData,
     });
@@ -50,8 +75,31 @@ export const createMyImage = async (
 export const updateMyImage = async (
     imageId: string,
     update: UpdateImageRequest,
-): Promise<ImageDetails | undefined> =>
-    updateMyImagePlaceholder(imageId, update);
+): Promise<ImageDetails | undefined> => {
+    const response = await apiFetch(`/users/me/posts/${imageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(update),
+    });
 
-export const deleteMyImage = async (imageId: string): Promise<boolean> =>
-    deleteMyImagePlaceholder(imageId);
+    if (response.status === 404) return undefined;
+    if (!response.ok) {
+        throw new Error(`API request failed (${response.status})`);
+    }
+
+    const updatedPost = (await response.json()) as PostResponseDto;
+    return mapPostResponseToImageDetails(updatedPost);
+};
+
+export const deleteMyImage = async (imageId: string): Promise<boolean> => {
+    const response = await apiFetch(`/users/me/posts/${imageId}`, {
+        method: 'DELETE',
+    });
+
+    if (response.status === 404) return false;
+    if (!response.ok) {
+        throw new Error(`API request failed (${response.status})`);
+    }
+
+    return true;
+};
