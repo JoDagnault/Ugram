@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { getMe, getUser } from '../api/users/usersService';
 import { getUserImages } from '../api/images/imagesService';
 import type { MyUser, UserProfile } from '../types/user';
-import { ME_USER_ID } from '../api/users/usersServicePlaceholders.ts';
 import type { ImageListItem } from '../types/image';
 
 import ProfileInfo from '../components/profile/ProfileInfo.tsx';
@@ -19,7 +18,7 @@ const Profile = () => {
     const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-    const isMyProfile = !userId || userId === ME_USER_ID;
+    const isMyProfile = useMemo(() => !userId, [userId]);
 
     useEffect(() => {
         let ignore = false;
