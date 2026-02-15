@@ -7,5 +7,6 @@ export class ResponsePostDTO {
         public readonly hashtags: string[],
         public readonly mentions: string[],
         public readonly createdAt: string,
+        public readonly isOwner: boolean,
     ) {}
 }

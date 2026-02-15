@@ -1,14 +1,11 @@
 import { useEffect, useState } from 'react';
 import { getFeedImages } from '../api/images/imagesService';
-import { getMe } from '../api/users/usersService';
 import type { ImageDetails } from '../types/image';
-import type { MyUser } from '../types/user';
 import ImageCard from '../components/image/ImageCard.tsx';
 import ImageModal from '../components/image/ImageModal/ImageModal.tsx';
 
 const Home = () => {
     const [images, setImages] = useState<ImageDetails[]>([]);
-    const [me, setMe] = useState<MyUser | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     const [selectedImage, setSelectedImage] = useState<ImageDetails | null>(
@@ -17,12 +14,7 @@ const Home = () => {
 
     const loadFeed = async () => {
         try {
-            const [currentMe, feedImages] = await Promise.all([
-                getMe(),
-                getFeedImages(),
-            ]);
-
-            setMe(currentMe);
+            const feedImages = await getFeedImages();
             setImages(feedImages);
         } finally {
             setIsLoading(false);
@@ -32,8 +24,6 @@ const Home = () => {
     useEffect(() => {
         loadFeed();
     }, []);
-
-    const isOwner = !!me && !!selectedImage && selectedImage.userId === me.id;
 
     const refreshFeed = async () => {
         const feedImages = await getFeedImages();
@@ -71,7 +61,6 @@ const Home = () => {
             {selectedImage && (
                 <ImageModal
                     imageId={selectedImage.id}
-                    isOwner={isOwner}
                     onClose={() => setSelectedImage(null)}
                     onDeleted={() => {
                         setSelectedImage(null);

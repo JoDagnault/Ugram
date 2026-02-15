@@ -88,7 +88,6 @@ const Profile = () => {
             {isMyProfile && isCreateModalOpen && (
                 <ImageModal
                     mode="create"
-                    isOwner={isMyProfile}
                     onClose={() => setIsCreateModalOpen(false)}
                     onCreated={refreshImages}
                 />
@@ -97,7 +96,6 @@ const Profile = () => {
             {selectedImageId && (
                 <ImageModal
                     imageId={selectedImageId}
-                    isOwner={isMyProfile}
                     onClose={() => setSelectedImageId(null)}
                     onDeleted={refreshImages}
                     onUpdated={refreshImages}

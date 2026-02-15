@@ -29,7 +29,7 @@ export class PostAssembler {
         );
     }
 
-    toPostDTO(post: Post): ResponsePostDTO {
+    toPostDTO(post: Post, currentUserId?: string): ResponsePostDTO {
         return new ResponsePostDTO(
             post.id,
             post.userId,
@@ -42,6 +42,7 @@ export class PostAssembler {
                 ? post.mentions
                 : JSON.parse(post.mentions),
             post.createdAt,
+            !!currentUserId && post.userId === currentUserId,
         );
     }
 }

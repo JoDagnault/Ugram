@@ -15,4 +15,5 @@ export const mapPostResponseToImageDetails = (
     description: post.description,
     hashtags: post.hashtags,
     mentions: post.mentions,
+    isOwner: post.isOwner,
 });

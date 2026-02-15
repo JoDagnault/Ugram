@@ -6,4 +6,5 @@ export type PostResponseDto = {
     hashtags: string[];
     mentions: string[];
     createdAt: string;
+    isOwner: boolean;
 };

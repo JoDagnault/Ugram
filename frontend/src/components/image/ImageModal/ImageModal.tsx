@@ -18,7 +18,6 @@ import ImageMetadataSummary from './ImageMetadataSummary.tsx';
 type ExistingImageModalProps = {
     mode?: 'view';
     imageId: string;
-    isOwner: boolean;
     onClose: () => void;
     onDeleted?: (imageId: string) => void;
     onUpdated?: (next: ImageDetails) => void;
@@ -26,7 +25,6 @@ type ExistingImageModalProps = {
 
 type CreateImageModalProps = {
     mode: 'create';
-    isOwner: boolean;
     onClose: () => void;
     onCreated?: (created: ImageDetails) => void;
 };
@@ -47,7 +45,7 @@ const toImageDetailsFields = (image: ImageDetails): ImageDetailsFields => ({
 const dateFormat = (iso: string): string => new Date(iso).toLocaleDateString();
 
 export default function ImageModal(props: Props) {
-    const { isOwner, onClose } = props;
+    const { onClose } = props;
     const isCreateModal = props.mode === 'create';
     const imageId = isCreateModal ? undefined : props.imageId;
 
@@ -116,7 +114,8 @@ export default function ImageModal(props: Props) {
     );
 
     const handleDelete = async () => {
-        if (!isOwner || isCreateModal || !imageId) return;
+        if (isCreateModal || !imageId) return;
+        if (!image?.isOwner) return;
 
         const ok = await deleteMyImage(imageId);
         if (!ok) return;
@@ -126,7 +125,8 @@ export default function ImageModal(props: Props) {
     };
 
     const handleSave = async (nextFields: ImageFormSubmission) => {
-        if (!isOwner || isCreateModal || !imageId) return;
+        if (isCreateModal || !imageId) return;
+        if (!image?.isOwner) return;
 
         const updated = await updateMyImage(imageId, nextFields);
         if (!updated) return;
@@ -140,7 +140,7 @@ export default function ImageModal(props: Props) {
         file,
         ...nextFields
     }: ImageFormSubmission) => {
-        if (!isOwner || !file) return;
+        if (!file) return;
 
         const created = await createMyImage({ ...nextFields, file });
 
@@ -176,7 +176,7 @@ export default function ImageModal(props: Props) {
             actions={
                 !isCreateModal && mode === 'view' ? (
                     <ImageActionsMenu
-                        isOwner={isOwner}
+                        isOwner={!!image?.isOwner}
                         onEdit={() => setMode('edit')}
                         onDelete={handleDelete}
                         onReport={() => {}}
@@ -209,7 +209,7 @@ export default function ImageModal(props: Props) {
                         </div>
 
                         <div>
-                            {mode === 'edit' && isOwner ? (
+                            {mode === 'edit' && !!image?.isOwner ? (
                                 <EditImageForm
                                     users={users}
                                     currentUsername={currentUsername}
