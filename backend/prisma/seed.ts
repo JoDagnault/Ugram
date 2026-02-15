@@ -62,6 +62,90 @@ async function main() {
         },
     });
 
+    await prisma.post.upsert({
+        where: { id: '1f518f0a-5ee1-4f06-81b4-353b762415d4' },
+        update: {},
+        create: {
+            id: '1f518f0a-5ee1-4f06-81b4-353b762415d4',
+            authorId: ME_USER_ID,
+            imageURL: 'https://picsum.photos/seed/img-3/800/600',
+            description: 'Little drive to see the wind turbines',
+            hashtags: ['HondaCivicForLife', 'KevinInTheDesert'],
+            mentions: [CHARLIE_USER_ID],
+            createdAt: new Date('2026-02-14T08:30:00.000Z'),
+        },
+    });
+
+    await prisma.post.upsert({
+        where: { id: '84424f89-249d-4978-ac6a-67bcab4b1395' },
+        update: {},
+        create: {
+            id: '84424f89-249d-4978-ac6a-67bcab4b1395',
+            authorId: ME_USER_ID,
+            imageURL: 'https://picsum.photos/seed/img-1/800/600',
+            description: 'Travelling with friends 🏙️',
+            hashtags: ['New York', 'Wow'],
+            mentions: [],
+            createdAt: new Date('2026-01-30T08:30:00.000Z'),
+        },
+    });
+
+    await prisma.post.upsert({
+        where: { id: '3e12a474-c84b-4c94-b81b-da647a6e10c5' },
+        update: {},
+        create: {
+            id: '3e12a474-c84b-4c94-b81b-da647a6e10c5',
+            authorId: ME_USER_ID,
+            imageURL: 'https://picsum.photos/seed/img-2/600/600',
+            description: 'New challenge',
+            hashtags: ['Hiking', 'Outdoors'],
+            mentions: [ALICE_USER_ID, CHARLIE_USER_ID],
+            createdAt: new Date('2025-12-31T08:30:00.000Z'),
+        },
+    });
+
+    await prisma.post.upsert({
+        where: { id: 'c483c9c6-7826-46f7-8ac5-a38e14b6707d' },
+        update: {},
+        create: {
+            id: 'c483c9c6-7826-46f7-8ac5-a38e14b6707d',
+            authorId: ALICE_USER_ID,
+            imageURL: 'https://picsum.photos/seed/img-4/700/600',
+            description: '',
+            hashtags: [],
+            mentions: [],
+            createdAt: new Date('2026-02-05T08:30:00.000Z'),
+        },
+    });
+
+    await prisma.post.upsert({
+        where: { id: 'bc4995c1-18fa-400b-96b6-92be8fea26d5' },
+        update: {},
+        create: {
+            id: 'bc4995c1-18fa-400b-96b6-92be8fea26d5',
+            authorId: ALICE_USER_ID,
+            imageURL: 'https://picsum.photos/seed/img-5/500/600',
+            description: '',
+            hashtags: ['Friends'],
+            mentions: [],
+            createdAt: new Date('2026-01-20T08:30:00.000Z'),
+        },
+    });
+
+    await prisma.post.upsert({
+        where: { id: '376afbab-7a10-4886-a7b9-107af72007c4' },
+        update: {},
+        create: {
+            id: '376afbab-7a10-4886-a7b9-107af72007c4',
+            authorId: CHARLIE_USER_ID,
+            imageURL: 'https://picsum.photos/seed/img-6/600/600',
+            description: 'Good times in Toronto',
+            hashtags: [],
+            mentions: [ALICE_USER_ID],
+            createdAt: new Date('2026-02-07T08:30:00.000Z'),
+        },
+    });
+
     console.log('Database seeded successfully!');
 }
 
