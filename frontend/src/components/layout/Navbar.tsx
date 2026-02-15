@@ -24,7 +24,7 @@ export default function Navbar() {
                         icon={MagnifyingGlassCircleIcon}
                     />
                     <NavbarItem
-                        to="/Profile"
+                        to="/Profile/me"
                         label="Profile"
                         icon={UserCircleIcon}
                     />

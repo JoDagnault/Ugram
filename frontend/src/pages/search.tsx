@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getUsers } from '../api/users/usersService';
+import { getMe, getUsers } from '../api/users/usersService';
 import type { UserListItem } from '../types/user';
 import ImageSearchResults from '../components/search/ImageSearchResults.tsx';
 import UserSearchResults from '../components/search/UserSearchResults.tsx';
@@ -7,13 +7,28 @@ import UserSearchResults from '../components/search/UserSearchResults.tsx';
 export default function Search() {
     const [query, setQuery] = useState('');
     const [users, setUsers] = useState<UserListItem[]>([]);
+    const [meId, setMeId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getUsers()
-            .then((u) => setUsers(u))
-            .catch(() => setUsers([]))
-            .finally(() => setLoading(false));
+        let ignore = false;
+
+        Promise.all([
+            getUsers().catch(() => [] as UserListItem[]),
+            getMe().catch(() => undefined),
+        ])
+            .then(([fetchedUsers, me]) => {
+                if (ignore) return;
+                setUsers(fetchedUsers);
+                setMeId(me?.id ?? null);
+            })
+            .finally(() => {
+                if (!ignore) setLoading(false);
+            });
+
+        return () => {
+            ignore = true;
+        };
     }, []);
 
     const normalizedQuery = useMemo(() => query.trim().toLowerCase(), [query]);
@@ -62,7 +77,7 @@ export default function Search() {
                     <hr className="my-4 border-gray-300 dark:border-gray-700" />
                 )}
 
-                <UserSearchResults users={displayedUsers} />
+                <UserSearchResults users={displayedUsers} meId={meId} />
             </div>
         </div>
     );

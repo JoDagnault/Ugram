@@ -34,10 +34,10 @@ const validateForm = (data: MyUser): FormErrors => {
         errors.email = 'Invalid email format';
     }
 
-    if (!data.phone.trim()) {
-        errors.phone = 'Phone number is required';
-    } else if (!/^\d{3}-\d{3}-\d{4}$/.test(data.phone)) {
-        errors.phone = 'Format must be xxx-xxx-xxxx with only numbers';
+    if (!data.phoneNumber.trim()) {
+        errors.phoneNumber = 'Phone number is required';
+    } else if (!/^\d{3}-\d{3}-\d{4}$/.test(data.phoneNumber)) {
+        errors.phoneNumber = 'Format must be xxx-xxx-xxxx with only numbers';
     }
 
     return errors;
@@ -127,13 +127,15 @@ const EditProfileModal = ({ user, onClose, onSave }: Props) => {
                     <label className="text-sm font-medium">Phone Number</label>
                     <input
                         className={`border p-2 rounded mb-1 ${
-                            errors.phone ? 'border-red-500' : ''
+                            errors.phoneNumber ? 'border-red-500' : ''
                         }`}
-                        value={formData.phone}
-                        onChange={(e) => handleChange('phone', e.target.value)}
+                        value={formData.phoneNumber}
+                        onChange={(e) =>
+                            handleChange('phoneNumber', e.target.value)
+                        }
                         placeholder="Phone number"
                     />
-                    <ErrorText message={errors.phone} />
+                    <ErrorText message={errors.phoneNumber} />
 
                     <button
                         type="submit"

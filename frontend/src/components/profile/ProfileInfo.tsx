@@ -65,7 +65,7 @@ const ProfileInfo = ({ user, isMyProfile }: Props) => {
                                     {user.firstName} {user.lastName}
                                 </p>
                                 <p>{currentUser.email}</p>
-                                <p>{currentUser.phone}</p>
+                                <p>{currentUser.phoneNumber}</p>
                             </>
                         )}
 

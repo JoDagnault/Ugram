@@ -12,7 +12,7 @@ export const router = createBrowserRouter([
         element: <App />,
         children: [
             { index: true, element: <Home /> },
-            { path: 'Profile', element: <UserProfile /> },
+            { path: 'Profile/me', element: <UserProfile /> },
             { path: 'Profile/:userId', element: <UserProfile /> },
             { path: 'Search', element: <Users /> },
             { path: '*', element: <NotFound /> },

@@ -12,5 +12,5 @@ export type UserProfile = UserListItem & {
 
 export type MyUser = UserProfile & {
     email: string;
-    phone: string;
+    phoneNumber: string;
 };
