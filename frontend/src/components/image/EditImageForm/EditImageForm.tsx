@@ -255,6 +255,14 @@ export default function EditImageForm({
                         ))}
                     </div>
                 )}
+                {mentionSuggestions.length <= 0 && mentionsInput.length > 0 && (
+                    <div>
+                        <p className="text-sm text-red-600 dark:text-red-400">
+                            User not found, this mention will not be added to
+                            your post
+                        </p>
+                    </div>
+                )}
 
                 {mentions.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
