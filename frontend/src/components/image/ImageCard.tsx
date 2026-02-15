@@ -28,8 +28,8 @@ export default function ImageCard({ image }: Props) {
         userIdToUsername.get(image.userId) ?? image.userId;
 
     const taggedUsernames = useMemo(() => {
-        return image.mentionUserIds.map((id) => userIdToUsername.get(id) ?? id);
-    }, [image.mentionUserIds, userIdToUsername]);
+        return image.mentions.map((id) => userIdToUsername.get(id) ?? id);
+    }, [image.mentions, userIdToUsername]);
 
     const hasDescription = image.description.trim().length > 0;
 

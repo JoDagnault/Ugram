@@ -4,17 +4,12 @@ import type { UserListItem } from '../../../types/user.ts';
 const MAX_MENTION_SUGGESTIONS = 5;
 
 type Props = {
-    initialMentionUserIds: string[];
+    initialMentions: string[];
     users: UserListItem[];
 };
 
-export default function useMentionEditor({
-    initialMentionUserIds,
-    users,
-}: Props) {
-    const [mentionUserIds, setMentionUserIds] = useState<string[]>(
-        initialMentionUserIds,
-    );
+export default function useMentionEditor({ initialMentions, users }: Props) {
+    const [mentions, setMentions] = useState<string[]>(initialMentions);
     const [mentionsInput, setMentionsInput] = useState('');
 
     const usersSortedAlphabetically = useMemo(
@@ -32,31 +27,29 @@ export default function useMentionEditor({
     const mentionSuggestions = useMemo(() => {
         if (!mentionQuery) return [];
 
-        const selectedMentionUserIds = new Set(mentionUserIds);
+        const selectedMentions = new Set(mentions);
         return usersSortedAlphabetically
             .filter(
                 (user) =>
-                    !selectedMentionUserIds.has(user.id) &&
+                    !selectedMentions.has(user.id) &&
                     user.username.toLowerCase().includes(mentionQuery),
             )
             .slice(0, MAX_MENTION_SUGGESTIONS);
-    }, [mentionQuery, mentionUserIds, usersSortedAlphabetically]);
+    }, [mentionQuery, mentions, usersSortedAlphabetically]);
 
     const addMention = (userId: string) => {
-        setMentionUserIds((current) =>
+        setMentions((current) =>
             current.includes(userId) ? current : [...current, userId],
         );
         setMentionsInput('');
     };
 
     const removeMention = (userId: string) => {
-        setMentionUserIds((current) =>
-            current.filter((value) => value !== userId),
-        );
+        setMentions((current) => current.filter((value) => value !== userId));
     };
 
     return {
-        mentionUserIds,
+        mentions,
         mentionsInput,
         setMentionsInput,
         mentionSuggestions,

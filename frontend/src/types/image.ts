@@ -8,7 +8,7 @@ export type ImageListItem = {
 export type ImageDetailsFields = {
     description: string;
     hashtags: string[];
-    mentionUserIds: string[];
+    mentions: string[];
 };
 
 export type ImageDetails = ImageListItem & ImageDetailsFields;
