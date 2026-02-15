@@ -66,7 +66,7 @@ export class PostFieldsValidator {
     }
 
     private static validateMentions(mentions: string[]) {
-        const regex = /^[a-zA-Z0-9._]+$/;
+        const regex = /^[a-zA-Z0-9._-]+$/;
 
         mentions.forEach((m) => {
             if (!regex.test(m)) {

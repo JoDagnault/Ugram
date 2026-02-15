@@ -59,6 +59,9 @@ export const createMyImage = async (
     formData.append('hashtags', JSON.stringify(request.hashtags));
     formData.append('mentions', JSON.stringify(request.mentionUserIds));
 
+    console.log(request.hashtags);
+    console.log(JSON.stringify(request.hashtags));
+
     const response = await apiFetch('/users/me/posts', {
         method: 'POST',
         body: formData,

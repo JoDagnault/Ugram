@@ -21,7 +21,7 @@ export default function ImageMetadataSummary({
             {hashtags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                     {hashtags.map((tag) => (
-                        <span key={tag} className="text-blue-500">
+                        <span key={tag} className="text-blue-500 break-all">
                             #{tag}
                         </span>
                     ))}
