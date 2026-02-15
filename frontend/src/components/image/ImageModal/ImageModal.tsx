@@ -226,6 +226,11 @@ export default function ImageModal(props: Props) {
                                     <ImageMetadataSummary
                                         hashtags={image.hashtags}
                                         mentions={image.mentions}
+                                        publisher={
+                                            userIdToUsername.get(
+                                                image.userId,
+                                            ) ?? 'Unknown'
+                                        }
                                         userIdToUsername={userIdToUsername}
                                     />
                                 </div>
