@@ -36,7 +36,7 @@ export default function ImageCard({ image }: Props) {
     return (
         <div className="flex justify-center w-full">
             <div className="border rounded-lg overflow-hidden shadow-sm bg-white dark:bg-dark w-60 min-[640px]:w-70 min-[750px]:w-[320px] min-[1024px]:w-112.5 min-[1242px]:w-137.5 min-[1366px]:w-162.5 min-[1536px]:w-200 min-[1920px]:w-225">
-                <div className="w-full h-87.5 min-[640px]:h-100 min-[750px]:h-112.5 min-[1024px]:h-150 min-[1242px]:h-175 min-[1366px]:h-200 min-[1536px]:h-250 min-[1920px]:h-300 bg-white dark:bg-dark flex items-center justify-center">
+                <div className="w-full h-87.5 min-[640px]:h-100 min-[750px]:h-112.5 min-[1024px]:h-150 min-[1242px]:h-175 min-[1366px]:h-200  bg-white dark:bg-dark flex items-center justify-center">
                     <img
                         src={image.imageUrl}
                         alt={image.id}
