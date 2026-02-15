@@ -48,6 +48,7 @@ export class PostRouter {
 
     private initializePublicRoutes() {
         this.publicRouter.get('/', this.postsController.getAllPostsHandler);
+        this.publicRouter.get('/:id', this.postsController.getPostByIdHandler);
     }
 
     private initializeAnotherUserRoutes() {

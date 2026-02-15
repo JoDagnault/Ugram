@@ -11,7 +11,10 @@ export type ImageDetailsFields = {
     mentions: string[];
 };
 
-export type ImageDetails = ImageListItem & ImageDetailsFields;
+export type ImageDetails = ImageListItem &
+    ImageDetailsFields & {
+        isOwner: boolean;
+    };
 
 export type CreateImageRequest = ImageDetailsFields & {
     file: File;

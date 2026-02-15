@@ -42,16 +42,10 @@ export const getImage = async (
     imageId: string,
 ): Promise<ImageDetails | undefined> => {
     const post = await apiGetJsonOrUndefinedOn404<PostResponseDto>(
-        `/users/me/posts/${imageId}`,
-    );
-
-    if (post) return mapPostResponseToImageDetails(post);
-
-    const publicPost = await apiGetJsonOrUndefinedOn404<PostResponseDto>(
         `/posts/${imageId}`,
     );
 
-    return publicPost ? mapPostResponseToImageDetails(publicPost) : undefined;
+    return post ? mapPostResponseToImageDetails(post) : undefined;
 };
 
 export const createMyImage = async (

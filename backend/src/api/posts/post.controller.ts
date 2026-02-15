@@ -29,7 +29,10 @@ export class PostController {
 
             await this.createPost.execute(post);
 
-            const postDTO: ResponsePostDTO = this.postAssembler.toPostDTO(post);
+            const postDTO: ResponsePostDTO = this.postAssembler.toPostDTO(
+                post,
+                req.userId,
+            );
             return res.status(201).json(postDTO);
         } catch (error: any) {
             next(error);
@@ -49,7 +52,8 @@ export class PostController {
             : await this.getAllPosts.execute();
 
         const postsDTO: ResponsePostDTO[] = posts.map(
-            (post: Post): ResponsePostDTO => this.postAssembler.toPostDTO(post),
+            (post: Post): ResponsePostDTO =>
+                this.postAssembler.toPostDTO(post, req.userId),
         );
         return res.status(200).json(postsDTO);
     };
@@ -60,12 +64,19 @@ export class PostController {
         next: NextFunction,
     ) => {
         const { id: postId, userId: userIdParam } = req.params;
-        const userId: string | undefined =
-            userIdParam === 'me' ? req.userId : userIdParam;
+
+        // Only enforce ownership when accessing through the "me" route.
+        // Other routes (e.g. GET /posts/:id or GET /users/:userId/posts/:id) are read-only and public.
+        const ownerUserId: string | undefined =
+            userIdParam === 'me' ? req.userId : undefined;
+
         try {
-            const post: Post = await this.getPostById.execute(postId, userId);
+            const post: Post = await this.getPostById.execute(
+                postId,
+                ownerUserId,
+            );
             const responsePostDTO: ResponsePostDTO =
-                this.postAssembler.toPostDTO(post);
+                this.postAssembler.toPostDTO(post, req.userId);
             return res.status(200).json(responsePostDTO);
         } catch (error: any) {
             next(error);
@@ -93,7 +104,7 @@ export class PostController {
                 validatedFields,
             );
             const responsePostDTO: ResponsePostDTO =
-                this.postAssembler.toPostDTO(post);
+                this.postAssembler.toPostDTO(post, req.userId);
             return res.status(200).json(responsePostDTO);
         } catch (error: any) {
             next(error);
