@@ -65,8 +65,6 @@ export class PostController {
     ) => {
         const { id: postId, userId: userIdParam } = req.params;
 
-        // Only enforce ownership when accessing through the "me" route.
-        // Other routes (e.g. GET /posts/:id or GET /users/:userId/posts/:id) are read-only and public.
         const ownerUserId: string | undefined =
             userIdParam === 'me' ? req.userId : undefined;
 
