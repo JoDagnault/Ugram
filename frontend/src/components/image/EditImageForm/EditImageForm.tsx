@@ -94,6 +94,11 @@ export default function EditImageForm({
             nextErrors.file = 'Image file is required';
         }
 
+        if (hashtagsInput.trim()) {
+            nextErrors.hashtags =
+                'Click "Add" to add your hashtags before posting';
+        }
+
         if (Object.keys(nextErrors).length > 0) {
             setErrors(nextErrors);
             return;
