@@ -52,12 +52,21 @@ const Profile = () => {
         setImages(imgs);
     };
 
+    const refreshUser = async () => {
+        const updated = await getMe();
+        setUser(updated);
+    };
+
     if (loading) return <p>Loading…</p>;
     if (!user) return <p>No user found</p>;
 
     return (
         <div>
-            <ProfileInfo user={user} isMyProfile={isMyProfile} />
+            <ProfileInfo
+                user={user}
+                isMyProfile={isMyProfile}
+                onUserUpdated={refreshUser}
+            />
 
             {isMyProfile && (
                 <div className="flex justify-center mb-4">

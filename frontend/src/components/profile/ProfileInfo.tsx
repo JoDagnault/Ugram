@@ -13,9 +13,10 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 type Props = {
     user: MyUser | UserProfile;
     isMyProfile: boolean;
+    onUserUpdated?: () => void;
 };
 
-const ProfileInfo = ({ user, isMyProfile }: Props) => {
+const ProfileInfo = ({ user, isMyProfile, onUserUpdated }: Props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(user);
 
@@ -27,6 +28,7 @@ const ProfileInfo = ({ user, isMyProfile }: Props) => {
         try {
             const savedUser = await updateMe(updatedUser);
             setCurrentUser(savedUser);
+            onUserUpdated?.();
             setIsModalOpen(false);
         } catch (error) {
             // TODO: deal with backend error
