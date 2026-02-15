@@ -197,13 +197,15 @@ export default function ImageModal(props: Props) {
                 </div>
             ) : (
                 image && (
-                    <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-black/5 rounded overflow-hidden">
-                            <img
-                                src={image.imageUrl}
-                                alt={image.id}
-                                className="w-full object-cover"
-                            />
+                    <div className="p-2.5 min-[750px]:p-3 min-[1242px]:p-4 grid grid-cols-1 min-[1242px]:grid-cols-2 gap-3 min-[750px]:gap-4">
+                        <div className="flex justify-center items-center">
+                            <div className="bg-black/5 rounded overflow-hidden inline-block max-w-full">
+                                <img
+                                    src={image.imageUrl}
+                                    alt={image.id}
+                                    className="w-full h-auto max-h-100 min-[640px]:max-h-125 min-[750px]:max-h-150 min-[1024px]:max-h-175 min-[1242px]:max-h-200 min-[1366px]:max-h-212.5 min-[1536px]:max-h-237.5 min-[1920px]:max-h-262.5 object-contain"
+                                />
+                            </div>
                         </div>
 
                         <div>
