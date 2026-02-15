@@ -21,9 +21,20 @@ export const apiGetJsonOrUndefinedOn404 = async <T>(
     const response = await apiFetch(path);
 
     if (response.status === 404) return undefined;
-    if (!response.ok) {
-        throw new Error(`API request failed (${response.status})`);
-    }
 
     return (await response.json()) as T;
+};
+
+export const handleErrorResponse = async (
+    response: Response,
+): Promise<void> => {
+    try {
+        const clonedResponse = response.clone();
+        const errorData = await clonedResponse.json();
+        const message = errorData.message || `Error ${response.status}`;
+
+        alert(`Error ${response.status}: ${message}`);
+    } catch {
+        alert(`Error ${response.status}`);
+    }
 };

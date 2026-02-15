@@ -4,7 +4,11 @@ import type {
     UpdateImageRequest,
     ImageListItem,
 } from '../../types/image.ts';
-import { apiFetch, apiGetJsonOrUndefinedOn404 } from '../http.ts';
+import {
+    apiFetch,
+    apiGetJsonOrUndefinedOn404,
+    handleErrorResponse,
+} from '../http.ts';
 import { mapPostResponseToImageDetails } from './imagesMappers.ts';
 import type { PostResponseDto } from './imagesResponses.ts';
 
@@ -65,6 +69,7 @@ export const createMyImage = async (
     });
 
     if (!response.ok) {
+        await handleErrorResponse(response);
         throw new Error(`API request failed (${response.status})`);
     }
 
@@ -84,6 +89,7 @@ export const updateMyImage = async (
 
     if (response.status === 404) return undefined;
     if (!response.ok) {
+        await handleErrorResponse(response);
         throw new Error(`API request failed (${response.status})`);
     }
 
@@ -98,6 +104,7 @@ export const deleteMyImage = async (imageId: string): Promise<boolean> => {
 
     if (response.status === 404) return false;
     if (!response.ok) {
+        await handleErrorResponse(response);
         throw new Error(`API request failed (${response.status})`);
     }
 
