@@ -3,16 +3,16 @@ const toMentionLabel = (value: string): string =>
 
 type Props = {
     hashtags: string[];
-    mentionUserIds: string[];
+    mentions: string[];
     userIdToUsername: Map<string, string>;
 };
 
 export default function ImageMetadataSummary({
     hashtags,
-    mentionUserIds,
+    mentions,
     userIdToUsername,
 }: Props) {
-    const mentionLabels = mentionUserIds.map((userId) =>
+    const mentionLabels = mentions.map((userId) =>
         toMentionLabel(userIdToUsername.get(userId) ?? userId),
     );
 

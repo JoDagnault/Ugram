@@ -36,12 +36,12 @@ type Props = ExistingImageModalProps | CreateImageModalProps;
 const EMPTY_IMAGE_DETAILS_FIELDS: ImageDetailsFields = {
     description: '',
     hashtags: [],
-    mentionUserIds: [],
+    mentions: [],
 };
 const toImageDetailsFields = (image: ImageDetails): ImageDetailsFields => ({
     description: image.description,
     hashtags: image.hashtags,
-    mentionUserIds: image.mentionUserIds,
+    mentions: image.mentions,
 });
 
 const dateFormat = (iso: string): string => new Date(iso).toLocaleDateString();
@@ -223,7 +223,7 @@ export default function ImageModal(props: Props) {
 
                                     <ImageMetadataSummary
                                         hashtags={image.hashtags}
-                                        mentionUserIds={image.mentionUserIds}
+                                        mentions={image.mentions}
                                         userIdToUsername={userIdToUsername}
                                     />
                                 </div>

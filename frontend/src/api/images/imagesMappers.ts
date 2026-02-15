@@ -14,5 +14,5 @@ export const mapPostResponseToImageDetails = (
     createdAt: post.createdAt,
     description: post.description,
     hashtags: post.hashtags,
-    mentionUserIds: post.mentions,
+    mentions: post.mentions,
 });

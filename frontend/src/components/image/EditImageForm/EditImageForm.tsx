@@ -53,14 +53,14 @@ export default function EditImageForm({
     } = useHashtagEditor(initial.hashtags);
 
     const {
-        mentionUserIds,
+        mentions,
         mentionsInput,
         mentionSuggestions,
         setMentionsInput,
         addMention,
         removeMention,
     } = useMentionEditor({
-        initialMentionUserIds: initial.mentionUserIds,
+        initialMentions: initial.mentions,
         users,
     });
 
@@ -82,7 +82,7 @@ export default function EditImageForm({
         const next: ImageFormSubmission = {
             description: description.trim(),
             hashtags,
-            mentionUserIds,
+            mentions,
             file,
         };
 
@@ -256,9 +256,9 @@ export default function EditImageForm({
                     </div>
                 )}
 
-                {mentionUserIds.length > 0 && (
+                {mentions.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
-                        {mentionUserIds.map((userId) => {
+                        {mentions.map((userId) => {
                             const mentionLabel = toMentionLabel(
                                 userIdToUsername.get(userId) ?? userId,
                             );
