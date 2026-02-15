@@ -1,5 +1,9 @@
 import type { MyUser, UserListItem, UserProfile } from '../../types/user.ts';
-import { apiFetch, apiGetJsonOrUndefinedOn404 } from '../http.ts';
+import {
+    apiFetch,
+    apiGetJsonOrUndefinedOn404,
+    handleErrorResponse,
+} from '../http.ts';
 
 export const getMe = async (): Promise<MyUser> => {
     const me = await apiGetJsonOrUndefinedOn404<MyUser>('/users/me');
@@ -18,6 +22,7 @@ export const updateMe = async (newMe: MyUser): Promise<MyUser> => {
     });
 
     if (!response.ok) {
+        await handleErrorResponse(response);
         throw new Error(`API request failed (${response.status})`);
     }
 
