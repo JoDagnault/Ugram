@@ -6,7 +6,6 @@ import { GetAllUsersUsecase } from '../../application/users/get-all-users.usecas
 import { UpdateMeUsecase } from '../../application/users/update-me.usecase';
 import { UpdateMeDto } from './dto/update-me.dto';
 import { UserProfile } from '../../domain/users/user-profile';
-import { UserResponseDTO } from './dto/user-response.dto';
 import { UserValidator } from './assembler/user-fields-validator';
 
 export class UserController {
@@ -45,7 +44,9 @@ export class UserController {
                 return res.status(404).json({ message: 'User not found' });
             }
 
-            return res.status(200).json(this.assembler.toDTO(user));
+            return res
+                .status(200)
+                .json(this.assembler.toPublicProfileDTO(user));
         } catch (error: any) {
             next(error);
         }
@@ -53,8 +54,8 @@ export class UserController {
 
     getAllUsersHandler = async (_req: Request, res: Response) => {
         const users: UserProfile[] = await this.getAllUsers.execute();
-        const dto: UserResponseDTO[] = users.map((user) =>
-            this.assembler.toDTO(user),
+        const dto = users.map((user) =>
+            this.assembler.toPublicProfileDTO(user),
         );
         return res.status(200).json(dto);
     };

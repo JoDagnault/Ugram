@@ -64,7 +64,8 @@ const ProfileInfo = ({ user, isMyProfile, onUserUpdated }: Props) => {
                         {isMyProfile && 'email' in currentUser && (
                             <>
                                 <p>
-                                    {user.firstName} {user.lastName}
+                                    {currentUser.firstName}{' '}
+                                    {currentUser.lastName}
                                 </p>
                                 <p>{currentUser.email}</p>
                                 <p>{currentUser.phoneNumber}</p>

@@ -5,12 +5,12 @@ export type UserListItem = {
 };
 
 export type UserProfile = UserListItem & {
-    firstName: string;
-    lastName: string;
     createdAt: string;
 };
 
 export type MyUser = UserProfile & {
+    firstName: string;
+    lastName: string;
     email: string;
     phoneNumber: string;
 };
