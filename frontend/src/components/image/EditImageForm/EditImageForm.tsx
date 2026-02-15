@@ -2,7 +2,10 @@ import { useMemo, useRef, useState, type FormEvent } from 'react';
 import type { ImageDetailsFields } from '../../../types/image.ts';
 import type { UserListItem } from '../../../types/user.ts';
 import RemovableChip from '../../common/RemovableChip.tsx';
-import useHashtagEditor, { MAX_HASHTAGS } from './useHashtagEditor.ts';
+import useHashtagEditor, {
+    MAX_HASHTAGS,
+    MAX_HASHTAG_LENGTH,
+} from './useHashtagEditor.ts';
 import useMentionEditor from './useMentionEditor.ts';
 
 type ImageFormErrors = {
@@ -195,8 +198,20 @@ export default function EditImageForm({
                     </button>
                 </div>
 
-                <div className="text-xs text-gray-500 mt-1">
-                    {hashtags.length}/{MAX_HASHTAGS} hashtags
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                    <span
+                        className={
+                            hashtagsInput.length > MAX_HASHTAG_LENGTH
+                                ? 'text-red-500'
+                                : ''
+                        }
+                    >
+                        {hashtagsInput.length}/{MAX_HASHTAG_LENGTH}
+                    </span>
+
+                    <span>
+                        {hashtags.length}/{MAX_HASHTAGS} hashtags
+                    </span>
                 </div>
 
                 {hashtags.length > 0 && (

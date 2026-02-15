@@ -1,6 +1,9 @@
 import { PostFieldsDto } from '../dto/post-fields.dto';
 import { BadRequestError } from '../../../errors/bad-request.error';
 
+const MAX_HASHTAG_LENGTH = 30;
+const MAX_DESCRIPTION_LENGTH = 300;
+
 export class PostFieldsValidator {
     static validatePostFields(fields: PostFieldsDto): PostFieldsDto {
         const hashtags: string[] = this.parseStringArray(fields.hashtags);
@@ -12,8 +15,13 @@ export class PostFieldsValidator {
             if (description.startsWith('"') && description.endsWith('"')) {
                 description = description.slice(1, -1);
             }
-        }
 
+            if (description.length > MAX_DESCRIPTION_LENGTH) {
+                throw new BadRequestError(
+                    `Description exceeds ${MAX_DESCRIPTION_LENGTH} characters`,
+                );
+            }
+        }
         const cleanHashtags = hashtags.map((tag) =>
             tag.replace(/^#/, '').trim().toLowerCase(),
         );
@@ -59,6 +67,12 @@ export class PostFieldsValidator {
         const regex = /^[a-zA-Z0-9_]+$/;
 
         tags.forEach((tag) => {
+            if (tag.length > MAX_HASHTAG_LENGTH) {
+                throw new BadRequestError(
+                    `Hashtag "${tag}" exceeds ${MAX_HASHTAG_LENGTH} characters`,
+                );
+            }
+
             if (!regex.test(tag)) {
                 throw new BadRequestError(`Invalid hashtag: "${tag}"`);
             }

@@ -3,9 +3,12 @@ import { useState } from 'react';
 const HASHTAG_PATTERN = /^[a-zA-Z0-9_]+$/;
 
 export const MAX_HASHTAGS = 10;
+export const MAX_HASHTAG_LENGTH = 30;
+
 const HASHTAG_CHARACTERS_ERROR =
     'Hashtags must contain only letters, numbers, underscore';
 const MAX_HASHTAGS_ERROR = `Max ${MAX_HASHTAGS} hashtags`;
+const MAX_HASHTAG_LENGTH_ERROR = `Hashtag too long (max ${MAX_HASHTAG_LENGTH} characters)`;
 
 export default function useHashtagEditor(initialHashtags: string[]) {
     const [hashtags, setHashtags] = useState<string[]>(initialHashtags);
@@ -18,10 +21,16 @@ export default function useHashtagEditor(initialHashtags: string[]) {
         const seen = new Set(nextHashtags.map((tag) => tag.toLowerCase()));
         let hasInvalidCharacters = false;
         let reachedLimit = false;
+        let tooLong = false;
 
         for (const token of hashtagsInput.split(',')) {
             const candidate = token.trim().replace(/^#/, '');
             if (!candidate) continue;
+
+            if (candidate.length > MAX_HASHTAG_LENGTH) {
+                tooLong = true;
+                continue;
+            }
 
             if (!HASHTAG_PATTERN.test(candidate)) {
                 hasInvalidCharacters = true;
@@ -42,10 +51,11 @@ export default function useHashtagEditor(initialHashtags: string[]) {
         if (nextHashtags.length !== hashtags.length) {
             setHashtags(nextHashtags);
         }
-        if (!hasInvalidCharacters && !reachedLimit) {
+        if (!hasInvalidCharacters && !reachedLimit && !tooLong) {
             setHashtagsInput('');
         }
 
+        if (tooLong) return MAX_HASHTAG_LENGTH_ERROR;
         if (hasInvalidCharacters) return HASHTAG_CHARACTERS_ERROR;
         if (reachedLimit) return MAX_HASHTAGS_ERROR;
         return undefined;
