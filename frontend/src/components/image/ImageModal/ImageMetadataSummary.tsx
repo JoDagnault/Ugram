@@ -4,12 +4,14 @@ const toMentionLabel = (value: string): string =>
 type Props = {
     hashtags: string[];
     mentions: string[];
+    publisher: string;
     userIdToUsername: Map<string, string>;
 };
 
 export default function ImageMetadataSummary({
     hashtags,
     mentions,
+    publisher,
     userIdToUsername,
 }: Props) {
     const mentionLabels = mentions.map((userId) =>
@@ -36,6 +38,13 @@ export default function ImageMetadataSummary({
                     {mentionLabels.join(', ')}
                 </div>
             )}
+
+            <div className="text-sm">
+                <span className="text-gray-600 dark:text-gray-400">
+                    published by:{' '}
+                </span>
+                {toMentionLabel(publisher)}
+            </div>
         </div>
     );
 }
