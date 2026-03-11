@@ -40,6 +40,7 @@ jobs:
               run: pnpm --dir frontend run build
               env:
                   VITE_API_URL: ${{ secrets.VITE_API_URL }}
+                  VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID || vars.VITE_GOOGLE_CLIENT_ID }}
                   VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
 
             - name: Configure AWS credentials

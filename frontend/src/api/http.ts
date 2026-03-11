@@ -13,7 +13,38 @@ export const apiUrl = (path: string): string =>
 export const apiFetch = async (
     path: string,
     init?: RequestInit,
-): Promise<Response> => await fetch(apiUrl(path), init);
+): Promise<Response> => {
+    const token = localStorage.getItem('jwt');
+
+    return fetch(apiUrl(path), {
+        ...init,
+        headers: {
+            ...init?.headers,
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+    });
+};
+
+export class ApiError extends Error {
+    status: number;
+    constructor(status: number, message: string) {
+        super(message);
+        this.status = status;
+    }
+}
+
+const extractApiError = async (response: Response): Promise<ApiError> => {
+    try {
+        const errorData = await response.clone().json();
+        const message = errorData.message || `Error ${response.status}`;
+        return new ApiError(response.status, message);
+    } catch {
+        return new ApiError(
+            response.status,
+            `API request failed (${response.status})`,
+        );
+    }
+};
 
 export const apiGetJsonOrUndefinedOn404 = async <T>(
     path: string,
@@ -21,24 +52,20 @@ export const apiGetJsonOrUndefinedOn404 = async <T>(
     const response = await apiFetch(path);
 
     if (response.status === 404) return undefined;
-    if (!response.ok) {
-        await handleErrorResponse(response);
-        throw new Error(`API request failed (${response.status})`);
-    }
+    if (!response.ok) throw await extractApiError(response);
 
     return (await response.json()) as T;
+};
+
+export const handleLoginResponse = async (
+    response: Response,
+): Promise<void> => {
+    throw await extractApiError(response);
 };
 
 export const handleErrorResponse = async (
     response: Response,
 ): Promise<void> => {
-    try {
-        const clonedResponse = response.clone();
-        const errorData = await clonedResponse.json();
-        const message = errorData.message || `Error ${response.status}`;
-
-        alert(`Error ${response.status}: ${message}`);
-    } catch {
-        alert(`Error ${response.status}`);
-    }
+    const error = await extractApiError(response);
+    alert(`Error ${error.status}: ${error.message}`);
 };

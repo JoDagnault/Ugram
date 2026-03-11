@@ -4,6 +4,8 @@ import { HomeIcon } from '@heroicons/react/24/outline';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 import UgramLettering from '../../assets/ugramLettering.tsx';
 import NavbarItem from './NavbarItem.tsx';
+import NavbarItemLogout from './NavbarItemLogout.tsx';
+import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/24/outline';
 
 export default function Navbar() {
     return (
@@ -27,6 +29,10 @@ export default function Navbar() {
                         to="/Profile/me"
                         label="Profile"
                         icon={UserCircleIcon}
+                    />
+                    <NavbarItemLogout
+                        label="Logout"
+                        icon={ArrowRightEndOnRectangleIcon}
                     />
                 </div>
             </nav>

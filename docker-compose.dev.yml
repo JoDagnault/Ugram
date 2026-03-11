@@ -18,7 +18,7 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    command: sh -c "pnpm prisma:seed:deploy"
+    command: sh -c "pnpm --dir backend run prisma:seed:deploy"
     restart: "no"
 
   backend:

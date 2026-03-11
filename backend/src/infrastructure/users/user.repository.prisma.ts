@@ -9,8 +9,60 @@ export class PrismaUserRepository implements UserRepository {
     constructor(prismaClient: PrismaClient) {
         this.prisma = prismaClient;
     }
+    async findByEmail(email: string): Promise<UserProfile | undefined> {
+        const user = await this.prisma.user.findFirst({ where: { email } });
 
-    async getById(id: string): Promise<UserProfile> {
+        if (!user) {
+            return undefined;
+        }
+
+        return new UserProfile(
+            user.id,
+            user.profilePictureUrl,
+            user.username,
+            user.firstName,
+            user.lastName,
+            user.email,
+            user.phoneNumber,
+            user.createdAt,
+        );
+    }
+
+    async findByUsername(username: string): Promise<UserProfile | undefined> {
+        const user = await this.prisma.user.findFirst({ where: { username } });
+
+        if (!user) {
+            return undefined;
+        }
+
+        return new UserProfile(
+            user.id,
+            user.profilePictureUrl,
+            user.username,
+            user.firstName,
+            user.lastName,
+            user.email,
+            user.phoneNumber,
+            user.createdAt,
+        );
+    }
+
+    async save(user: UserProfile): Promise<void> {
+        await this.prisma.user.create({
+            data: {
+                id: user.id,
+                profilePictureUrl: user.profilePictureUrl,
+                username: user.username,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                createdAt: user.createdAt,
+            },
+        });
+    }
+
+    async findById(id: string): Promise<UserProfile> {
         const user = await this.prisma.user.findUnique({
             where: { id },
         });

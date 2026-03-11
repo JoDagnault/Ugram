@@ -6,6 +6,9 @@ on:
             - main
         paths:
             - 'backend/**'
+            - 'package.json'
+            - 'pnpm-lock.yaml'
+            - 'pnpm-workspace.yaml'
             - '.github/workflows/backend-cd.yml'
     workflow_dispatch:
 
@@ -29,27 +32,35 @@ jobs:
             - name: Install pnpm
               run: npm install -g pnpm
 
-            - name: Install backend dependencies
-              working-directory: backend
-              run: pnpm install --frozen-lockfile --ignore-workspace
+            - name: Install backend workspace dependencies
+              run: pnpm install --frozen-lockfile --filter backend...
 
             - name: Build backend
-              working-directory: backend
-              run: pnpm run build
+              run: pnpm --dir backend run build
 
             - name: Create Elastic Beanstalk bundle
               run: |
                 rm -rf deploy-bundle
-                mkdir deploy-bundle
-                
-                rsync -a backend/ deploy-bundle/ \
+                mkdir -p deploy-bundle/backend
+
+                cp package.json pnpm-lock.yaml pnpm-workspace.yaml deploy-bundle/
+                cp backend/Dockerfile deploy-bundle/Dockerfile
+                cp backend/Dockerrun.aws.json deploy-bundle/Dockerrun.aws.json
+                mkdir -p deploy-bundle/.platform
+                rsync -a backend/.platform/ deploy-bundle/.platform/
+
+                rsync -a backend/ deploy-bundle/backend/ \
                   --exclude node_modules \
                   --exclude .git \
                   --exclude .github \
                   --exclude .env \
                   --exclude coverage \
                   --exclude '*.log' \
-                  --exclude '.DS_Store'
+                  --exclude '.DS_Store' \
+                  --exclude '.platform' \
+                  --exclude 'Dockerfile' \
+                  --exclude 'Dockerrun.aws.json' \
+                  --exclude 'pnpm-lock.yaml'
                 
                 cd deploy-bundle
                 zip -r "../${VERSION_LABEL}.zip" .

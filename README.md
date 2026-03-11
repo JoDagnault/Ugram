@@ -1,6 +1,7 @@
+# Livrable 1
 # ugram-h2026-team-01
 
-# 1. Technologies utilisées
+# 1. Architecture du projet (Livrable 0)
 
 ## Frontend
 
@@ -17,7 +18,6 @@
 - **ORM** : Prisma
 - **Système de gestion de base de données** : PostgreSQL
 
----
 
 ## Qualité et analyse du code
 
@@ -30,25 +30,21 @@ Afin d’assurer une qualité de code constante, les outils suivants sont utilis
     - lint-staged.
 - **Analyse de couverture de code** : Codecov.
 
----
 
 ## Intégration et déploiement continus (CI/CD)
 
 - **Outil de CI/CD** : GitHub Actions.
 
----
 
 ## Déploiement
 
 - **Plateforme de déploiement** : AWS.
 
----
 
 ## Monitoring et observabilité
 
 - **Outil de monitoring et de suivi des erreurs** : Sentry.
 
----
 
 ## Infrastructure et outils complémentaires
 
@@ -57,15 +53,15 @@ Afin d’assurer une qualité de code constante, les outils suivants sont utilis
 
 ---
 
-# 2. Exécution
-
-## Prérequis
+# 2. Prérequis
 
 - Docker
+- Un fichier `.env` à la racine du projet
+
 
 ## Variables d'environnement
 
-Créer et utiliser le fichier `.env` à la racine du dépôt :
+Créer un fichier `.env` à la racine du projet :
 
 ```env
 POSTGRES_USER=your_username
@@ -75,62 +71,44 @@ POSTGRES_PORT=5432
 DATABASE_URL=postgresql://your_username:your_password@postgres:5432/your_database?schema=public
 ```
 
-## Développement
+Les vraies valeurs à utiliser et mettre dans le fichier `.env` sont à l'intérieur du document dans le lien suivant : https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/edit?usp=sharing
 
-Depuis la racine du projet :
 
-- démarrer l'environnement :
+# 3. Exécution du livrable 1
 
-```bash
-./up.sh --dev
-# ou manuellement :
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
-```
-
-- arrêter l'environnement :
-
-```bash
-./down.sh --dev
-# ou manuellement :
-docker compose -f docker-compose.yml -f docker-compose.dev.yml down
-```
-
-Comportement :
-
-- utilise une base de données éphémère (`tmpfs`) (les données PostgreSQL ne persistent pas entre les runs)
-- applique automatiquement les migrations Prisma (`migrate`)
-- exécute automatiquement le seed (`seed`)
-- démarre le backend après le succès de `migrate` et `seed`
-- les images uploadées sont persistées dans un volume Docker (`uploads_data`) (sauf si vous utilisez `down -v`)
-
-Concernant les migrations, aller voir le README du backend.
-
-## Production (local)
-
+## Démarrer l'application
 Depuis la racine du projet :
 
 ```bash
 ./up.sh
-# ou manuellement :
+```
+ou manuellement :
+```bash
 docker compose -f docker-compose.yml up -d --build
 ```
 
+## Arrêter l'application
 ```bash
 ./down.sh
-# ou manuellement :
+```
+ou manuellement :
+```bash
 docker compose -f docker-compose.yml down
 ```
 
-Comportement :
-
-- persiste les données PostgreSQL dans un volume Docker (`postgres_data`)
-- persiste les images uploadées dans un volume Docker (`uploads_data`)
-- pour repartir de zéro (supprime DB + images) : `./down.sh -v`
+## Réinitialiser complètement (Database + uploads)
+```bash
+./down.sh -v
+```
 
 ## Accès aux services
 
 - Backend : http://localhost:3000
 - Frontend : http://localhost:5173
 
-## Vraies valeurs du .env
-Elles sont à l'intérieur du document dans le lien suivant : https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/edit?usp=sharing
+## Comportement du docker-compose
+- Applique automatiquement les migrations Prisma
+- Exécute le seed
+- Démarre le backend après la Database
+- Persiste les données PostgreSQL dans un volume Docker (`postgres_data`)
+- Persiste les images uploadées dans un volume Docker (`uploads_data`)

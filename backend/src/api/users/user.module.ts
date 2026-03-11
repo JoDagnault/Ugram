@@ -35,5 +35,5 @@ export function UserModule() {
     );
     const router: Router = createUsersRouter(userController);
 
-    return { router };
+    return { router, userRepository };
 }
