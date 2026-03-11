@@ -16,8 +16,8 @@ build/
 **/build/
 
 # environment variables
+.env.local
 .env
-.env.*
 
 # TypeScript
 *.tsbuildinfo

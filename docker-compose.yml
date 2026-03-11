@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -20,39 +22,39 @@ services:
 
   migrate:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: ugram-migrate
     environment:
       DATABASE_URL: ${DATABASE_URL}
     networks:
       - ugram-net
     depends_on:
-      postgres:
-        condition: service_healthy
-    command: sh -c "pnpm prisma:migrate:deploy"
+      - postgres
+    command: sh -c "wait-for-it.sh postgres:5432 -t 30 -- pnpm prisma:migrate:deploy"
     restart: "no"
 
   seed:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: ugram-seed
     environment:
       DATABASE_URL: ${DATABASE_URL}
     networks:
       - ugram-net
     depends_on:
-      migrate:
-        condition: service_completed_successfully
-    command: sh -c "pnpm prisma db seed"
+      - migrate
+    command: sh -c "wait-for-it.sh postgres:5432 -t 30 -- pnpm prisma:seed:deploy"
     restart: "no"
 
   backend:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: ugram-backend
+    env_file:
+      - ./backend/.env
     ports:
       - "3000:3000"
     environment:
@@ -63,8 +65,8 @@ services:
     networks:
       - ugram-net
     depends_on:
-      seed:
-        condition: service_completed_successfully
+      - seed
+    command: sh -c "wait-for-it.sh postgres:5432 -t 30 -- node dist/src/index.js"
 
   frontend:
     build:

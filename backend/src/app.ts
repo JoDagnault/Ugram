@@ -6,6 +6,7 @@ import { UPLOAD_DIR } from './config/storage';
 import { UserModule } from './api/users/user.module';
 import { PostModule } from './api/posts/post.module';
 import { errorHandler } from './middleware/error.handler';
+import { createHealthRouter } from './api/health/health.router';
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use('/health', createHealthRouter());
 app.use('/uploads', express.static(UPLOAD_DIR));
 app.use(authMiddleware);
 

@@ -3,11 +3,13 @@ import { PrismaClient } from '../src/generated/prisma';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 
+type PrismaPgPool = ConstructorParameters<typeof PrismaPg>[0];
+
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
 });
 
-const adapter = new PrismaPg(pool);
+const adapter = new PrismaPg(pool as unknown as PrismaPgPool);
 const prisma = new PrismaClient({ adapter });
 
 const ME_USER_ID = '21550515-d7c8-4fae-a759-7dfb437c8442';

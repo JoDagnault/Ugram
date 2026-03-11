@@ -1,42 +1,33 @@
-# -------------------------
-# 1 — BUILDER
-# -------------------------
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-
-COPY backend/package.json backend/package.json
-COPY frontend/package.json frontend/package.json
-
-COPY backend backend
-COPY frontend frontend
+COPY package.json pnpm-lock.yaml tsconfig.json ./
+COPY prisma.config.ts ./prisma.config.ts
+COPY prisma ./prisma
+COPY src ./src
 
 RUN npm install -g pnpm
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
-WORKDIR /app/backend
 RUN pnpm prisma generate
 RUN pnpm run build
 
-# -------------------------
-# 2 — RUNTIME
-# -------------------------
-FROM node:22-alpine AS runtime
+
+FROM node:22-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/backend/dist dist
-COPY --from=builder /app/backend/dist/prisma dist/prisma
-COPY --from=builder /app/backend/package.json package.json
-COPY --from=builder /app/backend/src/generated dist/src/generated
-COPY --from=builder /app/backend/prisma prisma
-COPY --from=builder /app/backend/prisma.config.ts prisma.config.ts
+COPY --from=builder /app .
+COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
 
+RUN apk add --no-cache bash netcat-openbsd
+RUN chmod +x /usr/local/bin/wait-for-it.sh
 RUN npm install -g pnpm
-RUN pnpm install --prod
+RUN pnpm install --prod --ignore-scripts --frozen-lockfile
+
+ENV NODE_ENV=production
 
 EXPOSE 3000
 
-CMD ["node", "dist/src/index.js"]
+CMD ["sh","-c","pnpm prisma:migrate:deploy && exec node dist/src/index.js"]

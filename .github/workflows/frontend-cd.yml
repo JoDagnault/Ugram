@@ -1,0 +1,59 @@
+name: Frontend CD
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - 'frontend/**'
+            - 'package.json'
+            - 'pnpm-lock.yaml'
+            - 'pnpm-workspace.yaml'
+            - '.github/workflows/frontend-cd.yml'
+    workflow_dispatch:
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+
+            - name: Install pnpm
+              run: npm install -g pnpm
+
+            - name: Install root dependencies
+              run: pnpm install
+
+            - name: Install frontend dependencies
+              run: pnpm --dir frontend install
+
+            - name: Build frontend
+              run: pnpm --dir frontend run build
+              env:
+                  VITE_API_URL: ${{ secrets.VITE_API_URL }}
+                  VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ secrets.AWS_REGION }}
+
+            - name: Deploy to S3
+              run: aws s3 sync frontend/dist "s3://${{ secrets.FRONTEND_S3_BUCKET }}" --delete
+
+            - name: Invalidate CloudFront cache
+              run: |
+                  aws cloudfront create-invalidation \
+                    --distribution-id "${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}" \
+                    --paths "/*"
