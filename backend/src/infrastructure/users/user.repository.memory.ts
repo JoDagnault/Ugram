@@ -75,4 +75,11 @@ export class InMemoryUserRepository implements UserRepository {
     async save(user: UserProfile): Promise<void> {
         this.usersById.set(user.id, user);
     }
+
+    async deleteById(id: string): Promise<void> {
+        if (!this.usersById.has(id)) {
+            throw new NotFoundError('User not found');
+        }
+        this.usersById.delete(id);
+    }
 }

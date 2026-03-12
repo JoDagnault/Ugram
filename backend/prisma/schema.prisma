@@ -17,6 +17,7 @@ model User {
   email             String
   phoneNumber       String
   posts             Post[]
+  mentionedIn       PostMention[]
 
   @@map("users")
 }
@@ -27,8 +28,18 @@ model Post {
   imageURL    String
   description String
   hashtags    String[]
-  mentions    String[]
+  mentions    PostMention[]
   createdAt   DateTime @default(now())
 
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model PostMention {
+  postId  String
+  userId  String
+
+  post    Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([postId, userId])
 }

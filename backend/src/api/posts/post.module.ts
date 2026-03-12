@@ -43,5 +43,6 @@ export function PostModule() {
         publicRouter: routers.publicRouter,
         meRouter: routers.meRouter,
         anotherUserRouter: routers.anotherUserRouter,
+        postRepository,
     };
 }

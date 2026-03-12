@@ -26,7 +26,7 @@ app.use('/health', createHealthRouter());
 app.use('/uploads', express.static(UPLOAD_DIR));
 
 const postModule = PostModule();
-const userModule = UserModule();
+const userModule = UserModule(postModule.postRepository);
 const authModule = AuthModule(userModule.userRepository);
 
 app.use('/users', authMiddleware, userModule.router);

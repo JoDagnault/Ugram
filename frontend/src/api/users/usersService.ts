@@ -36,3 +36,12 @@ export const getUsers = async (): Promise<UserListItem[]> => {
 
 export const getUser = async (id: string): Promise<UserProfile | undefined> =>
     await apiGetJsonOrUndefinedOn404<UserProfile>(`/users/${id}`);
+
+export const deleteMe = async (): Promise<void> => {
+    const response = await apiFetch('/users/me', { method: 'DELETE' });
+
+    if (!response.ok) {
+        await handleErrorResponse(response);
+        throw new Error(`API request failed (${response.status})`);
+    }
+};

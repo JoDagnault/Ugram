@@ -7,4 +7,5 @@ export interface UserRepository {
     findByEmail(email: string): Promise<UserProfile | undefined>;
     findByUsername(username: string): Promise<UserProfile | undefined>;
     save(user: UserProfile): Promise<void>;
+    deleteById(id: string): Promise<void>;
 }

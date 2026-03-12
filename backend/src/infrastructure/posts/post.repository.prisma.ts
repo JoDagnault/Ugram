@@ -14,7 +14,9 @@ export class PrismaPostRepository implements PostRepository {
                 imageURL: post.imageURL,
                 description: post.description,
                 hashtags: post.hashtags,
-                mentions: post.mentions,
+                mentions: {
+                    create: post.mentions.map((userId) => ({ userId })),
+                },
                 createdAt: new Date(post.createdAt),
             },
         });
@@ -23,13 +25,17 @@ export class PrismaPostRepository implements PostRepository {
     async findAll(): Promise<Post[]> {
         const posts = await this.prisma.post.findMany({
             orderBy: { createdAt: 'desc' },
+            include: { mentions: true },
         });
 
         return posts.map((p) => this.toDomain(p));
     }
 
     async findById(id: string): Promise<Post> {
-        const p = await this.prisma.post.findUnique({ where: { id } });
+        const p = await this.prisma.post.findUnique({
+            where: { id },
+            include: { mentions: true },
+        });
         if (!p) throw new NotFoundError('Post not found');
         return this.toDomain(p);
     }
@@ -38,6 +44,7 @@ export class PrismaPostRepository implements PostRepository {
         const posts = await this.prisma.post.findMany({
             where: { authorId: userId },
             orderBy: { createdAt: 'desc' },
+            include: { mentions: true },
         });
 
         return posts.map((p) => this.toDomain(p));
@@ -49,8 +56,12 @@ export class PrismaPostRepository implements PostRepository {
             data: {
                 description: post.description,
                 hashtags: post.hashtags,
-                mentions: post.mentions,
+                mentions: {
+                    deleteMany: {},
+                    create: post.mentions.map((userId) => ({ userId })), // recrée les nouvelles
+                },
             },
+            include: { mentions: true },
         });
 
         return this.toDomain(updated);
@@ -71,7 +82,7 @@ export class PrismaPostRepository implements PostRepository {
             p.imageURL,
             p.description,
             p.hashtags ?? [],
-            p.mentions ?? [],
+            p.mentions?.map((m: any) => m.userId) ?? [],
             p.createdAt.toISOString(),
         );
     }

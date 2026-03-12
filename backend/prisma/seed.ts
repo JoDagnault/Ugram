@@ -73,7 +73,7 @@ async function main() {
             imageURL: 'https://picsum.photos/seed/img-3/800/600',
             description: 'Little drive to see the wind turbines',
             hashtags: ['HondaCivicForLife', 'KevinInTheDesert'],
-            mentions: [CHARLIE_USER_ID],
+            mentions: { create: [{ userId: CHARLIE_USER_ID }] },
             createdAt: new Date('2026-02-14T08:30:00.000Z'),
         },
     });
@@ -87,7 +87,7 @@ async function main() {
             imageURL: 'https://picsum.photos/seed/img-1/800/600',
             description: 'Travelling with friends 🏙️',
             hashtags: ['New York', 'Wow'],
-            mentions: [],
+            mentions: { create: [] },
             createdAt: new Date('2026-01-30T08:30:00.000Z'),
         },
     });
@@ -101,7 +101,12 @@ async function main() {
             imageURL: 'https://picsum.photos/seed/img-2/600/600',
             description: 'New challenge',
             hashtags: ['Hiking', 'Outdoors'],
-            mentions: [ALICE_USER_ID, CHARLIE_USER_ID],
+            mentions: {
+                create: [
+                    { userId: ALICE_USER_ID },
+                    { userId: CHARLIE_USER_ID },
+                ],
+            },
             createdAt: new Date('2025-12-31T08:30:00.000Z'),
         },
     });
@@ -115,7 +120,7 @@ async function main() {
             imageURL: 'https://picsum.photos/seed/img-4/700/600',
             description: '',
             hashtags: [],
-            mentions: [],
+            mentions: { create: [] },
             createdAt: new Date('2026-02-05T08:30:00.000Z'),
         },
     });
@@ -129,7 +134,7 @@ async function main() {
             imageURL: 'https://picsum.photos/seed/img-5/500/600',
             description: '',
             hashtags: ['Friends'],
-            mentions: [],
+            mentions: { create: [] },
             createdAt: new Date('2026-01-20T08:30:00.000Z'),
         },
     });
@@ -143,7 +148,7 @@ async function main() {
             imageURL: 'https://picsum.photos/seed/img-6/600/600',
             description: 'Good times in Toronto',
             hashtags: [],
-            mentions: [ALICE_USER_ID],
+            mentions: { create: [{ userId: ALICE_USER_ID }] },
             createdAt: new Date('2026-02-07T08:30:00.000Z'),
         },
     });

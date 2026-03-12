@@ -61,7 +61,7 @@ const Profile = () => {
     if (!user) return <p>No user found</p>;
 
     return (
-        <div>
+        <div className="pb-10">
             <ProfileInfo
                 user={user}
                 isMyProfile={isMyProfile}
