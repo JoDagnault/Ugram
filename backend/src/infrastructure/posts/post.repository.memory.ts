@@ -51,4 +51,17 @@ export class InMemoryPostsRepository implements PostRepository {
                 new Date(a.createdAt).getTime(),
         );
     }
+
+    async findByDescription(query: string): Promise<Post[]> {
+        const normalized = query.toLowerCase();
+        return [
+            ...this.posts.filter((post: Post): boolean =>
+                post.description.toLowerCase().includes(normalized),
+            ),
+        ].sort(
+            (a: Post, b: Post): number =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+        );
+    }
 }

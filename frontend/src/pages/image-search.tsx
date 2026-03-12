@@ -1,15 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
 
-import { getFeedImages } from '../api/images/imagesService';
 import type { ImageDetails } from '../types/image';
 import ImageCard from '../components/image/ImageCard';
 import ImageModal from '../components/image/ImageModal/ImageModal';
+import { useImageSearchByDescription } from '../api/images/useImageSearch';
 
 export default function ImageSearchPage() {
     const location = useLocation();
-    const [images, setImages] = useState<ImageDetails[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState<ImageDetails | null>(
         null,
     );
@@ -19,37 +17,7 @@ export default function ImageSearchPage() {
         return params.get('q')?.trim() ?? '';
     }, [location.search]);
 
-    const normalizedQuery = useMemo(() => query.toLowerCase(), [query]);
-
-    useEffect(() => {
-        let ignore = false;
-
-        const loadImages = async () => {
-            try {
-                const feedImages = await getFeedImages();
-                if (ignore) return;
-                setImages(feedImages);
-            } finally {
-                if (!ignore) {
-                    setIsLoading(false);
-                }
-            }
-        };
-
-        loadImages();
-
-        return () => {
-            ignore = true;
-        };
-    }, []);
-
-    const filteredImages = useMemo(() => {
-        if (!normalizedQuery) return [];
-
-        return images.filter((image) =>
-            image.description.toLowerCase().includes(normalizedQuery),
-        );
-    }, [images, normalizedQuery]);
+    const { status, images, hasQuery } = useImageSearchByDescription(query);
 
     if (!query) {
         return (
@@ -62,7 +30,7 @@ export default function ImageSearchPage() {
         );
     }
 
-    if (isLoading) {
+    if (status === 'loading') {
         return <p className="p-4">Loading images…</p>;
     }
 
@@ -77,14 +45,14 @@ export default function ImageSearchPage() {
                 </p>
             </header>
 
-            {filteredImages.length === 0 ? (
+            {hasQuery && images.length === 0 ? (
                 <p className="text-sm text-gray-500">
                     No images found with a description matching &quot;{query}
                     &quot;.
                 </p>
             ) : (
                 <div className="space-y-6">
-                    {filteredImages.map((image) => (
+                    {images.map((image) => (
                         <div
                             key={image.id}
                             role="button"
@@ -110,10 +78,6 @@ export default function ImageSearchPage() {
                     onClose={() => setSelectedImage(null)}
                     onDeleted={() => {
                         setSelectedImage(null);
-                    }}
-                    onUpdated={async () => {
-                        const feedImages = await getFeedImages();
-                        setImages(feedImages);
                     }}
                 />
             )}
