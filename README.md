@@ -126,8 +126,13 @@ docker compose --env-file backend/.env -f docker-compose.yml down -v
 
 ## Accès aux services
 
+### Localement
 - Backend : http://localhost:3000
 - Frontend : http://localhost:5173
+
+### aws
+- Backend: https://d3lo2207kh86xk.cloudfront.net
+- Frontend: https://d17rheqqdzq8va.cloudfront.net
 
 ## Comportement du docker-compose
 - Applique automatiquement les migrations Prisma
