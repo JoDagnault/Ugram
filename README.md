@@ -56,22 +56,41 @@ Afin d’assurer une qualité de code constante, les outils suivants sont utilis
 # 2. Prérequis
 
 - Docker
-- Un fichier `.env` à la racine du projet
+- Un fichier `backend/.env`
+- Un fichier `frontend/.env`
 
 
 ## Variables d'environnement
 
-Créer un fichier `.env` à la racine du projet :
+Créer et utiliser les fichiers suivants :
 
 ```env
+# backend/.env
 POSTGRES_USER=your_username
 POSTGRES_PASSWORD=your_password
 POSTGRES_DB=your_database
 POSTGRES_PORT=5432
 DATABASE_URL=postgresql://your_username:your_password@postgres:5432/your_database?schema=public
+PORT=3000
+JWT_SECRET=your_jwt_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+AWS_REGION=your_aws_region
+AWS_BUCKET_NAME=your_bucket_name
+AWS_ACCESS_KEY_ID=your_access_key_id
+AWS_SECRET_ACCESS_KEY=your_secret_access_key
+MAX_IMAGE_SIZE_BYTES=10485760
 ```
 
-Les vraies valeurs à utiliser et mettre dans le fichier `.env` sont à l'intérieur du document dans le lien suivant : https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/edit?usp=sharing
+```env
+# frontend/.env
+VITE_API_URL=http://localhost:3000
+VITE_SENTRY_DSN=your_sentry_dsn
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
+VITE_MAX_IMAGE_SIZE_BYTES=10485760
+```
+
+Les vraies valeurs à utiliser sont dans le document suivant : https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/edit?usp=sharing
 
 
 # 3. Exécution du livrable 1
@@ -84,7 +103,7 @@ Depuis la racine du projet :
 ```
 ou manuellement :
 ```bash
-docker compose -f docker-compose.yml up -d --build
+docker compose --env-file backend/.env -f docker-compose.yml up -d --build
 ```
 
 ## Arrêter l'application
@@ -93,12 +112,16 @@ docker compose -f docker-compose.yml up -d --build
 ```
 ou manuellement :
 ```bash
-docker compose -f docker-compose.yml down
+docker compose --env-file backend/.env -f docker-compose.yml down
 ```
 
 ## Réinitialiser complètement (Database + uploads)
 ```bash
 ./down.sh -v
+```
+ou manuellement :
+```bash
+docker compose --env-file backend/.env -f docker-compose.yml down -v
 ```
 
 ## Accès aux services
@@ -109,6 +132,6 @@ docker compose -f docker-compose.yml down
 ## Comportement du docker-compose
 - Applique automatiquement les migrations Prisma
 - Exécute le seed
-- Démarre le backend après la Database
+- Démarre le backend après la base de données, les migrations et le seed
 - Persiste les données PostgreSQL dans un volume Docker (`postgres_data`)
 - Persiste les images uploadées dans un volume Docker (`uploads_data`)

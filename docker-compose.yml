@@ -2,18 +2,16 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: ugram-postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+    env_file:
+      - ./backend/.env
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - ugram-net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,13 +21,14 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     container_name: ugram-migrate
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
+    env_file:
+      - ./backend/.env
     networks:
       - ugram-net
     depends_on:
-      - postgres
-    command: sh -c "wait-for-it.sh postgres:5432 -t 30 -- pnpm --dir backend run prisma:migrate:deploy"
+      postgres:
+        condition: service_healthy
+    command: sh -c "pnpm --dir backend run prisma:migrate:deploy"
     restart: "no"
 
   seed:
@@ -37,13 +36,16 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     container_name: ugram-seed
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
+    env_file:
+      - ./backend/.env
     networks:
       - ugram-net
     depends_on:
-      - migrate
-    command: sh -c "wait-for-it.sh postgres:5432 -t 30 -- pnpm --dir backend run prisma:seed:deploy"
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    command: sh -c "pnpm --dir backend run prisma:seed:deploy"
     restart: "no"
 
   backend:
@@ -54,20 +56,21 @@ services:
     env_file:
       - ./backend/.env
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:${PORT:-3000}"
     environment:
-      DATABASE_URL: ${DATABASE_URL}
       NODE_ENV: production
-      JWT_SECRET: ${JWT_SECRET}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     volumes:
       - uploads_data:/app/uploads
     networks:
       - ugram-net
     depends_on:
-      - seed
-    command: sh -c "wait-for-it.sh postgres:5432 -t 30 -- node backend/dist/src/index.js"
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      seed:
+        condition: service_completed_successfully
+    command: node backend/dist/src/index.js
 
   frontend:
     build:

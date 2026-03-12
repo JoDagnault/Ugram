@@ -9,12 +9,11 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY backend/package.json backend/package.json
 COPY frontend/package.json frontend/package.json
 
-COPY backend backend
-COPY frontend frontend
-
 RUN npm install -g pnpm
 
 RUN pnpm install
+
+COPY frontend frontend
 
 WORKDIR /app/frontend
 RUN pnpm run build
