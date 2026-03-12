@@ -25,3 +25,10 @@
         font-variation-settings: 'YEAR' 1990;
     }
 }
+
+@layer base {
+    html,
+    body {
+        @apply bg-dark;
+    }
+}

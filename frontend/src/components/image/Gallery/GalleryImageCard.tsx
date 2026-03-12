@@ -17,6 +17,7 @@ const GalleryImageCard = ({ image, onClick }: Props) => {
                 src={image.imageUrl}
                 alt={image.id}
                 className="w-full h-full object-cover"
+                loading="lazy"
             />
         </button>
     );

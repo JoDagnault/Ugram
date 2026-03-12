@@ -39,7 +39,7 @@ export default function Login() {
     return (
         <div className="flex flex-col h-dvh">
             <div
-                className="h-1 w-full shrink-0"
+                className="h-1 w-full"
                 style={{
                     background:
                         'linear-gradient(90deg, #FFCC00, #FE4A05, #E30613, #009FE3)',

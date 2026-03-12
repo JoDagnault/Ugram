@@ -41,6 +41,7 @@ export default function ImageCard({ image }: Props) {
                         src={image.imageUrl}
                         alt={image.id}
                         className="max-w-full max-h-full object-contain"
+                        loading="lazy"
                     />
                 </div>
 
