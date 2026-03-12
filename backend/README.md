@@ -6,7 +6,7 @@
 
 ## Variables d'environnement
 
-Créer et utiliser le fichier `.env` à la racine du dépôt :
+Créer et utiliser le fichier `backend/.env` :
 
 ```env
 POSTGRES_USER=your_username
@@ -14,57 +14,44 @@ POSTGRES_PASSWORD=your_password
 POSTGRES_DB=your_database
 POSTGRES_PORT=5432
 DATABASE_URL=postgresql://your_username:your_password@postgres:5432/your_database?schema=public
+PORT=3000
+JWT_SECRET=your_jwt_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+AWS_REGION=your_aws_region
+AWS_BUCKET_NAME=your_bucket_name
+AWS_ACCESS_KEY_ID=your_access_key_id
+AWS_SECRET_ACCESS_KEY=your_secret_access_key
+MAX_IMAGE_SIZE_BYTES=10485760
 ```
 
-## Exécution en développement
+Le frontend utilise son propre fichier `frontend/.env` pour les variables `VITE_*`.
 
-Depuis la racine du dépôt :
-
-- démarrer l'environnement :
-
-```bash
-./up.sh --dev
-# ou manuellement :
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
-```
-
-- arrêter l'environnement :
-
-```bash
-./down.sh --dev
-# ou manuellement :
-docker compose -f docker-compose.yml -f docker-compose.dev.yml down
-```
-
-Comportement :
-
-- La base PostgreSQL est éphémère (`tmpfs`) (les données PostgreSQL ne persistent pas entre les runs).
-- `migrate` s'exécute automatiquement : `pnpm prisma:migrate:deploy`.
-- `seed` s'exécute automatiquement : `pnpm prisma:seed:deploy`.
-- Le backend démarre seulement après le succès de `migrate` et `seed`.
-- Les images uploadées sont persistées dans un volume Docker (`uploads_data`) (sauf si vous utilisez `down -v`).
-
-## Exécution en production (local)
+## Exécution locale
 
 Depuis la racine du dépôt :
 
 ```bash
 ./up.sh
 # ou manuellement :
-docker compose -f docker-compose.yml up -d --build
+docker compose --env-file backend/.env -f docker-compose.yml up -d --build
 ```
 
 ```bash
 ./down.sh
 # ou manuellement :
-docker compose -f docker-compose.yml down
+docker compose --env-file backend/.env -f docker-compose.yml down
 ```
 
 Comportement :
 
-- persiste les données PostgreSQL dans un volume Docker (`postgres_data`)
-- persiste les images uploadées dans un volume Docker (`uploads_data`)
+- `migrate` s'exécute automatiquement : `pnpm prisma:migrate:deploy`.
+- `seed` s'exécute automatiquement : `pnpm prisma:seed:deploy`.
+- Le backend démarre seulement après le succès de `migrate` et `seed`.
+- Les données PostgreSQL sont persistées dans le volume Docker `postgres_data`.
+- Les images uploadées sont persistées dans le volume Docker `uploads_data`.
 - pour repartir de zéro (supprime DB + images) : `./down.sh -v`
+- commande manuelle équivalente : `docker compose --env-file backend/.env -f docker-compose.yml down -v`
 
 ## Créer une migration Prisma après un changement de schéma
 

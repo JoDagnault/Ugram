@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ME_USER_ID } from '../infrastructure/users/user.repository.memory';
+import jwt from 'jsonwebtoken';
 
 declare global {
     namespace Express {
@@ -14,6 +14,20 @@ export const authMiddleware = (
     res: Response,
     next: NextFunction,
 ) => {
-    req.userId = ME_USER_ID;
-    next();
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        res.status(401).json({ message: 'No token provided' });
+        return;
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+            userId: string;
+        };
+        req.userId = decoded.userId;
+        next();
+    } catch {
+        res.status(401).json({ message: 'Invalid token' });
+    }
 };

@@ -1,4 +1,10 @@
-import { useMemo, useRef, useState, type FormEvent } from 'react';
+import {
+    useMemo,
+    useRef,
+    useState,
+    type ChangeEvent,
+    type FormEvent,
+} from 'react';
 import type { ImageDetailsFields } from '../../../types/image.ts';
 import type { UserListItem } from '../../../types/user.ts';
 import RemovableChip from '../../common/RemovableChip.tsx';
@@ -7,11 +13,13 @@ import useHashtagEditor, {
     MAX_HASHTAG_LENGTH,
 } from './useHashtagEditor.ts';
 import useMentionEditor from './useMentionEditor.ts';
+import { prepareImageForUpload } from '../imageCompression.ts';
 
 type ImageFormErrors = {
     description?: string;
     hashtags?: string;
     file?: string;
+    submit?: string;
 };
 
 export type ImageFormSubmission = ImageDetailsFields & {
@@ -29,7 +37,7 @@ type Props = {
     currentUsername?: string;
     mode?: 'edit' | 'create';
     onCancel: () => void;
-    onSubmit: (next: ImageFormSubmission) => void;
+    onSubmit: (next: ImageFormSubmission) => Promise<void> | void;
 };
 
 export default function EditImageForm({
@@ -45,7 +53,9 @@ export default function EditImageForm({
     const [description, setDescription] = useState(initial.description);
     const [file, setFile] = useState<File>();
     const [errors, setErrors] = useState<ImageFormErrors>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const isSubmitDisabled = isSubmitting || (isCreateMode && !file);
 
     const {
         hashtags,
@@ -79,7 +89,47 @@ export default function EditImageForm({
         }));
     };
 
-    const handleSubmit = (event: FormEvent) => {
+    const setFileError = (file?: string) => {
+        setErrors((current) => ({
+            ...current,
+            file,
+        }));
+    };
+
+    const setSubmitError = (submit?: string) => {
+        setErrors((current) => ({
+            ...current,
+            submit,
+        }));
+    };
+
+    const handleSelectedFile = async (selectedFile?: File) => {
+        if (!selectedFile) {
+            setFile(undefined);
+            setFileError();
+            return;
+        }
+
+        try {
+            setFile(await prepareImageForUpload(selectedFile));
+            setFileError();
+            setSubmitError();
+        } catch (error) {
+            setFile(undefined);
+            setFileError(
+                error instanceof Error
+                    ? error.message
+                    : 'Unable to process the selected image',
+            );
+            setSubmitError();
+        }
+    };
+
+    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+        void handleSelectedFile(event.target.files?.[0]);
+    };
+
+    const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
 
         const next: ImageFormSubmission = {
@@ -94,7 +144,7 @@ export default function EditImageForm({
             nextErrors.description = `Max ${MAX_DESCRIPTION_LENGTH} characters`;
         }
         if (isCreateMode && !next.file) {
-            nextErrors.file = 'Image file is required';
+            nextErrors.file = errors.file ?? 'Image file is required';
         }
 
         if (hashtagsInput.trim()) {
@@ -108,7 +158,25 @@ export default function EditImageForm({
         }
 
         setErrors({});
-        onSubmit(next);
+
+        try {
+            setIsSubmitting(true);
+            await onSubmit(next);
+        } catch (error) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : 'Unable to submit the image';
+
+            if (isCreateMode && message === 'Image is too large') {
+                setErrors({ file: message });
+                return;
+            }
+
+            setErrors({ submit: message });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -144,9 +212,7 @@ export default function EditImageForm({
                         ref={fileInputRef}
                         type="file"
                         accept="image/*"
-                        onChange={(event) =>
-                            setFile(event.target.files?.[0] ?? undefined)
-                        }
+                        onChange={handleFileChange}
                         className="sr-only"
                         tabIndex={-1}
                     />
@@ -300,18 +366,29 @@ export default function EditImageForm({
             </div>
 
             <div className="flex gap-2 justify-end">
+                {errors.submit && (
+                    <p className="mr-auto self-center text-xs text-red-500">
+                        {errors.submit}
+                    </p>
+                )}
                 <button
                     type="button"
                     onClick={onCancel}
                     className="px-3 py-2 rounded border bg-white dark:bg-dark hover:opacity-90"
+                    disabled={isSubmitting}
                 >
                     Cancel
                 </button>
                 <button
                     type="submit"
+                    disabled={isSubmitDisabled}
                     className="px-3 py-2 rounded border border-gray-400 dark:border-gray-500 bg-accent text-dark hover:bg-accent/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
                 >
-                    {isCreateMode ? 'Post' : 'Save'}
+                    {isSubmitting
+                        ? 'Submitting...'
+                        : isCreateMode
+                          ? 'Post'
+                          : 'Save'}
                 </button>
             </div>
         </form>

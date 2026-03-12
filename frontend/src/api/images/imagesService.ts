@@ -19,6 +19,21 @@ const toImageListItem = (image: ImageDetails): ImageListItem => ({
     createdAt: image.createdAt,
 });
 
+const getCreateImageErrorMessage = async (
+    response: Response,
+): Promise<string> => {
+    try {
+        const clonedResponse = response.clone();
+        const errorData = (await clonedResponse.json()) as {
+            message?: string;
+        };
+
+        return errorData.message || `API request failed (${response.status})`;
+    } catch {
+        return `API request failed (${response.status})`;
+    }
+};
+
 export const getUserImages = async (
     userId: string,
 ): Promise<ImageListItem[]> => {
@@ -63,8 +78,7 @@ export const createMyImage = async (
     });
 
     if (!response.ok) {
-        await handleErrorResponse(response);
-        throw new Error(`API request failed (${response.status})`);
+        throw new Error(await getCreateImageErrorMessage(response));
     }
 
     const createdPost = (await response.json()) as PostResponseDto;

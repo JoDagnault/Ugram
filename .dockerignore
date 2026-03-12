@@ -12,6 +12,9 @@ pnpm-debug.log
 .git
 .gitignore
 
+# Environment files
+backend/.env
+
 # OS files
 .DS_Store
 

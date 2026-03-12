@@ -1,0 +1,113 @@
+name: Backend CD
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - 'backend/**'
+            - 'package.json'
+            - 'pnpm-lock.yaml'
+            - 'pnpm-workspace.yaml'
+            - '.github/workflows/backend-cd.yml'
+    workflow_dispatch:
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        env:
+            VERSION_LABEL: backend-${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+
+            - name: Install pnpm
+              run: npm install -g pnpm
+
+            - name: Install backend workspace dependencies
+              run: pnpm install --frozen-lockfile --filter backend...
+
+            - name: Build backend
+              run: pnpm --dir backend run build
+
+            - name: Create Elastic Beanstalk bundle
+              run: |
+                rm -rf deploy-bundle
+                mkdir -p deploy-bundle/backend
+
+                cp package.json pnpm-lock.yaml pnpm-workspace.yaml deploy-bundle/
+                cp backend/Dockerfile deploy-bundle/Dockerfile
+                cp backend/Dockerrun.aws.json deploy-bundle/Dockerrun.aws.json
+                mkdir -p deploy-bundle/.platform
+                rsync -a backend/.platform/ deploy-bundle/.platform/
+
+                rsync -a backend/ deploy-bundle/backend/ \
+                  --exclude node_modules \
+                  --exclude .git \
+                  --exclude .github \
+                  --exclude .env \
+                  --exclude coverage \
+                  --exclude '*.log' \
+                  --exclude '.DS_Store' \
+                  --exclude '.platform' \
+                  --exclude 'Dockerfile' \
+                  --exclude 'Dockerrun.aws.json' \
+                  --exclude 'pnpm-lock.yaml'
+                
+                cd deploy-bundle
+                zip -r "../${VERSION_LABEL}.zip" .
+
+            - name: Verify deploy bundle builds
+              run: docker build -t backend-eb-smoke ./deploy-bundle
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ secrets.AWS_REGION }}
+
+            - name: Upload bundle to S3
+              run: aws s3 cp "${VERSION_LABEL}.zip" "s3://${{ secrets.EB_S3_BUCKET }}/${VERSION_LABEL}.zip"
+
+            - name: Create Elastic Beanstalk application version
+              run: |
+                  aws elasticbeanstalk create-application-version \
+                    --application-name "${{ secrets.EB_APPLICATION_NAME }}" \
+                    --version-label "${VERSION_LABEL}" \
+                    --source-bundle "S3Bucket=${{ secrets.EB_S3_BUCKET }},S3Key=${VERSION_LABEL}.zip"
+
+            - name: Deploy to Elastic Beanstalk
+              run: |
+                  aws elasticbeanstalk update-environment \
+                    --environment-name "${{ secrets.EB_ENVIRONMENT_NAME }}" \
+                    --version-label "${VERSION_LABEL}"
+
+            - name: Wait for Elastic Beanstalk update to finish
+              run: |
+                  aws elasticbeanstalk wait environment-updated \
+                    --environment-names "${{ secrets.EB_ENVIRONMENT_NAME }}"
+
+            - name: Wait for backend health endpoint
+              run: |
+                  EB_CNAME="$(aws elasticbeanstalk describe-environments \
+                    --environment-names "${{ secrets.EB_ENVIRONMENT_NAME }}" \
+                    --query 'Environments[0].CNAME' \
+                    --output text)"
+
+                  test -n "${EB_CNAME}" && test "${EB_CNAME}" != "None"
+
+                  curl --silent --show-error --fail-with-body \
+                    --retry 30 \
+                    --retry-delay 10 \
+                    --retry-all-errors \
+                    --max-time 10 \
+                    "http://${EB_CNAME}/health" | grep -qx 'healthy'

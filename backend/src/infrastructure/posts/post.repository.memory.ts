@@ -63,5 +63,13 @@ export class InMemoryPostsRepository implements PostRepository {
                 new Date(b.createdAt).getTime() -
                 new Date(a.createdAt).getTime(),
         );
+    async removeMentionsOfUser(userId: string): Promise<void> {
+        this.posts = this.posts.map((post) => {
+            if (post.userId === userId) return post;
+            post.updateFields({
+                mentions: post.mentions.filter((id) => id !== userId),
+            });
+            return post;
+        });
     }
 }

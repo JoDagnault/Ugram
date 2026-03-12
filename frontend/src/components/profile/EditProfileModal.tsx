@@ -1,10 +1,13 @@
 import type { MyUser } from '../../types/user';
 import { useState, type SubmitEvent } from 'react';
+import { deleteMe } from '../../api/users/usersService.ts';
 
 type Props = {
     user: MyUser;
     onClose: () => void;
     onSave: (user: MyUser) => void;
+    onDelete: () => void;
+    error?: string | null;
 };
 
 type FormErrors = Partial<Record<keyof MyUser, string>>;
@@ -46,7 +49,13 @@ const validateForm = (data: MyUser): FormErrors => {
 const ErrorText = ({ message }: { message?: string }) =>
     message ? <p className="text-red-500 text-xs mb-2">{message}</p> : null;
 
-const EditProfileModal = ({ user, onClose, onSave }: Props) => {
+const EditProfileModal = ({
+    user,
+    onClose,
+    onSave,
+    onDelete,
+    error,
+}: Props) => {
     const [formData, setFormData] = useState<MyUser>(user);
     const [errors, setErrors] = useState<FormErrors>({});
 
@@ -137,11 +146,31 @@ const EditProfileModal = ({ user, onClose, onSave }: Props) => {
                     />
                     <ErrorText message={errors.phoneNumber} />
 
+                    {error && (
+                        <p className="text-red-500 text-sm mb-2">{error}</p>
+                    )}
+
                     <button
                         type="submit"
                         className="bg-dark-gray text-white p-2 mt-1 rounded hover:bg-accent"
                     >
                         Save changes
+                    </button>
+                    <button
+                        type="button"
+                        onClick={async () => {
+                            if (
+                                confirm(
+                                    'Are you sure you want to delete your account?',
+                                )
+                            ) {
+                                await deleteMe();
+                                onDelete();
+                            }
+                        }}
+                        className="bg-red-500 text-white p-2 mt-2 rounded hover:bg-red-700"
+                    >
+                        Delete account
                     </button>
                 </form>
             </div>

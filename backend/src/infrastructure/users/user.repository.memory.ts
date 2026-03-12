@@ -45,13 +45,11 @@ export class InMemoryUserRepository implements UserRepository {
     constructor(seedUsers: UserProfile[] = SEED_USERS) {
         this.usersById = new Map(seedUsers.map((user) => [user.id, user]));
     }
-
-    async getById(id: string): Promise<UserProfile> {
+    async findById(id: string): Promise<UserProfile> {
         const user: UserProfile | undefined = this.usersById.get(id);
         if (!user) throw new NotFoundError('User not found');
         return user;
     }
-
     async getAll(): Promise<UserProfile[]> {
         return Array.from(this.usersById.values());
     }
@@ -62,5 +60,26 @@ export class InMemoryUserRepository implements UserRepository {
         }
 
         this.usersById.set(user.id, user);
+    }
+
+    async findByEmail(email: string): Promise<UserProfile | undefined> {
+        const users = await this.getAll();
+        return users.find((u) => u.email === email);
+    }
+
+    async findByUsername(username: string): Promise<UserProfile | undefined> {
+        const users = await this.getAll();
+        return users.find((u) => u.username === username);
+    }
+
+    async save(user: UserProfile): Promise<void> {
+        this.usersById.set(user.id, user);
+    }
+
+    async deleteById(id: string): Promise<void> {
+        if (!this.usersById.has(id)) {
+            throw new NotFoundError('User not found');
+        }
+        this.usersById.delete(id);
     }
 }

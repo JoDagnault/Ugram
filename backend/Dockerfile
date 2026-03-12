@@ -1,42 +1,41 @@
-# -------------------------
-# 1 — BUILDER
-# -------------------------
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-
-COPY backend/package.json backend/package.json
-COPY frontend/package.json frontend/package.json
-
-COPY backend backend
-COPY frontend frontend
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY backend/package.json ./backend/package.json
+COPY backend/tsconfig.json ./backend/tsconfig.json
+COPY backend/prisma.config.ts ./backend/prisma.config.ts
+COPY backend/prisma ./backend/prisma
 
 RUN npm install -g pnpm
-RUN pnpm install
+RUN pnpm install --frozen-lockfile --filter backend...
 
-WORKDIR /app/backend
-RUN pnpm prisma generate
-RUN pnpm run build
+COPY backend/src ./backend/src
+COPY backend/wait-for-it.sh ./backend/wait-for-it.sh
 
-# -------------------------
-# 2 — RUNTIME
-# -------------------------
-FROM node:22-alpine AS runtime
+RUN pnpm --dir backend run prisma:generate
+RUN pnpm --dir backend run build
+
+
+FROM node:22-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/backend/dist dist
-COPY --from=builder /app/backend/dist/prisma dist/prisma
-COPY --from=builder /app/backend/package.json package.json
-COPY --from=builder /app/backend/src/generated dist/src/generated
-COPY --from=builder /app/backend/prisma prisma
-COPY --from=builder /app/backend/prisma.config.ts prisma.config.ts
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY backend/package.json ./backend/package.json
+COPY --from=builder /app/backend/dist ./backend/dist
+COPY --from=builder /app/backend/prisma ./backend/prisma
+COPY --from=builder /app/backend/prisma.config.ts ./backend/prisma.config.ts
+COPY --from=builder /app/backend/wait-for-it.sh /usr/local/bin/wait-for-it.sh
 
+RUN apk add --no-cache bash netcat-openbsd
+RUN chmod +x /usr/local/bin/wait-for-it.sh
 RUN npm install -g pnpm
-RUN pnpm install --prod
+RUN pnpm install --prod --ignore-scripts --frozen-lockfile --filter backend...
+
+ENV NODE_ENV=production
 
 EXPOSE 3000
 
-CMD ["node", "dist/src/index.js"]
+CMD ["sh","-c","pnpm --dir backend run prisma:migrate:deploy && exec node backend/dist/src/index.js"]

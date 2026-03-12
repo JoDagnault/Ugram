@@ -19,6 +19,7 @@ type Props = {
 const ProfileInfo = ({ user, isMyProfile, onUserUpdated }: Props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(user);
+    const [updateError, setUpdateError] = useState<string | null>(null);
 
     useEffect(() => {
         setCurrentUser(user);
@@ -30,8 +31,8 @@ const ProfileInfo = ({ user, isMyProfile, onUserUpdated }: Props) => {
             setCurrentUser(savedUser);
             onUserUpdated?.();
             setIsModalOpen(false);
-        } catch (error) {
-            // TODO: deal with backend error
+        } catch (error: any) {
+            setUpdateError(error.message);
         }
     };
 
@@ -85,6 +86,11 @@ const ProfileInfo = ({ user, isMyProfile, onUserUpdated }: Props) => {
                     user={currentUser}
                     onClose={() => setIsModalOpen(false)}
                     onSave={handleUpdateProfile}
+                    onDelete={() => {
+                        localStorage.removeItem('jwt');
+                        window.location.href = '/login';
+                    }}
+                    error={updateError}
                 />
             )}
         </>

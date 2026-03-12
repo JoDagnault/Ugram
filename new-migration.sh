@@ -10,7 +10,7 @@ MIGRATION_NAME="$1"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-COMPOSE_ARGS=(-f docker-compose.yml -f docker-compose.dev.yml)
+COMPOSE_ARGS=(--env-file backend/.env -f docker-compose.yml)
 PRISMA_DIR="$SCRIPT_DIR/backend/prisma"
 
 if [[ ! -d "$PRISMA_DIR" ]]; then
@@ -33,7 +33,7 @@ trap cleanup EXIT
 
 docker compose "${COMPOSE_ARGS[@]}" up -d postgres
 docker compose "${COMPOSE_ARGS[@]}" run --rm \
-    -v "$PRISMA_DIR:/app/prisma" \
-    migrate pnpm prisma migrate dev --name "$MIGRATION_NAME" --create-only
+    -v "$PRISMA_DIR:/app/backend/prisma" \
+    migrate pnpm --dir backend exec prisma migrate dev --name "$MIGRATION_NAME" --create-only
 
 echo "Migration created under backend/prisma/migrations."

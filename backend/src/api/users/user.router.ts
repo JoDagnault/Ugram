@@ -8,6 +8,7 @@ export const createUsersRouter = (controller: UserController): Router => {
     router.get('/', controller.getAllUsersHandler);
     router.get('/:id', controller.getUserByIdHandler);
     router.patch('/me', controller.updateMeHandler);
+    router.delete('/me', controller.deleteMeHandler);
 
     return router;
 };

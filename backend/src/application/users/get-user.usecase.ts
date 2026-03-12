@@ -5,6 +5,6 @@ export class GetUserUsecase {
     constructor(private readonly userRepository: UserRepository) {}
 
     async execute(id: string): Promise<UserProfile | undefined> {
-        return this.userRepository.getById(id);
+        return this.userRepository.findById(id);
     }
 }

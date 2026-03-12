@@ -1,10 +1,13 @@
-import { Outlet } from 'react-router';
+import { Outlet, useLocation } from 'react-router';
 import Navbar from './components/layout/Navbar.tsx';
 
 function App() {
+    const location = useLocation();
+    const hideNavbar = ['/login'].includes(location.pathname);
+
     return (
         <div className="min-h-dvh bg-dark text-white">
-            <Navbar />
+            {!hideNavbar && <Navbar />}
             <main className="pt-1">
                 <Outlet />
             </main>

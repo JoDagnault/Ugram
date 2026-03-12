@@ -7,6 +7,7 @@ import { UpdateMeUsecase } from '../../application/users/update-me.usecase';
 import { UpdateMeDto } from './dto/update-me.dto';
 import { UserProfile } from '../../domain/users/user-profile';
 import { UserValidator } from './assembler/user-fields-validator';
+import { DeleteMeUsecase } from '../../application/users/delete-me.usecase';
 
 export class UserController {
     constructor(
@@ -14,6 +15,7 @@ export class UserController {
         private readonly getMe: GetMeUsecase,
         private readonly getAllUsers: GetAllUsersUsecase,
         private readonly updateMe: UpdateMeUsecase,
+        private readonly deleteMe: DeleteMeUsecase,
         private readonly assembler: UsersAssembler,
     ) {}
 
@@ -76,6 +78,19 @@ export class UserController {
                 fields,
             );
             return res.status(200).json(this.assembler.toDTO(updated));
+        } catch (err: any) {
+            next(err);
+        }
+    };
+
+    deleteMeHandler = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            await this.deleteMe.execute(req.userId!);
+            return res.status(200).send();
         } catch (err: any) {
             next(err);
         }
