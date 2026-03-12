@@ -31,4 +31,9 @@
     body {
         @apply bg-dark;
     }
+    a,
+    button,
+    [role='button'] {
+        @apply cursor-pointer;
+    }
 }
