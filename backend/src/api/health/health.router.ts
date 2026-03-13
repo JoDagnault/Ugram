@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { getPrismaClient } from '../../infrastructure/prisma/client';
+import { logger } from '../../logger';
 
 export function createHealthRouter(): Router {
     const router = Router();
@@ -7,8 +8,10 @@ export function createHealthRouter(): Router {
     router.get('/', async (_req, res) => {
         try {
             await getPrismaClient().$queryRaw`SELECT 1`;
+            logger.debug('Health check passed');
             res.status(200).send('healthy');
-        } catch {
+        } catch (error: any) {
+            logger.error('Health check failed', { error: error.message });
             res.status(503).send('unhealthy');
         }
     });

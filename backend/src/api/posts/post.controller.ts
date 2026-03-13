@@ -10,6 +10,7 @@ import { UpdatePostUsecase } from '../../application/posts/update-post.usecase';
 import { DeletePostUsecase } from '../../application/posts/delete-post.usecase';
 import { PostFieldsValidator } from './assembler/post-fields-validator';
 import { SearchPostsByDescriptionUsecase } from '../../application/posts/search-posts-by-description.usecase';
+import { logger } from '../../logger';
 
 export class PostController {
     constructor(
@@ -35,8 +36,12 @@ export class PostController {
                 post,
                 req.userId,
             );
+            req.userLogger.info('Post created', { postId: post.id });
             return res.status(201).json(postDTO);
         } catch (error: any) {
+            req.userLogger.error('Failed to create post', {
+                error: error.message,
+            });
             next(error);
         }
     };
@@ -58,6 +63,11 @@ export class PostController {
         } else {
             posts = await this.getAllPosts.execute();
         }
+
+        req.userLogger.debug('Posts fetched', {
+            count: posts.length,
+            targetId: userId,
+        });
 
         const postsDTO: ResponsePostDTO[] = posts.map(
             (post: Post): ResponsePostDTO =>
@@ -83,8 +93,10 @@ export class PostController {
             );
             const responsePostDTO: ResponsePostDTO =
                 this.postAssembler.toPostDTO(post, req.userId);
+            logger.debug('Post fetched', { postId });
             return res.status(200).json(responsePostDTO);
         } catch (error: any) {
+            logger.warn('Post not found', { postId });
             next(error);
         }
     };
@@ -111,8 +123,13 @@ export class PostController {
             );
             const responsePostDTO: ResponsePostDTO =
                 this.postAssembler.toPostDTO(post, req.userId);
+            req.userLogger.info('Post updated', { postId });
             return res.status(200).json(responsePostDTO);
         } catch (error: any) {
+            req.userLogger.error('Failed to update post', {
+                error: error.message,
+                postId: req.params.id,
+            });
             next(error);
         }
     };
@@ -125,8 +142,13 @@ export class PostController {
         const postId: string = req.params.id;
         try {
             await this.deletePost.execute(postId, req.userId!);
+            req.userLogger.info('Post deleted', { postId });
             return res.status(204).send();
         } catch (error: any) {
+            req.userLogger.error('Failed to delete post', {
+                error: error.message,
+                postId,
+            });
             next(error);
         }
     };

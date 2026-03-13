@@ -3,6 +3,7 @@ import { getFeedImages } from '../api/images/imagesService';
 import type { ImageDetails } from '../types/image';
 import ImageCard from '../components/image/ImageCard.tsx';
 import ImageModal from '../components/image/ImageModal/ImageModal.tsx';
+import * as Sentry from '@sentry/react';
 
 const Home = () => {
     const [images, setImages] = useState<ImageDetails[]>([]);
@@ -17,6 +18,7 @@ const Home = () => {
             const feedImages = await getFeedImages();
             setImages(feedImages);
         } finally {
+            Sentry.logger.info('User is on Feed page');
             setIsLoading(false);
         }
     };

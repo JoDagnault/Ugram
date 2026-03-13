@@ -2,6 +2,8 @@ import { LoginUsecase } from '../../application/auth/login.usecase';
 import { NextFunction, Request, Response } from 'express';
 import { RegisterUsecase } from '../../application/auth/register.usecase';
 import { AuthValidator } from './assembler/auth-fields-validator';
+import { logger } from '../../logger';
+import { AuthResponse } from '../../types/auth.types';
 
 export class AuthController {
     constructor(
@@ -18,9 +20,12 @@ export class AuthController {
             AuthValidator.validateLogin(req.body);
             const { idToken } = req.body;
 
-            const result = await this.login.loginWithGoogle(idToken);
+            const result: AuthResponse =
+                await this.login.loginWithGoogle(idToken);
+            logger.info('User logged in', { userId: result.user.id });
             return res.status(200).json(result);
         } catch (error: any) {
+            logger.warn('Login failed', { error: error.message });
             next(error);
         }
     };
@@ -42,8 +47,13 @@ export class AuthController {
                 lastName,
                 phoneNumber,
             );
+            logger.info('User registered', {
+                userId: result.user.id,
+                username,
+            });
             return res.status(201).json(result);
         } catch (error: any) {
+            logger.warn('Registration failed', { error: error.message });
             next(error);
         }
     };
