@@ -79,6 +79,9 @@ export default function Search() {
                     <hr className="my-4 border-gray-300 dark:border-gray-700" />
                 )}
 
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    Users
+                </div>
                 <UserSearchResults users={displayedUsers} meId={meId} />
             </div>
         </div>

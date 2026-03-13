@@ -22,6 +22,7 @@ export const router = createBrowserRouter([
                     { path: 'Profile/:userId', element: <UserProfile /> },
                     { path: 'Search', element: <Users /> },
                     { path: 'Search/images', element: <ImageSearchPage /> },
+                    { path: 'image-search', element: <ImageSearchPage /> },
                     { path: '*', element: <NotFound /> },
                 ],
             },
