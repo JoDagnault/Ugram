@@ -217,7 +217,7 @@ export default function EditImageForm({
                         tabIndex={-1}
                     />
                     <div className="flex items-center gap-2">
-                        <div className="w-full border rounded p-2 bg-gray-100 dark:bg-black/20 text-gray-500 dark:text-gray-400 cursor-not-allowed select-none">
+                        <div className="w-full border rounded p-2 bg-gray-100 dark:bg-black/20 text-gray-500 dark:text-gray-400 cursor-not-allowed select-none truncate">
                             {file?.name ?? 'No file selected'}
                         </div>
                         <button

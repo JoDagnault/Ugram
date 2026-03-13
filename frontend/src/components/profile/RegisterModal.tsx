@@ -27,11 +27,7 @@ export default function RegisterModal({
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async () => {
-        if (
-            firstName.length > 250 ||
-            lastName.length > 250 ||
-            username.length > 250
-        ) {
+        if (firstName.length > 250 || lastName.length > 250) {
             setError(
                 'Maximum 250 characters for the first and last name and username.',
             );
@@ -43,6 +39,11 @@ export default function RegisterModal({
             setError(
                 'Only letters, spaces and hyphens are allowed for the first and last name.',
             );
+            return;
+        }
+
+        if (username.length > 30) {
+            setError('Maximum 30 characters for the username.');
             return;
         }
 

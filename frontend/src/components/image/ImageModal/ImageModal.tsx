@@ -148,9 +148,7 @@ export default function ImageModal(props: Props) {
         onClose();
     };
 
-    const modalTitle = isCreateModal
-        ? 'Create Post'
-        : image?.description.trim() || 'Image';
+    const modalTitle = isCreateModal ? 'Create Post' : '';
 
     if (!isCreateModal && (loading || !image)) {
         const isNotFound = !loading && !image;
@@ -197,15 +195,13 @@ export default function ImageModal(props: Props) {
                 </div>
             ) : (
                 image && (
-                    <div className="p-2.5 min-[750px]:p-3 min-[1242px]:p-4 grid grid-cols-1 min-[1242px]:grid-cols-2 gap-3 min-[750px]:gap-4">
-                        <div className="flex justify-center items-center">
-                            <div className="bg-black/5 rounded overflow-hidden inline-block max-w-full">
-                                <img
-                                    src={image.imageUrl}
-                                    alt={image.id}
-                                    className="w-full h-auto max-h-100 min-[640px]:max-h-125 min-[750px]:max-h-150 min-[1024px]:max-h-175 min-[1242px]:max-h-200 min-[1366px]:max-h-212.5 min-[1536px]:max-h-237.5 min-[1920px]:max-h-262.5 object-contain"
-                                />
-                            </div>
+                    <div className="p-2.5 min-[750px]:p-3 min-[1242px]:p-4 grid grid-cols-1 min-[1242px]:grid-cols-2 gap-3 min-[1242px]:divide-x divide-dark-gray min-[750px]:gap-4 h-full">
+                        <div className="flex items-center justify-center min-h-0 overflow-hidden min-[1242px]:pr-4">
+                            <img
+                                src={image.imageUrl}
+                                alt={image.id}
+                                className="w-full h-full object-contain"
+                            />
                         </div>
 
                         <div>
@@ -218,7 +214,7 @@ export default function ImageModal(props: Props) {
                                     onSubmit={handleSave}
                                 />
                             ) : (
-                                <div className="space-y-3">
+                                <div className="space-y-3 flex flex-col justify-end h-full p-2 min-[1242px]:block  min-[1242px]:p-0">
                                     <div className="text-sm text-gray-600 dark:text-gray-400">
                                         Posted on {dateFormat(image.createdAt)}
                                     </div>
@@ -231,6 +227,7 @@ export default function ImageModal(props: Props) {
                                                 image.userId,
                                             ) ?? 'Unknown'
                                         }
+                                        description={image.description}
                                         userIdToUsername={userIdToUsername}
                                     />
                                 </div>

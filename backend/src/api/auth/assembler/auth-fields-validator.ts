@@ -10,10 +10,8 @@ export class AuthValidator {
     static validateUsername(username?: string) {
         if (!username || username.trim().length === 0) {
             throw new BadRequestError('Username is required');
-        } else if (username.trim().length > 250) {
-            throw new BadRequestError(
-                'Maximum 250 characters for the username',
-            );
+        } else if (username.trim().length > 30) {
+            throw new BadRequestError('Maximum 30 characters for the username');
         }
     }
 
