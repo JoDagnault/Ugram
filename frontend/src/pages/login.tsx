@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import UgramLettering from '../assets/ugramLettering.tsx';
 import { useState } from 'react';
 import RegisterModal from '../components/profile/RegisterModal.tsx';
+import * as Sentry from '@sentry/react';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -22,6 +23,7 @@ export default function Login() {
         try {
             const data = await loginWithGoogle(token);
             localStorage.setItem('jwt', data.jwt);
+            Sentry.logger.info(`User ${data.user.id} connected`);
             navigate('/');
         } catch (err: any) {
             if (err.status === 400) {
