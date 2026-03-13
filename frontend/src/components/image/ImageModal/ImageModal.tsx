@@ -14,6 +14,7 @@ import EditImageForm, {
 import ImageActionsMenu from './ImageActionsMenu.tsx';
 import ImageModalFrame from './ImageModalFrame.tsx';
 import ImageMetadataSummary from './ImageMetadataSummary.tsx';
+import * as Sentry from '@sentry/react';
 
 type ExistingImageModalProps = {
     mode?: 'view';
@@ -121,6 +122,7 @@ export default function ImageModal(props: Props) {
         if (!ok) return;
 
         if ('onDeleted' in props) props.onDeleted?.(imageId);
+        Sentry.logger.info(`post ${imageId} deleted`);
         onClose();
     };
 
@@ -133,6 +135,7 @@ export default function ImageModal(props: Props) {
 
         setImage(updated);
         if ('onUpdated' in props) props.onUpdated?.(updated);
+        Sentry.logger.info(`post ${updated.id} updated`);
         setMode('view');
     };
 
@@ -145,6 +148,7 @@ export default function ImageModal(props: Props) {
         const created = await createMyImage({ ...nextFields, file });
 
         if ('onCreated' in props) props.onCreated?.(created);
+        Sentry.logger.info(`post ${created.id} created`);
         onClose();
     };
 

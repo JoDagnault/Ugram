@@ -3,6 +3,7 @@ import { getMe, getUsers } from '../api/users/usersService';
 import type { UserListItem } from '../types/user';
 import ImageSearchResults from '../components/search/ImageSearchResults.tsx';
 import UserSearchResults from '../components/search/UserSearchResults.tsx';
+import * as Sentry from '@sentry/react';
 
 export default function Search() {
     const [query, setQuery] = useState('');
@@ -21,6 +22,7 @@ export default function Search() {
                 if (ignore) return;
                 setUsers(fetchedUsers);
                 setMeId(me?.id ?? null);
+                Sentry.logger.info(`User ${me!.id} opened search page`);
             })
             .finally(() => {
                 if (!ignore) setLoading(false);

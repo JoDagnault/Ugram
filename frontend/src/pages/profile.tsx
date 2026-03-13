@@ -4,7 +4,7 @@ import { getMe, getUser } from '../api/users/usersService';
 import { getUserImages } from '../api/images/imagesService';
 import type { MyUser, UserProfile } from '../types/user';
 import type { ImageListItem } from '../types/image';
-
+import * as Sentry from '@sentry/react';
 import ProfileInfo from '../components/profile/ProfileInfo.tsx';
 import UserGallery from '../components/image/Gallery/UserGallery.tsx';
 import ImageModal from '../components/image/ImageModal/ImageModal.tsx';
@@ -39,6 +39,7 @@ const Profile = () => {
 
                 setUser(nextUser);
                 setImages(nextImages);
+                Sentry.logger.info(`User ${nextUser.id} opened its profile`);
             } finally {
                 if (!ignore) {
                     setLoading(false);

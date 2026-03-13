@@ -1,4 +1,4 @@
-import { AuthResponse } from '../../types/auth.types';
+import { AuthResponse, GoogleTokenPayload } from '../../types/auth.types';
 import { UserRepository } from '../../domain/users/user.repository';
 import { BadRequestError } from '../../errors/bad-request.error';
 import { GoogleAuthService } from './google.auth.service';
@@ -10,7 +10,7 @@ export class LoginUsecase {
     ) {}
 
     async loginWithGoogle(idToken: string): Promise<AuthResponse> {
-        const googleUser =
+        const googleUser: GoogleTokenPayload =
             await this.googleAuthService.verifyGoogleToken(idToken);
         let user = await this.userRepository.findByEmail(googleUser.email);
 
@@ -18,7 +18,7 @@ export class LoginUsecase {
             throw new BadRequestError('No account found');
         }
 
-        const jwt = this.googleAuthService.generateAppToken(
+        const jwt: string = this.googleAuthService.generateAppToken(
             user.id,
             user.email,
         );

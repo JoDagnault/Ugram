@@ -8,6 +8,7 @@ import { UpdateMeDto } from './dto/update-me.dto';
 import { UserProfile } from '../../domain/users/user-profile';
 import { UserValidator } from './assembler/user-fields-validator';
 import { DeleteMeUsecase } from '../../application/users/delete-me.usecase';
+import { logger } from '../../logger';
 
 export class UserController {
     constructor(
@@ -37,12 +38,13 @@ export class UserController {
         res: Response,
         next: NextFunction,
     ) => {
+        const { id } = req.params;
         try {
-            const { id } = req.params;
             const user: UserProfile | undefined =
                 await this.getUser.execute(id);
 
             if (!user) {
+                logger.warn('User not found', { targetId: id });
                 return res.status(404).json({ message: 'User not found' });
             }
 
@@ -50,6 +52,10 @@ export class UserController {
                 .status(200)
                 .json(this.assembler.toPublicProfileDTO(user));
         } catch (error: any) {
+            logger.error('Failed to fetch user', {
+                error: error.message,
+                targetId: id,
+            });
             next(error);
         }
     };
@@ -77,8 +83,12 @@ export class UserController {
                 usedId,
                 fields,
             );
+            req.userLogger.info('User updated');
             return res.status(200).json(this.assembler.toDTO(updated));
         } catch (err: any) {
+            req.userLogger.error('Failed to update user', {
+                error: err.message,
+            });
             next(err);
         }
     };
@@ -90,8 +100,12 @@ export class UserController {
     ) => {
         try {
             await this.deleteMe.execute(req.userId!);
+            req.userLogger.info('User deleted');
             return res.status(200).send();
         } catch (err: any) {
+            req.userLogger.error('Failed to delete user', {
+                error: err.message,
+            });
             next(err);
         }
     };

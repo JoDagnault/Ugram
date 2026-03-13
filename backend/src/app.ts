@@ -8,6 +8,7 @@ import { PostModule } from './api/posts/post.module';
 import { errorHandler } from './middleware/error.handler';
 import { AuthModule } from './api/auth/auth.module';
 import { createHealthRouter } from './api/health/health.router';
+import { httpLogger } from './middleware/httpLogger';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(httpLogger);
 
 app.use((req, res, next) => {
     res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
@@ -29,8 +31,16 @@ const postModule = PostModule();
 const userModule = UserModule(postModule.postRepository);
 const authModule = AuthModule(userModule.userRepository);
 
-app.use('/users', authMiddleware, userModule.router);
-app.use('/posts', authMiddleware, postModule.publicRouter);
+app.use(
+    '/users',
+    authMiddleware(authModule.revokedTokenRepository),
+    userModule.router,
+);
+app.use(
+    '/posts',
+    authMiddleware(authModule.revokedTokenRepository),
+    postModule.publicRouter,
+);
 
 app.use('/auth', authModule.authRouter);
 userModule.router.use('/:userId/posts', postModule.anotherUserRouter);

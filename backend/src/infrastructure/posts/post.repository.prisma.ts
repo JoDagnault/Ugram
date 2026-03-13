@@ -50,6 +50,20 @@ export class PrismaPostRepository implements PostRepository {
         return posts.map((p) => this.toDomain(p));
     }
 
+    async findByDescription(query: string): Promise<Post[]> {
+        const posts = await this.prisma.post.findMany({
+            where: {
+                description: {
+                    contains: query,
+                    mode: 'insensitive',
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        return posts.map((p) => this.toDomain(p));
+    }
+
     async update(post: Post): Promise<Post> {
         const updated = await this.prisma.post.update({
             where: { id: post.id },

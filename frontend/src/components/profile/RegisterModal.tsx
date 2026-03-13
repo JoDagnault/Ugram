@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { registerWithGoogle } from '../../api/auth/googleAuthResponse.ts';
+import { registerWithGoogle } from '../../api/auth/authService.ts';
 
 interface RegisterModalProps {
     idToken: string;
