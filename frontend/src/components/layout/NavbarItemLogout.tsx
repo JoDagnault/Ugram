@@ -1,5 +1,7 @@
 import type { ComponentType, SVGProps } from 'react';
 import { useNavigate } from 'react-router';
+import { logout } from '../../api/auth/authService.ts';
+import * as Sentry from '@sentry/react';
 
 interface NavbarItemLogoutProps {
     label: string;
@@ -12,9 +14,17 @@ export default function NavbarItemLogout({
 }: NavbarItemLogoutProps) {
     const navigate = useNavigate();
 
-    const handleLogout = () => {
-        localStorage.removeItem('jwt');
-        navigate('/login');
+    const handleLogout = async () => {
+        try {
+            const token = localStorage.getItem('jwt');
+            await logout(token!);
+            Sentry.logger.info('User logged out');
+            localStorage.removeItem('jwt');
+            navigate('/login');
+        } catch (error: any) {
+            Sentry.logger.warn('logout failed');
+            throw new Error('logout failed');
+        }
     };
 
     return (

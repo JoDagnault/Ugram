@@ -12,5 +12,6 @@ export class AuthRouter {
     private initializeRoute() {
         this.router.post('/login', this.authController.loginToAccount);
         this.router.post('/register', this.authController.registerAccount);
+        this.router.post('/logout', this.authController.logoutAccount);
     }
 }

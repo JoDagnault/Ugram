@@ -31,8 +31,16 @@ const postModule = PostModule();
 const userModule = UserModule(postModule.postRepository);
 const authModule = AuthModule(userModule.userRepository);
 
-app.use('/users', authMiddleware, userModule.router);
-app.use('/posts', authMiddleware, postModule.publicRouter);
+app.use(
+    '/users',
+    authMiddleware(authModule.revokedTokenRepository),
+    userModule.router,
+);
+app.use(
+    '/posts',
+    authMiddleware(authModule.revokedTokenRepository),
+    postModule.publicRouter,
+);
 
 app.use('/auth', authModule.authRouter);
 userModule.router.use('/:userId/posts', postModule.anotherUserRouter);

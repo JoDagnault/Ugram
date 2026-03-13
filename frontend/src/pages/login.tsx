@@ -1,9 +1,9 @@
 import { GoogleLogin } from '@react-oauth/google';
-import { loginWithGoogle } from '../api/auth/googleAuthResponse.ts';
 import { useNavigate } from 'react-router';
 import UgramLettering from '../assets/ugramLettering.tsx';
 import { useState } from 'react';
 import RegisterModal from '../components/profile/RegisterModal.tsx';
+import { loginWithGoogle } from '../api/auth/authService.ts';
 import * as Sentry from '@sentry/react';
 
 export default function Login() {

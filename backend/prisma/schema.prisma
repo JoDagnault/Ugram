@@ -43,3 +43,8 @@ model PostMention {
 
   @@id([postId, userId])
 }
+
+model RevokedToken {
+  token     String   @id
+  expiresAt DateTime
+}
