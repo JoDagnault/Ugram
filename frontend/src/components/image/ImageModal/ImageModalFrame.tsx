@@ -27,7 +27,7 @@ export default function ImageModalFrame({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="w-9 h-9 rounded hover:bg-gray-100 dark:hover:bg-black/20"
+                            className="w-9 h-9 text-gray-500 hover:text-white transition text-lg leading-none"
                             aria-label="Close"
                         >
                             ✕

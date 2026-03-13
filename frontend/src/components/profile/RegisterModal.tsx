@@ -84,7 +84,7 @@ export default function RegisterModal({
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm overflow-scroll"
             onClick={onClose}
         >
             <div
@@ -102,44 +102,44 @@ export default function RegisterModal({
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-col gap-3">
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-gray-400 text-xs uppercase tracking-widest">
+                            <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
                                 Username
                             </label>
                             <input
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                className="border border-white/20 rounded-sm px-2 py-1"
+                                className="border border-white rounded-sm px-2 py-1"
                             />
                         </div>
                         <div className="flex flex-col gap-1.5 flex-1">
-                            <label className="text-gray-400 text-xs uppercase tracking-widest">
+                            <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
                                 First Name
                             </label>
                             <input
                                 value={firstName}
                                 onChange={(e) => setFirstName(e.target.value)}
-                                className="border border-white/20 rounded-sm px-2 py-1"
+                                className="border border-white rounded-sm px-2 py-1"
                             />
                         </div>
                         <div className="flex flex-col gap-1.5 flex-1">
-                            <label className="text-gray-400 text-xs uppercase tracking-widest">
+                            <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
                                 Last Name
                             </label>
                             <input
                                 value={lastName}
                                 onChange={(e) => setLastName(e.target.value)}
-                                className="border border-white/20 rounded-sm px-2 py-1"
+                                className="border border-white rounded-sm px-2 py-1"
                             />
                         </div>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-gray-400 text-xs uppercase tracking-widest">
+                        <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
                             Phone Number
                         </label>
                         <input
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}
-                            className="border border-white/20 rounded-sm px-2 py-1"
+                            className="border border-white rounded-sm px-2 py-1"
                         />
                     </div>
                 </div>
@@ -149,14 +149,14 @@ export default function RegisterModal({
                 <button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="w-full bg-white text-black text-sm font-medium rounded-full py-2.5 hover:bg-gray-200 transition disabled:opacity-50 mt-2"
+                    className="px-3 py-2 rounded-full border dark:border-gray-500 bg-accent hover:bg-accent/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors mt-2"
                 >
                     {loading ? 'Creating account…' : 'Create account'}
                 </button>
 
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-gray-600 hover:text-white transition text-lg leading-none"
+                    className="absolute top-4 right-4 text-gray-500 hover:text-white transition text-lg leading-none"
                 >
                     ✕
                 </button>

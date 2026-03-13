@@ -82,9 +82,10 @@ const Profile = () => {
                         <button
                             type="button"
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="px-4 py-2 rounded bg-dark-gray text-white hover:bg-accent"
+                            className="px-4 py-2 rounded-full bg-dark-gray text-white border border-gray-500 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
                         >
-                            Create post
+                            <span className="mr-3 font-bold">+</span> Create
+                            post
                         </button>
                     </div>
                 )}

@@ -171,6 +171,11 @@ export default function ImageModal(props: Props) {
         <ImageModalFrame
             title={modalTitle}
             onClose={onClose}
+            panelClassName={
+                isCreateModal
+                    ? 'w-[95%] max-w-[900px] max-h-[90vh] overflow-hidden h-auto'
+                    : undefined
+            }
             actions={
                 !isCreateModal && mode === 'view' ? (
                     <ImageActionsMenu

@@ -84,7 +84,7 @@ const EditProfileModal = ({
                     <h2 className="text-xl font-bold">Edit Profile</h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:text-accent text-xl"
+                        className="text-gray-500 hover:text-white transition text-lg leading-none"
                     >
                         ✕
                     </button>
@@ -95,7 +95,9 @@ const EditProfileModal = ({
                     noValidate
                     className="flex flex-col"
                 >
-                    <label className="text-sm font-medium">First Name</label>
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
+                        First Name
+                    </label>
                     <input
                         className={`border p-2 rounded mb-1 ${
                             errors.firstName ? 'border-red-500' : ''
@@ -108,7 +110,9 @@ const EditProfileModal = ({
                     />
                     <ErrorText message={errors.firstName} />
 
-                    <label className="text-sm font-medium">Last Name</label>
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
+                        Last Name
+                    </label>
                     <input
                         className={`border p-2 rounded mb-1 ${
                             errors.lastName ? 'border-red-500' : ''
@@ -121,7 +125,9 @@ const EditProfileModal = ({
                     />
                     <ErrorText message={errors.lastName} />
 
-                    <label className="text-sm font-medium">Email</label>
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
+                        Email
+                    </label>
                     <input
                         type="email"
                         className={`border p-2 rounded mb-1 ${
@@ -133,7 +139,9 @@ const EditProfileModal = ({
                     />
                     <ErrorText message={errors.email} />
 
-                    <label className="text-sm font-medium">Phone Number</label>
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
+                        Phone Number
+                    </label>
                     <input
                         className={`border p-2 rounded mb-1 ${
                             errors.phoneNumber ? 'border-red-500' : ''
@@ -152,7 +160,7 @@ const EditProfileModal = ({
 
                     <button
                         type="submit"
-                        className="bg-dark-gray text-white p-2 mt-1 rounded hover:bg-accent"
+                        className="mt-3 px-3 py-2 rounded-full border border-gray-500 bg-dark-gray hover:bg-accent/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
                     >
                         Save changes
                     </button>
@@ -168,7 +176,7 @@ const EditProfileModal = ({
                                 onDelete();
                             }
                         }}
-                        className="bg-red-500 text-white p-2 mt-2 rounded hover:bg-red-700"
+                        className="mt-3 px-3 py-2 rounded-full border text-red-500 border-gray-500 bg-dark-gray hover:bg-red-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors"
                     >
                         Delete account
                     </button>

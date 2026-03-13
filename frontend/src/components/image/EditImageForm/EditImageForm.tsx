@@ -182,7 +182,7 @@ export default function EditImageForm({
     return (
         <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
                     Description
                 </label>
                 <textarea
@@ -205,7 +205,7 @@ export default function EditImageForm({
 
             {isCreateMode && (
                 <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
                         Image
                     </label>
                     <input
@@ -223,7 +223,7 @@ export default function EditImageForm({
                         <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            className="px-3 py-2 rounded border border-gray-400 dark:border-gray-500 bg-white dark:bg-dark text-gray-900 dark:text-gray-100 hover:bg-accent hover:text-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
+                            className="px-3 py-2 rounded-full border dark:border-gray-500 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
                         >
                             Browse
                         </button>
@@ -237,7 +237,7 @@ export default function EditImageForm({
             )}
 
             <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
                     Hashtags (comma separated)
                 </label>
                 <div className="flex items-center gap-2">
@@ -258,7 +258,7 @@ export default function EditImageForm({
                     <button
                         type="button"
                         onClick={() => setHashtagsError(commitHashtagsInput())}
-                        className="px-3 py-2 rounded border border-gray-400 dark:border-gray-500 bg-white dark:bg-dark text-gray-900 dark:text-gray-100 hover:bg-accent hover:text-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
+                        className="px-3 py-2 rounded-full border border-gray-500 bg-dark hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
                     >
                         Add
                     </button>
@@ -304,7 +304,7 @@ export default function EditImageForm({
             </div>
 
             <div className="relative">
-                <label className="block text-sm font-medium mb-1">
+                <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
                     Mentions
                 </label>
                 <input
@@ -374,7 +374,7 @@ export default function EditImageForm({
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="px-3 py-2 rounded border bg-white dark:bg-dark hover:opacity-90"
+                    className="px-3 py-2 rounded-full border hover:bg-dark-gray hover:opacity-90"
                     disabled={isSubmitting}
                 >
                     Cancel
@@ -382,7 +382,7 @@ export default function EditImageForm({
                 <button
                     type="submit"
                     disabled={isSubmitDisabled}
-                    className="px-3 py-2 rounded border border-gray-400 dark:border-gray-500 bg-accent text-dark hover:bg-accent/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
+                    className="px-3 py-2 rounded-full border dark:border-gray-500 bg-accent hover:bg-accent/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
                 >
                     {isSubmitting
                         ? 'Submitting...'
