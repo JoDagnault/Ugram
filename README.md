@@ -1,66 +1,15 @@
-# Livrable 1
-# ugram-h2026-team-01
+# ugram-h2026-team-01 - Livrable 2
 
-# 1. Architecture du projet (Livrable 0)
+## Preuve du logging au sein de l'application  à l'intérieur de ce document: 
+https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/edit?usp=sharing
 
-## Frontend
-
-- **Framework** : React
-- **Langage** : TypeScript
-- **Mise en forme** : Tailwind CSS
-- **Outil de build et de bundling** : Vite
-
-## Backend
-
-- **Environnement d’exécution** : Node.js
-- **Langage** : TypeScript
-- **Framework** : Express (API REST)
-- **ORM** : Prisma
-- **Système de gestion de base de données** : PostgreSQL
-
-
-## Qualité et analyse du code
-
-Afin d’assurer une qualité de code constante, les outils suivants sont utilisés :
-
-- **Linting** : ESLint ;
-- **Formatage** : Prettier ;
-- **Hooks Git (pré-commit)** :
-    - Husky ;
-    - lint-staged.
-- **Analyse de couverture de code** : Codecov.
-
-
-## Intégration et déploiement continus (CI/CD)
-
-- **Outil de CI/CD** : GitHub Actions.
-
-
-## Déploiement
-
-- **Plateforme de déploiement** : AWS.
-
-
-## Monitoring et observabilité
-
-- **Outil de monitoring et de suivi des erreurs** : Sentry.
-
-
-## Infrastructure et outils complémentaires
-
-- **Conteneurisation** : Docker ;
-- **Gestionnaire de paquets** : pnpm.
-
----
-
-# 2. Prérequis
-
+## Prérequis
 - Docker
 - Un fichier `backend/.env`
 - Un fichier `frontend/.env`
 
 
-## Variables d'environnement
+## Variables d'environnement pour travailler en local ou sur docker
 
 Créer et utiliser les fichiers suivants :
 
