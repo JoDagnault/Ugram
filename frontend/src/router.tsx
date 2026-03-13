@@ -6,6 +6,7 @@ import UserProfile from './pages/profile.tsx';
 import Users from './pages/search.tsx';
 import Login from './pages/login.tsx';
 import ProtectedRoute from './components/layout/ProtectedRoute.tsx';
+import ImageSearchPage from './pages/image-search.tsx';
 
 export const router = createBrowserRouter([
     {
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
                     { path: 'Profile/me', element: <UserProfile /> },
                     { path: 'Profile/:userId', element: <UserProfile /> },
                     { path: 'Search', element: <Users /> },
+                    { path: 'Search/images', element: <ImageSearchPage /> },
                 ],
             },
             { path: '*', element: <NotFound /> },

@@ -9,6 +9,7 @@ import { GetPostByIdUsecase } from '../../application/posts/get-post-by-id.useca
 import { UpdatePostUsecase } from '../../application/posts/update-post.usecase';
 import { DeletePostUsecase } from '../../application/posts/delete-post.usecase';
 import { PostFieldsValidator } from './assembler/post-fields-validator';
+import { SearchPostsByDescriptionUsecase } from '../../application/posts/search-posts-by-description.usecase';
 import { logger } from '../../logger';
 
 export class PostController {
@@ -18,6 +19,7 @@ export class PostController {
         private readonly getPostById: GetPostByIdUsecase,
         private readonly updatePost: UpdatePostUsecase,
         private readonly deletePost: DeletePostUsecase,
+        private readonly searchPostsByDescription: SearchPostsByDescriptionUsecase,
         private postAssembler: PostAssembler,
     ) {}
     createPostHandler = async (
@@ -48,13 +50,19 @@ export class PostController {
         req: Request<{ userId?: string }>,
         res: Response,
     ) => {
+        const { q } = req.query as { q?: string };
         const { userId: userIdParam } = req.params;
         const userId: string | undefined =
             userIdParam === 'me' ? req.userId : userIdParam;
 
-        const posts: Post[] = userId
-            ? await this.getAllPosts.executeForUser(userId)
-            : await this.getAllPosts.execute();
+        let posts: Post[];
+        if (q && !userId) {
+            posts = await this.searchPostsByDescription.execute(q);
+        } else if (userId) {
+            posts = await this.getAllPosts.executeForUser(userId);
+        } else {
+            posts = await this.getAllPosts.execute();
+        }
 
         req.userLogger.debug('Posts fetched', {
             count: posts.length,
