@@ -7,6 +7,48 @@ import type { PostResponseDto } from './imagesResponses';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
+export function useImageSearchByHashtag(hashtag: string) {
+    const [status, setStatus] = useState<Status>('idle');
+    const [images, setImages] = useState<ImageDetails[]>([]);
+
+    const normalizedHashtag = useMemo(() => hashtag.trim(), [hashtag]);
+
+    useEffect(() => {
+        let ignore = false;
+
+        if (!normalizedHashtag) {
+            setImages([]);
+            setStatus('idle');
+            return;
+        }
+
+        const fetchImages = async () => {
+            setStatus('loading');
+            const posts = await apiGetJsonOrUndefinedOn404<PostResponseDto[]>(
+                `/posts?hashtag=${encodeURIComponent(normalizedHashtag)}`,
+            );
+            if (ignore) return;
+            if (!posts) {
+                setImages([]);
+                setStatus('success');
+                return;
+            }
+            setImages(posts.map(mapPostResponseToImageDetails));
+            setStatus('success');
+        };
+
+        fetchImages().catch(() => {
+            if (!ignore) setStatus('error');
+        });
+
+        return () => {
+            ignore = true;
+        };
+    }, [normalizedHashtag]);
+
+    return { status, images };
+}
+
 export function useImageSearchByDescription(query: string) {
     const [status, setStatus] = useState<Status>('idle');
     const [images, setImages] = useState<ImageDetails[]>([]);

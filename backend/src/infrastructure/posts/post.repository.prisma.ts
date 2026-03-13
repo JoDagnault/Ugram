@@ -50,6 +50,20 @@ export class PrismaPostRepository implements PostRepository {
         return posts.map((p) => this.toDomain(p));
     }
 
+    async findByHashtag(hashtag: string): Promise<Post[]> {
+        const posts = await this.prisma.post.findMany({
+            where: {
+                hashtags: {
+                    has: hashtag,
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+            include: { mentions: true },
+        });
+
+        return posts.map((p) => this.toDomain(p));
+    }
+
     async findByDescription(query: string): Promise<Post[]> {
         const posts = await this.prisma.post.findMany({
             where: {

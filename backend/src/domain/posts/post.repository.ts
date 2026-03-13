@@ -5,6 +5,7 @@ export interface PostRepository {
     findAll(): Promise<Post[]>;
     findByUserId(userId: string): Promise<Post[]>;
     findByDescription(query: string): Promise<Post[]>;
+    findByHashtag(hashtag: string): Promise<Post[]>;
     findById(id: string): Promise<Post>;
     update(post: Post): Promise<Post>;
     deleteById(id: string): Promise<void>;

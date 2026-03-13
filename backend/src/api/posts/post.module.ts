@@ -10,6 +10,7 @@ import { PostRouter } from './post.router';
 import { PrismaPostRepository } from '../../infrastructure/posts/post.repository.prisma';
 import { getPrismaClient } from '../../infrastructure/prisma/client';
 import { SearchPostsByDescriptionUsecase } from '../../application/posts/search-posts-by-description.usecase';
+import { SearchPostsByHashtagUsecase } from '../../application/posts/search-posts-by-hashtag.usecase';
 
 export function PostModule() {
     const env = process.env.NODE_ENV ?? 'development';
@@ -30,6 +31,8 @@ export function PostModule() {
     const updatePost: UpdatePostUsecase = new UpdatePostUsecase(postRepository);
     const searchPostsByDescription: SearchPostsByDescriptionUsecase =
         new SearchPostsByDescriptionUsecase(postRepository);
+    const searchPostsByHashtag: SearchPostsByHashtagUsecase =
+        new SearchPostsByHashtagUsecase(postRepository);
 
     const assembler: PostAssembler = new PostAssembler();
     const controller: PostController = new PostController(
@@ -39,6 +42,7 @@ export function PostModule() {
         updatePost,
         deletePost,
         searchPostsByDescription,
+        searchPostsByHashtag,
         assembler,
     );
     const routers = new PostRouter(controller);

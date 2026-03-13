@@ -52,6 +52,19 @@ export class InMemoryPostsRepository implements PostRepository {
         );
     }
 
+    async findByHashtag(hashtag: string): Promise<Post[]> {
+        const normalized = hashtag.toLowerCase();
+        return [
+            ...this.posts.filter((post: Post): boolean =>
+                post.hashtags.some((tag) => tag.toLowerCase() === normalized),
+            ),
+        ].sort(
+            (a: Post, b: Post): number =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+        );
+    }
+
     async findByDescription(query: string): Promise<Post[]> {
         const normalized = query.toLowerCase();
         return [

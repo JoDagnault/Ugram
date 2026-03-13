@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
-import { getFeedImages } from '../api/images/imagesService';
 import type { ImageDetails } from '../types/image';
 import ImageCard from '../components/image/ImageCard';
 import ImageModal from '../components/image/ImageModal/ImageModal';
-import { useImageSearchByDescription } from '../api/images/useImageSearch';
+import {
+    useImageSearchByDescription,
+    useImageSearchByHashtag,
+} from '../api/images/useImageSearch';
 
 type Tab = 'hashtags' | 'images';
 
@@ -39,42 +41,16 @@ export default function SearchResultsPage() {
         });
     };
 
-    const [allImages, setAllImages] = useState<ImageDetails[]>([]);
-    const [hashtagLoading, setHashtagLoading] = useState(true);
-
-    useEffect(() => {
-        let ignore = false;
-        setHashtagLoading(true);
-
-        getFeedImages()
-            .then((result) => {
-                if (!ignore) setAllImages(result);
-            })
-            .catch(() => {})
-            .finally(() => {
-                if (!ignore) setHashtagLoading(false);
-            });
-
-        return () => {
-            ignore = true;
-        };
-    }, []);
-
-    const normalizedQuery = useMemo(() => query.toLowerCase(), [query]);
-
-    const hashtagImages = useMemo(() => {
-        if (!normalizedQuery) return [];
-
-        return allImages.filter((image) =>
-            image.hashtags.some((tag) => tag.toLowerCase() === normalizedQuery),
-        );
-    }, [allImages, normalizedQuery]);
+    const { status: hashtagStatus, images: hashtagImages } =
+        useImageSearchByHashtag(activeTab === 'hashtags' ? query : '');
 
     const { status: imageStatus, images: descriptionImages } =
         useImageSearchByDescription(activeTab === 'images' ? query : '');
 
     const isLoading =
-        activeTab === 'hashtags' ? hashtagLoading : imageStatus === 'loading';
+        activeTab === 'hashtags'
+            ? hashtagStatus === 'loading'
+            : imageStatus === 'loading';
 
     const images = activeTab === 'hashtags' ? hashtagImages : descriptionImages;
 
