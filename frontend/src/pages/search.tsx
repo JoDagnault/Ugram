@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Outlet, useLocation, useMatch } from 'react-router';
 import { getMe, getUsers } from '../api/users/usersService';
 import type { UserListItem } from '../types/user';
 import ImageSearchResults from '../components/search/ImageSearchResults.tsx';
@@ -6,10 +7,22 @@ import UserSearchResults from '../components/search/UserSearchResults.tsx';
 import * as Sentry from '@sentry/react';
 
 export default function Search() {
-    const [query, setQuery] = useState('');
+    const location = useLocation();
+    const onResultsPage = useMatch('/Search/results');
+
+    const [query, setQuery] = useState(() => {
+        const params = new URLSearchParams(location.search);
+        return params.get('q')?.trim() ?? '';
+    });
+
     const [users, setUsers] = useState<UserListItem[]>([]);
     const [meId, setMeId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        setQuery(params.get('q')?.trim() ?? '');
+    }, [location.search]);
 
     useEffect(() => {
         let ignore = false;
@@ -54,35 +67,47 @@ export default function Search() {
     if (loading) return <p className="p-4">Loading…</p>;
 
     return (
-        <div className="p-4 max-w-3xl mx-auto space-y-6">
-            {/* Search bar */}
-            <div className="rounded bg-gray-100 dark:bg-dark p-4">
-                <label className="block text-sm font-medium mb-2">Search</label>
-                <input
-                    type="search"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search users or images…"
-                    className="w-full border rounded p-3 bg-white dark:bg-dark"
-                />
+        <div className="flex">
+            <div
+                className={`${
+                    onResultsPage
+                        ? 'w-96 shrink-0 border-r border-gray-200 dark:border-gray-700'
+                        : 'w-full max-w-3xl mx-auto'
+                } p-4 space-y-6`}
+            >
+                <div className="rounded bg-gray-100 dark:bg-dark p-4">
+                    <label className="block text-sm font-medium mb-2">
+                        Search
+                    </label>
+                    <input
+                        type="search"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Search users or images…"
+                        className="w-full border rounded p-3 bg-white dark:bg-dark"
+                    />
+                </div>
+
+                <div className="rounded bg-gray-100 dark:bg-dark p-4">
+                    <div className="text-sm font-medium mb-4">Results</div>
+
+                    <div className="text-base font-semibold">
+                        <ImageSearchResults query={query} />
+                    </div>
+
+                    {query.trim().length > 0 && (
+                        <hr className="my-4 border-gray-300 dark:border-gray-700" />
+                    )}
+
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        Users
+                    </div>
+                    <UserSearchResults users={displayedUsers} meId={meId} />
+                </div>
             </div>
 
-            {/* Results */}
-            <div className="rounded bg-gray-100 dark:bg-dark p-4">
-                <div className="text-sm font-medium mb-4">Results</div>
-
-                <div className="text-base font-semibold">
-                    <ImageSearchResults query={query} />
-                </div>
-
-                {query.trim().length > 0 && (
-                    <hr className="my-4 border-gray-300 dark:border-gray-700" />
-                )}
-
-                <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    Users
-                </div>
-                <UserSearchResults users={displayedUsers} meId={meId} />
+            <div className={onResultsPage ? 'flex-1 min-w-0' : 'hidden'}>
+                <Outlet />
             </div>
         </div>
     );
