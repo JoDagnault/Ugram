@@ -16,13 +16,20 @@ export const apiFetch = async (
 ): Promise<Response> => {
     const token = localStorage.getItem('jwt');
 
-    return fetch(apiUrl(path), {
+    const response = await fetch(apiUrl(path), {
         ...init,
         headers: {
             ...init?.headers,
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
     });
+
+    if (response.status === 401) {
+        localStorage.removeItem('jwt');
+        window.location.href = '/login';
+    }
+
+    return response;
 };
 
 export class ApiError extends Error {

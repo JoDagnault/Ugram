@@ -5,12 +5,13 @@ import { v4 as uuid } from 'uuid';
 import { ResponsePostDTO } from '../dto/response-post.dto';
 import { PostFieldsValidator } from './post-fields-validator';
 import { S3File } from '../../../types/s3-file';
+import { BadRequestError } from '../../../errors/bad-request.error';
 
 export class PostAssembler {
     toPost(req: Request<{}, {}, PostFieldsDto>, userId: string): Post {
         const file = req.file as S3File;
         if (!file) {
-            throw new Error('No image uploaded');
+            throw new BadRequestError('No image uploaded');
         }
         const imageURL: string = file.location;
 

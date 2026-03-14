@@ -1,29 +1,13 @@
 export class Post {
-    private readonly _id: string;
-    private readonly _userId: string;
-    private _imageURL: string;
-    private _description: string;
-    private _hashtags: string[];
-    private _mentions: string[];
-    private readonly _createdAt: string;
-
     constructor(
-        id: string,
-        userId: string,
-        imageURL: string,
-        description: string,
-        hashtags: string[],
-        mentions: string[],
-        createdAt?: string,
-    ) {
-        this._id = id;
-        this._userId = userId;
-        this._imageURL = imageURL;
-        this._description = description;
-        this._hashtags = hashtags;
-        this._mentions = mentions;
-        this._createdAt = createdAt ?? new Date().toISOString();
-    }
+        private readonly _id: string,
+        private readonly _userId: string,
+        private _imageURL: string,
+        private _description: string,
+        private _hashtags: string[],
+        private _mentions: string[],
+        private readonly _createdAt: string = new Date().toISOString(),
+    ) {}
 
     get id(): string {
         return this._id;

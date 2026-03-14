@@ -285,7 +285,7 @@ export default function EditImageForm({
                         {hashtags.map((tag) => (
                             <RemovableChip
                                 key={tag.toLowerCase()}
-                                label={`#${tag}`}
+                                label={`#${tag.toLowerCase()}`}
                                 removeLabel={`Remove hashtag ${tag}`}
                                 onRemove={() => {
                                     removeHashtag(tag);
