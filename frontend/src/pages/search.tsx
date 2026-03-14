@@ -83,7 +83,7 @@ export default function Search() {
                         type="search"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Search users or images…"
+                        placeholder="Search users or posts…"
                         className="w-full border rounded p-3 bg-white dark:bg-dark"
                     />
                 </div>
@@ -92,7 +92,7 @@ export default function Search() {
                     <div className="text-sm font-medium mb-4">Results</div>
 
                     <div className="text-base font-semibold">
-                        <ImageSearchResults query={query} />
+                        <ImageSearchResults postResults={query} />
                     </div>
 
                     {query.trim().length > 0 && (

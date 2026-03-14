@@ -4,11 +4,13 @@ import { Link, useNavigate } from 'react-router';
 import { getFeedImages } from '../../api/images/imagesService';
 import type { ImageDetails } from '../../types/image';
 
+const MAX_RESULT_QUANTITY = 5;
+
 type Props = {
-    query: string;
+    postResults: string;
 };
 
-export default function ImageSearchResults({ query }: Props) {
+export default function ImageSearchResults({ postResults }: Props) {
     const navigate = useNavigate();
     const [images, setImages] = useState<ImageDetails[]>([]);
 
@@ -26,7 +28,7 @@ export default function ImageSearchResults({ query }: Props) {
         };
     }, []);
 
-    const trimmedQuery = query.trim();
+    const trimmedQuery = postResults.trim();
     const normalizedQuery = useMemo(
         () => trimmedQuery.toLowerCase(),
         [trimmedQuery],
@@ -35,21 +37,15 @@ export default function ImageSearchResults({ query }: Props) {
     const matchingHashtags = useMemo(() => {
         if (!normalizedQuery) return [];
 
-        const seen = new Set<string>();
-        const result: string[] = [];
-
-        for (const image of images) {
-            for (const hashtag of image.hashtags) {
-                const lower = hashtag.toLowerCase();
-                if (lower.includes(normalizedQuery) && !seen.has(lower)) {
-                    seen.add(lower);
-                    result.push(hashtag);
-                    if (result.length === 5) return result;
-                }
-            }
-        }
-
-        return result;
+        return [
+            ...new Set(
+                images
+                    .flatMap((post) => post.hashtags)
+                    .filter((hashtag) =>
+                        hashtag.toLowerCase().includes(normalizedQuery),
+                    ),
+            ),
+        ].slice(0, MAX_RESULT_QUANTITY);
     }, [images, normalizedQuery]);
 
     if (!normalizedQuery) {
@@ -96,7 +92,7 @@ export default function ImageSearchResults({ query }: Props) {
                                 #
                             </span>
                             <span className="font-medium text-sm">
-                                #{hashtag}
+                                {hashtag}
                             </span>
                         </Link>
                     ))

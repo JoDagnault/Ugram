@@ -6,7 +6,7 @@ import UserProfile from './pages/profile.tsx';
 import Users from './pages/search.tsx';
 import Login from './pages/login.tsx';
 import ProtectedRoute from './components/layout/ProtectedRoute.tsx';
-import SearchResultsPage from './pages/search-results.tsx';
+import SearchResultsPage from './pages/SearchResults.tsx';
 
 export const router = createBrowserRouter([
     {
