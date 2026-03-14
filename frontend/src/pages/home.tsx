@@ -8,6 +8,7 @@ import * as Sentry from '@sentry/react';
 const Home = () => {
     const [images, setImages] = useState<ImageDetails[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showLoading, setShowLoading] = useState(false);
 
     const [selectedImage, setSelectedImage] = useState<ImageDetails | null>(
         null,
@@ -25,6 +26,10 @@ const Home = () => {
 
     useEffect(() => {
         loadFeed();
+        const timer = setTimeout(() => {
+            setShowLoading(true);
+        }, 300);
+        return () => clearTimeout(timer);
     }, []);
 
     const refreshFeed = async () => {
@@ -32,11 +37,11 @@ const Home = () => {
         setImages(feedImages);
     };
 
-    if (isLoading) {
+    if (showLoading && isLoading) {
         return <p className="p-4">Loading feed…</p>;
     }
 
-    if (images.length === 0) {
+    if (showLoading && images.length === 0) {
         return <p className="p-4">No images to display.</p>;
     }
 

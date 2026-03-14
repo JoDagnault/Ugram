@@ -30,7 +30,7 @@ export default function ImageActionsMenu({
             <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
-                className="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-black/20"
+                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-white transition text-lg leading-none"
                 aria-label="Open image actions"
                 title="Actions"
             >
@@ -38,7 +38,7 @@ export default function ImageActionsMenu({
             </button>
 
             {open && (
-                <div className="absolute right-0 mt-2 w-40 border rounded bg-white dark:bg-dark shadow">
+                <div className="absolute right-0 mt-2 w-40 border rounded-md bg-dark shadow">
                     {isOwner ? (
                         <>
                             <button
@@ -47,7 +47,7 @@ export default function ImageActionsMenu({
                                     setOpen(false);
                                     onEdit();
                                 }}
-                                className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-black/20"
+                                className="w-full text-left px-3 py-2 hover:bg-dark-secondary rounded-md"
                             >
                                 Edit
                             </button>
@@ -57,7 +57,7 @@ export default function ImageActionsMenu({
                                     setOpen(false);
                                     onDelete();
                                 }}
-                                className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-black/20 text-red-600"
+                                className="w-full text-left px-3 py-2 hover:bg-dark-secondary text-red-600  rounded-md"
                             >
                                 Delete
                             </button>
@@ -69,7 +69,7 @@ export default function ImageActionsMenu({
                                 setOpen(false);
                                 onReport();
                             }}
-                            className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-black/20"
+                            className="w-full text-left px-3 py-2 hover:bg-dark-secondary rounded-md"
                         >
                             Report
                         </button>

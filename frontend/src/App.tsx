@@ -8,7 +8,7 @@ function App() {
     return (
         <div className="min-h-dvh bg-dark text-white">
             {!hideNavbar && <Navbar />}
-            <main className="pt-1">
+            <main>
                 <Outlet />
             </main>
         </div>

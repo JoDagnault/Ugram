@@ -14,6 +14,7 @@ const Profile = () => {
     const [user, setUser] = useState<MyUser | UserProfile | null>(null);
     const [images, setImages] = useState<ImageListItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showLoading, setShowLoading] = useState(false);
 
     const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -22,6 +23,9 @@ const Profile = () => {
 
     useEffect(() => {
         let ignore = false;
+        const timer = setTimeout(() => {
+            if (!ignore) setShowLoading(true);
+        }, 300);
 
         const fetchData = async () => {
             try {
@@ -37,13 +41,17 @@ const Profile = () => {
                 setImages(nextImages);
                 Sentry.logger.info(`User ${nextUser.id} opened its profile`);
             } finally {
-                if (!ignore) setLoading(false);
+                if (!ignore) {
+                    setLoading(false);
+                    setShowLoading(false);
+                }
             }
         };
 
         fetchData();
         return () => {
             ignore = true;
+            clearTimeout(timer);
         };
     }, [userId, isMyProfile]);
 
@@ -58,52 +66,54 @@ const Profile = () => {
         setUser(updated);
     };
 
-    if (loading) return <p>Loading…</p>;
-    if (!user) return <p>No user found</p>;
+    if (loading && showLoading) return <p>Loading…</p>;
+    if (showLoading && !user) return <p>No user found</p>;
 
-    return (
-        <div className="pb-10">
-            <ProfileInfo
-                user={user}
-                isMyProfile={isMyProfile}
-                onUserUpdated={refreshUser}
-            />
-
-            {isMyProfile && (
-                <div className="flex justify-center mb-4">
-                    <button
-                        type="button"
-                        onClick={() => setIsCreateModalOpen(true)}
-                        className="px-4 py-2 rounded bg-dark-gray text-white hover:bg-accent"
-                    >
-                        Create post
-                    </button>
-                </div>
-            )}
-
-            <UserGallery
-                images={images}
-                onImageClick={(id) => setSelectedImageId(id)}
-            />
-
-            {isMyProfile && isCreateModalOpen && (
-                <ImageModal
-                    mode="create"
-                    onClose={() => setIsCreateModalOpen(false)}
-                    onCreated={refreshImages}
+    if (user)
+        return (
+            <div className="pb-10">
+                <ProfileInfo
+                    user={user}
+                    isMyProfile={isMyProfile}
+                    onUserUpdated={refreshUser}
                 />
-            )}
 
-            {selectedImageId && (
-                <ImageModal
-                    imageId={selectedImageId}
-                    onClose={() => setSelectedImageId(null)}
-                    onDeleted={refreshImages}
-                    onUpdated={refreshImages}
+                {isMyProfile && (
+                    <div className="flex justify-center mb-4">
+                        <button
+                            type="button"
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="px-4 py-2 rounded-full bg-dark-gray text-white border border-gray-500 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
+                        >
+                            <span className="mr-3 font-bold">+</span> Create
+                            post
+                        </button>
+                    </div>
+                )}
+
+                <UserGallery
+                    images={images}
+                    onImageClick={(id) => setSelectedImageId(id)}
                 />
-            )}
-        </div>
-    );
+
+                {isMyProfile && isCreateModalOpen && (
+                    <ImageModal
+                        mode="create"
+                        onClose={() => setIsCreateModalOpen(false)}
+                        onCreated={refreshImages}
+                    />
+                )}
+
+                {selectedImageId && (
+                    <ImageModal
+                        imageId={selectedImageId}
+                        onClose={() => setSelectedImageId(null)}
+                        onDeleted={refreshImages}
+                        onUpdated={refreshImages}
+                    />
+                )}
+            </div>
+        );
 };
 
 export default Profile;

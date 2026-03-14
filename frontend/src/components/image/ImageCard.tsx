@@ -31,61 +31,83 @@ export default function ImageCard({ image }: Props) {
         return image.mentions.map((id) => userIdToUsername.get(id) ?? id);
     }, [image.mentions, userIdToUsername]);
 
+    const maxVisible = 2;
+    const visible = taggedUsernames.slice(0, maxVisible);
+    const remaining = taggedUsernames.length - maxVisible;
+
+    const visibleHashtags = image.hashtags.slice(0, maxVisible);
+    const remainingHashtags = image.hashtags.length - maxVisible;
+
     const hasDescription = image.description.trim().length > 0;
 
     return (
-        <div className="flex justify-center w-full">
-            <div className="border rounded-lg overflow-hidden shadow-sm bg-white dark:bg-dark w-60 min-[640px]:w-70 min-[750px]:w-[320px] min-[1024px]:w-112.5 min-[1242px]:w-137.5 min-[1366px]:w-162.5 min-[1536px]:w-200 min-[1920px]:w-225">
-                <div className="w-full h-87.5 min-[640px]:h-100 min-[750px]:h-112.5 min-[1024px]:h-150 min-[1242px]:h-175 min-[1366px]:h-200  bg-white dark:bg-dark flex items-center justify-center">
+        <div className="flex justify-center w-full h-135 min-[385px]:h-155 min-[1242px]:h-175">
+            <div className="flex flex-col border rounded-lg w-95/100 min-w-[290px] min-[750px]:w-7/10 min-[1242px]:w-9/10">
+                <div className="w-full flex-1 min-h-0 flex items-center justify-center">
                     <img
                         src={image.imageUrl}
                         alt={image.id}
-                        className="max-w-full max-h-full object-contain"
+                        className="w-full h-full object-contain"
+                        loading="lazy"
                     />
                 </div>
 
-                <div className="p-2.5 min-[750px]:p-3 min-[1242px]:p-4 space-y-1.5 min-[750px]:space-y-2 text-xs min-[750px]:text-sm">
-                    <div className="text-gray-500 text-xs min-[750px]:text-sm">
+                <div className="flex flex-col justify-end h-1/4 p-2.5 min-[750px]:p-3 min-[1242px]:p-4 space-y-1.5 min-[750px]:space-y-2 text-xs min-[750px]:text-sm">
+                    <div className="text-xs min-[750px]:text-sm text-gray-500">
                         {dateFormat(image.createdAt)}
                     </div>
 
                     {hasDescription && (
-                        <p className="text-sm min-[750px]:text-base min-[1242px]:text-lg font-medium break-words">
+                        <p className="text-sm min-[1242px]:text-lg font-medium truncate">
                             {image.description}
                         </p>
                     )}
 
-                    {image.hashtags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 min-[750px]:gap-1.5">
-                            {image.hashtags.map((h) => (
-                                <span
-                                    key={h}
-                                    className="text-blue-500 text-xs min-[750px]:text-sm break-all"
-                                >
-                                    #{h}
-                                </span>
-                            ))}
-                        </div>
-                    )}
+                    <div>
+                        {image.hashtags.length > 0 && (
+                            <div className="flex gap-1 min-[750px]:gap-1.5 overflow-hidden">
+                                {visibleHashtags.map((h) => (
+                                    <span
+                                        key={h}
+                                        className="text-blue-500 text-xs min-[750px]:text-sm shrink-0"
+                                    >
+                                        #{h}
+                                    </span>
+                                ))}
+                                {remainingHashtags > 0 && (
+                                    <span className="text-gray-500 text-xs min-[750px]:text-sm shrink-0">
+                                        +{remainingHashtags}
+                                    </span>
+                                )}
+                            </div>
+                        )}
 
-                    {taggedUsernames.length > 0 && (
-                        <div className="flex flex-wrap gap-1 min-[750px]:gap-1.5">
-                            {taggedUsernames.map((name) => (
-                                <span
-                                    key={name}
-                                    className="text-blue-500 text-xs min-[750px]:text-sm break-all"
-                                >
-                                    @{name}
-                                </span>
-                            ))}
-                        </div>
-                    )}
+                        {taggedUsernames.length > 0 && (
+                            <div className="flex gap-1 min-[750px]:gap-1.5 overflow-hidden">
+                                {visible.map((name) => (
+                                    <span
+                                        key={name}
+                                        className="text-blue-500 text-xs min-[750px]:text-sm shrink-0"
+                                    >
+                                        @{name}
+                                    </span>
+                                ))}
+                                {remaining > 0 && (
+                                    <span className="text-gray-500 text-xs min-[750px]:text-sm shrink-0">
+                                        +{remaining}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                    </div>
 
-                    <div className="text-xs min-[750px]:text-sm text-gray-500">
-                        Published by{' '}
-                        <span className="font-medium text-gray-800 dark:text-gray-200 break-all">
-                            @{publisherUsername}
-                        </span>
+                    <div className="flex w-full justify-between">
+                        <div className="text-xs min-[750px]:text-sm text-gray-500">
+                            Published by{' '}
+                            <span className="font-medium text-gray-800 dark:text-gray-200 break-all truncate">
+                                @{publisherUsername}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

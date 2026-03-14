@@ -1,15 +1,23 @@
 import { NavLink } from 'react-router';
-import { MagnifyingGlassCircleIcon } from '@heroicons/react/24/outline';
+import {
+    MagnifyingGlassCircleIcon,
+    Bars3Icon,
+} from '@heroicons/react/24/outline';
 import { HomeIcon } from '@heroicons/react/24/outline';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 import UgramLettering from '../../assets/ugramLettering.tsx';
 import NavbarItem from './NavbarItem.tsx';
 import NavbarItemLogout from './NavbarItemLogout.tsx';
-import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/24/outline';
 
 export default function Navbar() {
     return (
-        <div className="bg-gradient-to-r from-primary to-secondary pb-[2px] rounded sticky top-0 w-full ">
+        <div
+            style={{
+                background:
+                    'linear-gradient(90deg, #FFCC00, #FE4A05, #E30613, #009FE3)',
+            }}
+            className="pb-[2px] rounded sticky top-0 w-full"
+        >
             <nav className="flex justify-between px-3 pt-3 pb-2 md:pb-1 bg-dark">
                 <NavLink
                     to="/"
@@ -30,10 +38,7 @@ export default function Navbar() {
                         label="Profile"
                         icon={UserCircleIcon}
                     />
-                    <NavbarItemLogout
-                        label="Logout"
-                        icon={ArrowRightEndOnRectangleIcon}
-                    />
+                    <NavbarItemLogout label="Logout" icon={Bars3Icon} />
                 </div>
             </nav>
         </div>
