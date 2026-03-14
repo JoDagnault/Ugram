@@ -66,13 +66,13 @@ async function main() {
 
     await prisma.post.upsert({
         where: { id: '1f518f0a-5ee1-4f06-81b4-353b762415d4' },
-        update: {},
+        update: { hashtags: ['hondacivicforlife', 'kevininthedesert'] },
         create: {
             id: '1f518f0a-5ee1-4f06-81b4-353b762415d4',
             authorId: ME_USER_ID,
             imageURL: 'https://picsum.photos/seed/img-3/800/600',
             description: 'Little drive to see the wind turbines',
-            hashtags: ['hondacivicforlife', 'kevinInthedesert'],
+            hashtags: ['hondacivicforlife', 'kevininthedesert'],
             mentions: { create: [{ userId: CHARLIE_USER_ID }] },
             createdAt: new Date('2026-02-14T08:30:00.000Z'),
         },
@@ -80,7 +80,7 @@ async function main() {
 
     await prisma.post.upsert({
         where: { id: '84424f89-249d-4978-ac6a-67bcab4b1395' },
-        update: {},
+        update: { hashtags: ['newyork', 'wow'] },
         create: {
             id: '84424f89-249d-4978-ac6a-67bcab4b1395',
             authorId: ME_USER_ID,
@@ -94,7 +94,7 @@ async function main() {
 
     await prisma.post.upsert({
         where: { id: '3e12a474-c84b-4c94-b81b-da647a6e10c5' },
-        update: {},
+        update: { hashtags: ['hiking', 'outdoors'] },
         create: {
             id: '3e12a474-c84b-4c94-b81b-da647a6e10c5',
             authorId: ME_USER_ID,
@@ -127,7 +127,7 @@ async function main() {
 
     await prisma.post.upsert({
         where: { id: 'bc4995c1-18fa-400b-96b6-92be8fea26d5' },
-        update: {},
+        update: { hashtags: ['friends'] },
         create: {
             id: 'bc4995c1-18fa-400b-96b6-92be8fea26d5',
             authorId: ALICE_USER_ID,
