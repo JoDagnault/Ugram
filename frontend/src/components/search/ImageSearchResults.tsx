@@ -41,8 +41,9 @@ export default function ImageSearchResults({ postResults }: Props) {
                 </div>
                 <button
                     type="button"
-                    className="w-full flex items-center gap-3 border rounded p-2 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-black/20 mb-2"
+                    className="w-full flex items-center gap-3 border rounded p-2 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-black/20 mb-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Search images by description"
+                    disabled={!trimmedQuery}
                     onClick={() =>
                         navigate(
                             `/Search/results?q=${encodeURIComponent(trimmedQuery)}&tab=images`,
@@ -69,7 +70,8 @@ export default function ImageSearchResults({ postResults }: Props) {
                 </div>
                 <button
                     type="button"
-                    className="w-full flex items-center gap-3 border rounded p-2 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-black/20"
+                    className="w-full flex items-center gap-3 border rounded p-2 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-black/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!trimmedQuery}
                     onClick={() =>
                         navigate(
                             `/Search/results?q=${encodeURIComponent(trimmedQuery)}&tab=hashtags`,
