@@ -42,7 +42,7 @@ VITE_MAX_IMAGE_SIZE_BYTES=10485760
 Les vraies valeurs à utiliser sont dans le document suivant : https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/edit?usp=sharing
 
 
-# 3. Exécution du livrable 1
+# 3. Exécution
 
 ## Démarrer l'application
 Depuis la racine du projet :
