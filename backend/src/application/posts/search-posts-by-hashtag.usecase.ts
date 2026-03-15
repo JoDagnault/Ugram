@@ -9,6 +9,6 @@ export class SearchPostsByHashtagUsecase {
         if (!normalized) {
             return [];
         }
-        return this.postsRepository.findByHashtag(normalized);
+        return this.postsRepository.findByMatchingHashtag(normalized);
     }
 }

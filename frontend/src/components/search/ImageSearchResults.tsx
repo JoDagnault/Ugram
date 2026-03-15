@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-
-import { getFeedImages } from '../../api/images/imagesService';
-import type { ImageDetails } from '../../types/image';
+import { searchHashtags } from '../../api/images/imagesService.ts';
 
 const MAX_RESULT_QUANTITY = 5;
 
@@ -12,41 +10,28 @@ type Props = {
 
 export default function ImageSearchResults({ postResults }: Props) {
     const navigate = useNavigate();
-    const [images, setImages] = useState<ImageDetails[]>([]);
+    const [matchingHashtags, setMatchingHashtags] = useState<string[]>([]);
+
+    const trimmedQuery = postResults.trim();
 
     useEffect(() => {
         let ignore = false;
 
-        getFeedImages()
+        if (!trimmedQuery) {
+            setMatchingHashtags([]);
+            return;
+        }
+
+        searchHashtags(trimmedQuery, MAX_RESULT_QUANTITY)
             .then((result) => {
-                if (!ignore) setImages(result);
+                if (!ignore) setMatchingHashtags(result);
             })
             .catch(() => {});
 
         return () => {
             ignore = true;
         };
-    }, []);
-
-    const trimmedQuery = postResults.trim();
-    const normalizedQuery = useMemo(
-        () => trimmedQuery.toLowerCase(),
-        [trimmedQuery],
-    );
-
-    const matchingHashtags = useMemo(() => {
-        if (!normalizedQuery) return [];
-
-        return [
-            ...new Set(
-                images
-                    .flatMap((post) => post.hashtags)
-                    .filter((hashtag) =>
-                        hashtag.toLowerCase().includes(normalizedQuery),
-                    ),
-            ),
-        ].slice(0, MAX_RESULT_QUANTITY);
-    }, [images, normalizedQuery]);
+    }, [trimmedQuery]);
 
     return (
         <>
@@ -88,7 +73,9 @@ export default function ImageSearchResults({ postResults }: Props) {
                                 #
                             </span>
                             <span className="font-medium text-sm">
-                                {hashtag}
+                                {hashtag.startsWith('#')
+                                    ? hashtag.slice(1)
+                                    : hashtag}
                             </span>
                         </Link>
                     ))

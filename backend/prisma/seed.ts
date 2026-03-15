@@ -66,13 +66,26 @@ async function main() {
 
     await prisma.post.upsert({
         where: { id: '1f518f0a-5ee1-4f06-81b4-353b762415d4' },
-        update: { hashtags: ['hondacivicforlife', 'kevininthedesert'] },
+        update: {
+            hashtags: {
+                deleteMany: {},
+                create: [
+                    { name: 'hondacivicforlife' },
+                    { name: 'kevininthedesert' },
+                ],
+            },
+        },
         create: {
             id: '1f518f0a-5ee1-4f06-81b4-353b762415d4',
             authorId: ME_USER_ID,
             imageURL: 'https://picsum.photos/seed/img-3/800/600',
             description: 'Little drive to see the wind turbines',
-            hashtags: ['hondacivicforlife', 'kevininthedesert'],
+            hashtags: {
+                create: [
+                    { name: 'hondacivicforlife' },
+                    { name: 'kevininthedesert' },
+                ],
+            },
             mentions: { create: [{ userId: CHARLIE_USER_ID }] },
             createdAt: new Date('2026-02-14T08:30:00.000Z'),
         },
@@ -80,13 +93,20 @@ async function main() {
 
     await prisma.post.upsert({
         where: { id: '84424f89-249d-4978-ac6a-67bcab4b1395' },
-        update: { hashtags: ['newyork', 'wow'] },
+        update: {
+            hashtags: {
+                deleteMany: {},
+                create: [{ name: 'newyork' }, { name: 'wow' }],
+            },
+        },
         create: {
             id: '84424f89-249d-4978-ac6a-67bcab4b1395',
             authorId: ME_USER_ID,
             imageURL: 'https://picsum.photos/seed/img-1/800/600',
             description: 'Travelling with friends 🏙️',
-            hashtags: ['newyork', 'wow'],
+            hashtags: {
+                create: [{ name: 'newyork' }, { name: 'wow' }],
+            },
             mentions: { create: [] },
             createdAt: new Date('2026-01-30T08:30:00.000Z'),
         },
@@ -94,13 +114,20 @@ async function main() {
 
     await prisma.post.upsert({
         where: { id: '3e12a474-c84b-4c94-b81b-da647a6e10c5' },
-        update: { hashtags: ['hiking', 'outdoors'] },
+        update: {
+            hashtags: {
+                deleteMany: {},
+                create: [{ name: 'hiking' }, { name: 'outdoors' }],
+            },
+        },
         create: {
             id: '3e12a474-c84b-4c94-b81b-da647a6e10c5',
             authorId: ME_USER_ID,
             imageURL: 'https://picsum.photos/seed/img-2/600/600',
             description: 'New challenge',
-            hashtags: ['hiking', 'outdoors'],
+            hashtags: {
+                create: [{ name: 'hiking' }, { name: 'outdoors' }],
+            },
             mentions: {
                 create: [
                     { userId: ALICE_USER_ID },
@@ -119,7 +146,7 @@ async function main() {
             authorId: ALICE_USER_ID,
             imageURL: 'https://picsum.photos/seed/img-4/700/600',
             description: '',
-            hashtags: [],
+            hashtags: { create: [] },
             mentions: { create: [] },
             createdAt: new Date('2026-02-05T08:30:00.000Z'),
         },
@@ -127,13 +154,20 @@ async function main() {
 
     await prisma.post.upsert({
         where: { id: 'bc4995c1-18fa-400b-96b6-92be8fea26d5' },
-        update: { hashtags: ['friends'] },
+        update: {
+            hashtags: {
+                deleteMany: {},
+                create: [{ name: 'friends' }],
+            },
+        },
         create: {
             id: 'bc4995c1-18fa-400b-96b6-92be8fea26d5',
             authorId: ALICE_USER_ID,
             imageURL: 'https://picsum.photos/seed/img-5/500/600',
             description: '',
-            hashtags: ['friends'],
+            hashtags: {
+                create: [{ name: 'friends' }],
+            },
             mentions: { create: [] },
             createdAt: new Date('2026-01-20T08:30:00.000Z'),
         },
@@ -147,7 +181,7 @@ async function main() {
             authorId: CHARLIE_USER_ID,
             imageURL: 'https://picsum.photos/seed/img-6/600/600',
             description: 'Good times in Toronto',
-            hashtags: [],
+            hashtags: { create: [] },
             mentions: { create: [{ userId: ALICE_USER_ID }] },
             createdAt: new Date('2026-02-07T08:30:00.000Z'),
         },

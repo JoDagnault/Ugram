@@ -13,7 +13,9 @@ export class PrismaPostRepository implements PostRepository {
                 authorId: post.userId,
                 imageURL: post.imageURL,
                 description: post.description,
-                hashtags: post.hashtags,
+                hashtags: {
+                    create: post.hashtags.map((name) => ({ name })),
+                },
                 mentions: {
                     create: post.mentions.map((userId) => ({ userId })),
                 },
@@ -25,7 +27,7 @@ export class PrismaPostRepository implements PostRepository {
     async findAll(): Promise<Post[]> {
         const posts = await this.prisma.post.findMany({
             orderBy: { createdAt: 'desc' },
-            include: { mentions: true },
+            include: { hashtags: true, mentions: true },
         });
 
         return posts.map((p) => this.toDomain(p));
@@ -34,7 +36,7 @@ export class PrismaPostRepository implements PostRepository {
     async findById(id: string): Promise<Post> {
         const p = await this.prisma.post.findUnique({
             where: { id },
-            include: { mentions: true },
+            include: { hashtags: true, mentions: true },
         });
         if (!p) throw new NotFoundError('Post not found');
         return this.toDomain(p);
@@ -44,23 +46,42 @@ export class PrismaPostRepository implements PostRepository {
         const posts = await this.prisma.post.findMany({
             where: { authorId: userId },
             orderBy: { createdAt: 'desc' },
-            include: { mentions: true },
+            include: { hashtags: true, mentions: true },
         });
 
         return posts.map((p) => this.toDomain(p));
     }
 
-    async findByHashtag(hashtag: string): Promise<Post[]> {
+    async findByExactHashtag(hashtag: string): Promise<Post[]> {
         const posts = await this.prisma.post.findMany({
             where: {
                 hashtags: {
-                    has: hashtag,
+                    some: {
+                        name: hashtag,
+                    },
                 },
             },
+            include: { hashtags: true, mentions: true },
             orderBy: { createdAt: 'desc' },
-            include: { mentions: true },
         });
+        return posts.map((p) => this.toDomain(p));
+    }
 
+    async findByMatchingHashtag(query: string): Promise<Post[]> {
+        const posts = await this.prisma.post.findMany({
+            where: {
+                hashtags: {
+                    some: {
+                        name: {
+                            contains: query,
+                            mode: 'insensitive',
+                        },
+                    },
+                },
+            },
+            include: { hashtags: true, mentions: true },
+            orderBy: { createdAt: 'desc' },
+        });
         return posts.map((p) => this.toDomain(p));
     }
 
@@ -72,6 +93,7 @@ export class PrismaPostRepository implements PostRepository {
                     mode: 'insensitive',
                 },
             },
+            include: { hashtags: true, mentions: true },
             orderBy: { createdAt: 'desc' },
         });
 
@@ -83,13 +105,16 @@ export class PrismaPostRepository implements PostRepository {
             where: { id: post.id },
             data: {
                 description: post.description,
-                hashtags: post.hashtags,
+                hashtags: {
+                    deleteMany: {},
+                    create: post.hashtags.map((name) => ({ name })),
+                },
                 mentions: {
                     deleteMany: {},
-                    create: post.mentions.map((userId) => ({ userId })), // recrée les nouvelles
+                    create: post.mentions.map((userId) => ({ userId })),
                 },
             },
-            include: { mentions: true },
+            include: { hashtags: true, mentions: true },
         });
 
         return this.toDomain(updated);
@@ -109,7 +134,7 @@ export class PrismaPostRepository implements PostRepository {
             p.authorId,
             p.imageURL,
             p.description,
-            p.hashtags ?? [],
+            p.hashtags?.map((h: any) => h.name) ?? [],
             p.mentions?.map((m: any) => m.userId) ?? [],
             p.createdAt.toISOString(),
         );

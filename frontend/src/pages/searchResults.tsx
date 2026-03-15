@@ -76,6 +76,10 @@ export default function SearchResults() {
 
     const images = activeTab === 'hashtags' ? hashtagImages : descriptionImages;
 
+    if (!query) {
+        return null;
+    }
+
     return (
         <div>
             <div className="px-4 pt-4 pb-2 border-b border-gray-200 dark:border-gray-700">
