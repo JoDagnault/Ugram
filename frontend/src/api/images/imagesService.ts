@@ -46,6 +46,25 @@ export const getUserImages = async (
     return posts.map(mapPostResponseToImageDetails).map(toImageListItem);
 };
 
+export const searchHashtags = async (
+    query: string,
+    limit?: number,
+): Promise<string[]> => {
+    const params = new URLSearchParams({ hashtag: query });
+    if (limit) params.append('limit', String(limit));
+
+    const posts = await apiGetJsonOrUndefinedOn404<PostResponseDto[]>(
+        `/posts?${params.toString()}`,
+    );
+    if (!posts) return [];
+
+    const normalizedQuery = query.toLowerCase();
+    const hashtags = posts
+        .flatMap((post) => post.hashtags ?? [])
+        .filter((tag) => tag.toLowerCase().includes(normalizedQuery));
+    return [...new Set(hashtags)].slice(0, limit);
+};
+
 export const getFeedImages = async (): Promise<ImageDetails[]> => {
     const posts = await apiGetJsonOrUndefinedOn404<PostResponseDto[]>('/posts');
     if (!posts) return [];

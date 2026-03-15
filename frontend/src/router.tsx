@@ -1,12 +1,12 @@
 import { createBrowserRouter } from 'react-router';
 import App from './App.tsx';
 import Home from './pages/home.tsx';
-import NotFound from './pages/not-found.tsx';
+import NotFound from './pages/notFound.tsx';
 import UserProfile from './pages/profile.tsx';
 import Users from './pages/search.tsx';
 import Login from './pages/login.tsx';
 import ProtectedRoute from './components/layout/ProtectedRoute.tsx';
-import ImageSearchPage from './pages/image-search.tsx';
+import SearchResults from './pages/searchResults.tsx';
 
 export const router = createBrowserRouter([
     {
@@ -20,8 +20,16 @@ export const router = createBrowserRouter([
                     { index: true, element: <Home /> },
                     { path: 'Profile/me', element: <UserProfile /> },
                     { path: 'Profile/:userId', element: <UserProfile /> },
-                    { path: 'Search', element: <Users /> },
-                    { path: 'Search/images', element: <ImageSearchPage /> },
+                    {
+                        path: 'Search',
+                        element: <Users />,
+                        children: [
+                            {
+                                path: 'results',
+                                element: <SearchResults />,
+                            },
+                        ],
+                    },
                     { path: '*', element: <NotFound /> },
                 ],
             },

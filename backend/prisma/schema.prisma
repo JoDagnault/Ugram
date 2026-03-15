@@ -27,7 +27,7 @@ model Post {
   authorId    String
   imageURL    String
   description String
-  hashtags    String[]
+  hashtags    PostHashtag[]
   mentions    PostMention[]
   createdAt   DateTime @default(now())
 
@@ -42,6 +42,15 @@ model PostMention {
   user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([postId, userId])
+}
+
+model PostHashtag {
+  id     String @id @default(uuid())
+  name   String
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([name])  // ← important pour les performances de recherche
 }
 
 model RevokedToken {

@@ -10,6 +10,7 @@ import { UpdatePostUsecase } from '../../application/posts/update-post.usecase';
 import { DeletePostUsecase } from '../../application/posts/delete-post.usecase';
 import { PostFieldsValidator } from './assembler/post-fields-validator';
 import { SearchPostsByDescriptionUsecase } from '../../application/posts/search-posts-by-description.usecase';
+import { SearchPostsByHashtagUsecase } from '../../application/posts/search-posts-by-hashtag.usecase';
 import { logger } from '../../logger';
 
 export class PostController {
@@ -20,6 +21,7 @@ export class PostController {
         private readonly updatePost: UpdatePostUsecase,
         private readonly deletePost: DeletePostUsecase,
         private readonly searchPostsByDescription: SearchPostsByDescriptionUsecase,
+        private readonly searchPostsByHashtag: SearchPostsByHashtagUsecase,
         private postAssembler: PostAssembler,
     ) {}
     createPostHandler = async (
@@ -50,13 +52,15 @@ export class PostController {
         req: Request<{ userId?: string }>,
         res: Response,
     ) => {
-        const { q } = req.query as { q?: string };
+        const { q, hashtag } = req.query as { q?: string; hashtag?: string };
         const { userId: userIdParam } = req.params;
         const userId: string | undefined =
             userIdParam === 'me' ? req.userId : userIdParam;
 
         let posts: Post[];
-        if (q && !userId) {
+        if (hashtag && !userId) {
+            posts = await this.searchPostsByHashtag.execute(hashtag);
+        } else if (q && !userId) {
             posts = await this.searchPostsByDescription.execute(q);
         } else if (userId) {
             posts = await this.getAllPosts.executeForUser(userId);
