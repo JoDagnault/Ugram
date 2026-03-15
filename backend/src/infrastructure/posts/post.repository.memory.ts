@@ -55,7 +55,7 @@ export class InMemoryPostsRepository implements PostRepository {
     async findByHashtag(hashtag: string): Promise<Post[]> {
         return [
             ...this.posts.filter((post: Post): boolean =>
-                post.hashtags.some((tag) => tag.toLowerCase() === hashtag),
+                post.hashtags.some((tag) => tag === hashtag),
             ),
         ].sort(
             (a: Post, b: Post): number =>

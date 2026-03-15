@@ -48,10 +48,6 @@ export default function ImageSearchResults({ postResults }: Props) {
         ].slice(0, MAX_RESULT_QUANTITY);
     }, [images, normalizedQuery]);
 
-    if (!normalizedQuery) {
-        return null;
-    }
-
     return (
         <>
             <button

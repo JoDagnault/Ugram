@@ -33,7 +33,7 @@ function TabButton({ label, isActive, onClick }: TabButtonProps) {
     );
 }
 
-export default function SearchResultsPage() {
+export default function SearchResults() {
     const location = useLocation();
     const navigate = useNavigate();
     const [selectedImage, setSelectedImage] = useState<ImageDetails | null>(
