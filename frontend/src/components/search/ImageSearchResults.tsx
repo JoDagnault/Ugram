@@ -35,34 +35,64 @@ export default function ImageSearchResults({ postResults }: Props) {
 
     return (
         <>
-            <button
-                type="button"
-                className="w-full flex items-center gap-3 border rounded p-2 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-black/20 mb-2"
-                title="Search images by description"
-                onClick={() =>
-                    navigate(
-                        `/Search/results?q=${encodeURIComponent(trimmedQuery)}&tab=images`,
-                    )
-                }
-            >
-                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0 text-base">
-                    🔍
-                </span>
-                <div className="text-left">
-                    <div className="font-medium text-sm">{trimmedQuery}</div>
-                    <div className="text-xs text-gray-500">
-                        Search by description
-                    </div>
+            <div className="space-y-2 mb-4">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Search posts
                 </div>
-            </button>
+                <button
+                    type="button"
+                    className="w-full flex items-center gap-3 border rounded p-2 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-black/20 mb-2"
+                    title="Search images by description"
+                    onClick={() =>
+                        navigate(
+                            `/Search/results?q=${encodeURIComponent(trimmedQuery)}&tab=images`,
+                        )
+                    }
+                >
+                    <span className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0 text-base">
+                        🔍
+                    </span>
+                    <div className="text-left">
+                        <div className="font-medium text-sm">
+                            {trimmedQuery}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                            Search by description
+                        </div>
+                    </div>
+                </button>
+            </div>
 
             <div className="space-y-2">
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                     Hashtags
                 </div>
-                {matchingHashtags.length === 0 ? (
-                    <p className="text-sm text-gray-500">No hashtags found</p>
-                ) : (
+                <button
+                    type="button"
+                    className="w-full flex items-center gap-3 border rounded p-2 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-black/20"
+                    onClick={() =>
+                        navigate(
+                            `/Search/results?q=${encodeURIComponent(trimmedQuery)}&tab=hashtags`,
+                        )
+                    }
+                >
+                    <span className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0 font-bold text-sm">
+                        #
+                    </span>
+                    <div className="text-left">
+                        <div className="font-medium text-sm">
+                            {trimmedQuery}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                            {!trimmedQuery
+                                ? 'Search by hashtag'
+                                : matchingHashtags.length > 0
+                                  ? `Search all for "${trimmedQuery}"`
+                                  : 'No hashtags found'}
+                        </div>
+                    </div>
+                </button>
+                {matchingHashtags.length > 0 &&
                     matchingHashtags.map((hashtag) => (
                         <Link
                             key={hashtag}
@@ -78,8 +108,7 @@ export default function ImageSearchResults({ postResults }: Props) {
                                     : hashtag}
                             </span>
                         </Link>
-                    ))
-                )}
+                    ))}
             </div>
         </>
     );

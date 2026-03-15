@@ -71,11 +71,11 @@ export default function Search() {
             <div
                 className={`${
                     onResultsPage
-                        ? 'w-96 shrink-0 border-r border-gray-200 dark:border-gray-700'
+                        ? 'w-96 shrink-0 border-r border-gray-700'
                         : 'w-full max-w-3xl mx-auto'
                 } p-4 space-y-6`}
             >
-                <div className="rounded bg-gray-100 dark:bg-dark p-4">
+                <div className="rounded p-4">
                     <label className="block text-sm font-medium mb-2">
                         Search
                     </label>
@@ -84,11 +84,11 @@ export default function Search() {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Search users or posts…"
-                        className="w-full border rounded p-3 bg-white dark:bg-dark"
+                        className="w-full border rounded p-3"
                     />
                 </div>
 
-                <div className="rounded bg-gray-100 dark:bg-dark p-4">
+                <div className="rounde p-4">
                     <div className="text-sm font-medium mb-4">Results</div>
 
                     <div className="text-base font-semibold">
@@ -96,11 +96,13 @@ export default function Search() {
                     </div>
 
                     {query.trim().length > 0 && (
-                        <hr className="my-4 border-gray-300 dark:border-gray-700" />
+                        <hr className="my-4 border-gray-700" />
                     )}
 
-                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        Users
+                    <div className="font-semibold text-sm text-gray-400 mt-4 mb-2">
+                        {normalizedQuery.length === 0
+                            ? 'All users'
+                            : `Users matching "${query}"`}
                     </div>
                     <UserSearchResults users={displayedUsers} meId={meId} />
                 </div>
