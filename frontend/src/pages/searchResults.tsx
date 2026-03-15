@@ -95,7 +95,7 @@ export default function SearchResults() {
                         Search results for
                     </p>
                 </div>
-                <div className="flex justify-end min-[1242px]: justify-start">
+                <div className="flex justify-end min-[1242px]:justify-start">
                     <h1 className="text-lg font-semibold truncate">{query}</h1>
                 </div>
             </div>
