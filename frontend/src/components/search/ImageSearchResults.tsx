@@ -105,9 +105,7 @@ export default function ImageSearchResults({ postResults }: Props) {
                                 #
                             </span>
                             <span className="font-medium text-sm">
-                                {hashtag.startsWith('#')
-                                    ? hashtag.slice(1)
-                                    : hashtag}
+                                {hashtag}
                             </span>
                         </Link>
                     ))}
