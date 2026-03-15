@@ -58,7 +58,10 @@ export const searchHashtags = async (
     );
     if (!posts) return [];
 
-    const hashtags = posts.flatMap((post) => post.hashtags ?? []);
+    const normalizedQuery = query.toLowerCase();
+    const hashtags = posts
+        .flatMap((post) => post.hashtags ?? [])
+        .filter((tag) => tag.toLowerCase().includes(normalizedQuery));
     return [...new Set(hashtags)].slice(0, limit);
 };
 
