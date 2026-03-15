@@ -18,7 +18,7 @@ export class GoogleAuthService {
 
     generateAppToken(userId: string, email: string): string {
         return jwt.sign({ userId, email }, process.env.JWT_SECRET!, {
-            expiresIn: '15m',
+            expiresIn: '30m',
         });
     }
 }

@@ -1,11 +1,31 @@
-import { Navigate, Outlet } from 'react-router';
+import { Navigate, Outlet, useLocation } from 'react-router';
+import { useEffect, useState } from 'react';
+import { getMe } from '../../api/users/usersService.ts';
 
 function ProtectedRoute() {
-    const token = localStorage.getItem('jwt');
+    const [isValid, setIsValid] = useState<boolean | null>(null);
+    const location = useLocation();
 
-    if (!token) {
-        return <Navigate to="/login" replace />;
-    }
+    useEffect(() => {
+        const token = localStorage.getItem('jwt');
+
+        if (!token) {
+            setIsValid(false);
+            return;
+        }
+
+        getMe()
+            .then(() => {
+                setIsValid(true);
+            })
+            .catch(() => {
+                localStorage.removeItem('jwt');
+                setIsValid(false);
+            });
+    }, [location.pathname]);
+
+    if (isValid === null) return null;
+    if (!isValid) return <Navigate to="/login" replace />;
 
     return <Outlet />;
 }
