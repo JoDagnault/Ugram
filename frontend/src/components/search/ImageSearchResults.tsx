@@ -52,8 +52,8 @@ export default function ImageSearchResults({ postResults }: Props) {
                     <span className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0 text-base">
                         🔍
                     </span>
-                    <div className="text-left">
-                        <div className="font-medium text-sm">
+                    <div className="text-left min-w-0">
+                        <div className="font-medium text-sm truncate">
                             {trimmedQuery}
                         </div>
                         <div className="text-xs text-gray-500">
@@ -79,8 +79,8 @@ export default function ImageSearchResults({ postResults }: Props) {
                     <span className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0 font-bold text-sm">
                         #
                     </span>
-                    <div className="text-left">
-                        <div className="font-medium text-sm">
+                    <div className="text-left min-w-0">
+                        <div className="font-medium text-sm truncate">
                             {trimmedQuery}
                         </div>
                         <div className="text-xs text-gray-500">

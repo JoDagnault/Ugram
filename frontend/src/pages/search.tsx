@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Outlet, useLocation, useMatch } from 'react-router';
+import { Outlet, useLocation, useMatch, useNavigate } from 'react-router';
 import { getMe, getUsers } from '../api/users/usersService';
 import type { UserListItem } from '../types/user';
 import ImageSearchResults from '../components/search/ImageSearchResults.tsx';
@@ -8,7 +8,12 @@ import * as Sentry from '@sentry/react';
 
 export default function Search() {
     const location = useLocation();
+    const navigate = useNavigate();
     const onResultsPage = useMatch('/Search/results');
+    const getCurrentTab = () => {
+        const params = new URLSearchParams(location.search);
+        return params.get('tab') ?? 'hashtags';
+    };
 
     const [query, setQuery] = useState(() => {
         const params = new URLSearchParams(location.search);
@@ -67,13 +72,13 @@ export default function Search() {
     if (loading) return <p className="p-4">Loading…</p>;
 
     return (
-        <div className="flex">
+        <div className="flex overflow-y-auto flex-col min-[1242px]:flex-row min-[1242px]: h-[calc(100vh-4rem)]">
             <div
                 className={`${
                     onResultsPage
-                        ? 'w-96 shrink-0 border-r border-gray-700'
+                        ? 'hidden min-[1242px]:block min-[1242px]:w-96 min-[1242px]:shrink-0 min-[1242px]:border-r border-gray-700'
                         : 'w-full max-w-3xl mx-auto'
-                } p-4 space-y-6`}
+                } p-4 space-y-6 min-[1242px]:overflow-y-auto min-[1242px]:h-full`}
             >
                 <div className="rounded p-4">
                     <label className="block text-sm font-medium mb-2">
@@ -83,6 +88,13 @@ export default function Search() {
                         type="search"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && query.trim()) {
+                                navigate(
+                                    `/Search/results?q=${encodeURIComponent(query.trim())}&tab=${getCurrentTab()}`,
+                                );
+                            }
+                        }}
                         placeholder="Search users or posts…"
                         className="w-full border rounded p-3"
                     />
@@ -99,7 +111,7 @@ export default function Search() {
                         <hr className="my-4 border-gray-700" />
                     )}
 
-                    <div className="font-semibold text-sm text-gray-400 mt-4 mb-2">
+                    <div className="font-semibold text-sm text-gray-400 truncate mt-4 mb-2">
                         {normalizedQuery.length === 0
                             ? 'All users'
                             : `Users matching "${query}"`}
@@ -108,7 +120,13 @@ export default function Search() {
                 </div>
             </div>
 
-            <div className={onResultsPage ? 'flex-1 min-w-0' : 'hidden'}>
+            <div
+                className={
+                    onResultsPage
+                        ? 'block min-[1242px]:overflow-y-auto min-[1242px]:h-full flex-1 min-w-0'
+                        : 'hidden'
+                }
+            >
                 <Outlet />
             </div>
         </div>

@@ -81,15 +81,26 @@ export default function SearchResults() {
     }
 
     return (
-        <div>
-            <div className="px-4 pt-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                    Search results for
-                </p>
-                <h1 className="text-lg font-semibold">{query}</h1>
+        <div className="min-[1242px]: overflow-y-auto min-[1242px]: h-[calc(100vh-4rem)]]">
+            <div className="px-4 pt-4 pb-2 border-b border-gray-700">
+                <div className="flex justify-between">
+                    <button
+                        type="button"
+                        onClick={() => navigate(-1)}
+                        className="min-[1242px]:hidden text-sm text-gray-400 hover:text-white mb-2 flex items-center gap-1"
+                    >
+                        ← Back
+                    </button>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                        Search results for
+                    </p>
+                </div>
+                <div className="flex justify-end">
+                    <h1 className="text-lg font-semibold truncate">{query}</h1>
+                </div>
             </div>
 
-            <div className="flex border-b border-gray-300 dark:border-gray-700">
+            <div className="flex border-b border-gray-700">
                 <TabButton
                     label="Hashtags"
                     isActive={activeTab === 'hashtags'}
@@ -106,7 +117,7 @@ export default function SearchResults() {
                 {isLoading ? (
                     <p className="text-sm text-gray-500">Loading images…</p>
                 ) : images.length === 0 ? (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 truncate">
                         {activeTab === 'hashtags'
                             ? `No images found with the hashtag #${query}.`
                             : `No images found matching "${query}".`}
