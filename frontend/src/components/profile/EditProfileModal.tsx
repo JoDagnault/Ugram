@@ -15,6 +15,15 @@ type FormErrors = Partial<Record<keyof MyUser, string>>;
 const validateForm = (data: MyUser): FormErrors => {
     const errors: FormErrors = {};
 
+    if (!data.username.trim()) {
+        errors.username = 'Username is required';
+    } else if (data.username.length > 30) {
+        errors.username = 'Maximum 30 characters';
+    } else if (!/^[\p{L}\p{N} _-]+$/u.test(data.username)) {
+        errors.username =
+            'Only letters, numbers, spaces, underscores and hyphens are allowed';
+    }
+
     if (!data.firstName.trim()) {
         errors.firstName = 'First name is required';
     } else if (data.firstName.length > 250) {
@@ -45,6 +54,40 @@ const validateForm = (data: MyUser): FormErrors => {
 
     return errors;
 };
+
+interface FieldProps {
+    label: string;
+    field: keyof MyUser;
+    placeholder: string;
+    type?: string;
+    error?: string;
+    formData: MyUser;
+    handleChange: (field: keyof MyUser, value: string) => void;
+}
+
+const EditField = ({
+    label,
+    field,
+    placeholder,
+    type = 'text',
+    error,
+    formData,
+    handleChange,
+}: FieldProps) => (
+    <div className="flex flex-col">
+        <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
+            {label}
+        </label>
+        <input
+            type={type}
+            className={`border p-2 rounded mb-1 ${error ? 'border-red-500' : ''}`}
+            value={formData[field] as string}
+            onChange={(e) => handleChange(field, e.target.value)}
+            placeholder={placeholder}
+        />
+        <ErrorText message={error} />
+    </div>
+);
 
 const ErrorText = ({ message }: { message?: string }) =>
     message ? <p className="text-red-500 text-xs mb-2">{message}</p> : null;
@@ -95,64 +138,47 @@ const EditProfileModal = ({
                     noValidate
                     className="flex flex-col"
                 >
-                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
-                        First Name
-                    </label>
-                    <input
-                        className={`border p-2 rounded mb-1 ${
-                            errors.firstName ? 'border-red-500' : ''
-                        }`}
-                        value={formData.firstName}
-                        onChange={(e) =>
-                            handleChange('firstName', e.target.value)
-                        }
+                    <EditField
+                        label="Username"
+                        field="username"
+                        placeholder="Username"
+                        error={errors.username}
+                        formData={formData}
+                        handleChange={handleChange}
+                    />
+                    <EditField
+                        label="First Name"
+                        field="firstName"
                         placeholder="First name"
+                        error={errors.firstName}
+                        formData={formData}
+                        handleChange={handleChange}
                     />
-                    <ErrorText message={errors.firstName} />
-
-                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
-                        Last Name
-                    </label>
-                    <input
-                        className={`border p-2 rounded mb-1 ${
-                            errors.lastName ? 'border-red-500' : ''
-                        }`}
-                        value={formData.lastName}
-                        onChange={(e) =>
-                            handleChange('lastName', e.target.value)
-                        }
+                    <EditField
+                        label="Last Name"
+                        field="lastName"
                         placeholder="Last name"
+                        error={errors.lastName}
+                        formData={formData}
+                        handleChange={handleChange}
                     />
-                    <ErrorText message={errors.lastName} />
-
-                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
-                        Email
-                    </label>
-                    <input
-                        type="email"
-                        className={`border p-2 rounded mb-1 ${
-                            errors.email ? 'border-red-500' : ''
-                        }`}
-                        value={formData.email}
-                        onChange={(e) => handleChange('email', e.target.value)}
+                    <EditField
+                        label="Email"
+                        field="email"
                         placeholder="Email"
+                        type="email"
+                        error={errors.email}
+                        formData={formData}
+                        handleChange={handleChange}
                     />
-                    <ErrorText message={errors.email} />
-
-                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
-                        Phone Number
-                    </label>
-                    <input
-                        className={`border p-2 rounded mb-1 ${
-                            errors.phoneNumber ? 'border-red-500' : ''
-                        }`}
-                        value={formData.phoneNumber}
-                        onChange={(e) =>
-                            handleChange('phoneNumber', e.target.value)
-                        }
+                    <EditField
+                        label="Phone Number"
+                        field="phoneNumber"
                         placeholder="Phone number"
+                        error={errors.phoneNumber}
+                        formData={formData}
+                        handleChange={handleChange}
                     />
-                    <ErrorText message={errors.phoneNumber} />
 
                     {error && (
                         <p className="text-red-500 text-sm mb-2">{error}</p>
