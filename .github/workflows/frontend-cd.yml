@@ -1,15 +1,15 @@
 name: Frontend CD
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'frontend/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - '.github/workflows/frontend-cd.yml'
+#  push:
+#    branches:
+#      - main
+#    paths:
+#      - 'frontend/**'
+#      - 'package.json'
+#      - 'pnpm-lock.yaml'
+#      - 'pnpm-workspace.yaml'
+#      - '.github/workflows/frontend-cd.yml'
   workflow_dispatch:
 
 
