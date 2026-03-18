@@ -33,6 +33,7 @@ export default function Login() {
             Sentry.logger.info(`User ${data.user.id} connected`);
             const me = await getMe();
             setMe(me ?? null);
+            window.dispatchEvent(new Event('auth-login'));
             logger.info(`User ${data.user.id} connected`);
             navigate('/');
         } catch (err: any) {
