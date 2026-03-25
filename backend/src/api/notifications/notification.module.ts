@@ -7,8 +7,9 @@ import { DeleteNotificationUsecase } from '../../application/notifications/delet
 import { NotificationController } from './notification.controller';
 import { NotificationRouter } from './notification.router';
 import { getPrismaClient } from '../../infrastructure/prisma/client';
+import { UserRepository } from '../../domain/users/user.repository';
 
-export function NotificationModule() {
+export function NotificationModule(userRepository: UserRepository) {
     const env = process.env.NODE_ENV ?? 'development';
     const useInMemory = env === 'development' || env === 'test';
 
@@ -21,6 +22,7 @@ export function NotificationModule() {
     const createNotification = new CreateNotificationUsecase(
         notificationRepository,
         notificationBus,
+        userRepository,
     );
     const getUserNotifications = new GetUserNotificationsUsecase(
         notificationRepository,
