@@ -8,24 +8,26 @@ datasource db {
 }
 
 model User {
-  id                String   @id @default(uuid())
+  id                String         @id @default(uuid())
   profilePictureUrl String
-  username          String   @unique
+  username          String         @unique
   firstName         String
   lastName          String
-  createdAt         DateTime @default(now())
+  createdAt         DateTime       @default(now())
   email             String
   phoneNumber       String
   posts             Post[]
   mentionedIn       PostMention[]
-  postsLikes             PostLike[]
-  postsComments          PostComment[]
+  postsLikes        PostLike[]
+  postsComments     PostComment[]
+  notifications     Notification[] @relation("ReceivedNotifications")
+  sentNotifications Notification[] @relation("SentNotifications")
 
   @@map("users")
 }
 
 model Post {
-  id          String   @id @default(uuid())
+  id          String        @id @default(uuid())
   authorId    String
   imageURL    String
   description String
@@ -33,17 +35,17 @@ model Post {
   mentions    PostMention[]
   comments    PostComment[]
   likes       PostLike[]
-  createdAt   DateTime @default(now())
+  createdAt   DateTime      @default(now())
 
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 model PostMention {
-  postId  String
-  userId  String
+  postId String
+  userId String
 
-  post    Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([postId, userId])
 }
@@ -54,7 +56,7 @@ model PostHashtag {
   postId String
   post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  @@index([name])  // ← important pour les performances de recherche
+  @@index([name])
 }
 
 model PostLike {
@@ -63,8 +65,8 @@ model PostLike {
   from      String
   createdAt DateTime @default(now())
 
-  post      Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      User   @relation(fields: [from], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [from], references: [id], onDelete: Cascade)
 
   @@unique([postId, from])
 }
@@ -76,8 +78,21 @@ model PostComment {
   comment   String
   createdAt DateTime @default(now())
 
-  post      Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      User   @relation(fields: [from], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [from], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  userId     String
+  fromUserId String
+  postId     String
+  type       String   @default("mention")
+  createdAt  DateTime @default(now())
+  user       User     @relation("ReceivedNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  fromUser   User     @relation("SentNotifications", fields: [fromUserId], references: [id])
+
+  @@map("notifications")
 }
 
 model RevokedToken {
