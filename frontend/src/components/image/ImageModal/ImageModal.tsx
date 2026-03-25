@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { ImageDetails, ImageDetailsFields } from '../../../types/image.ts';
+import type {
+    ImageDetails,
+    ImageDetailsFields,
+} from '../../../types/image.ts';
 import {
     createMyImage,
     deleteMyImage,
@@ -103,7 +106,9 @@ export default function ImageModal(props: Props) {
 
         getImage(imageId)
             .then((loadedImage) => {
-                if (!ignore) setImage(loadedImage ?? null);
+                if (!ignore) {
+                    setImage(loadedImage ?? null);
+                }
             })
             .finally(() => {
                 if (!ignore) setLoading(false);
