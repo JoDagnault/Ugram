@@ -93,6 +93,7 @@ export default function RegisterModal({
             localStorage.setItem('jwt', data.jwt);
             const me = await getMe();
             setMe(me ?? null);
+            window.dispatchEvent(new Event('auth-login'));
             navigate('/');
             onClose();
         } catch (err: any) {

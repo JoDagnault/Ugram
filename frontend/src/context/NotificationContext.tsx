@@ -24,16 +24,29 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     const [hasUnread, setHasUnread] = useState(false);
 
     useEffect(() => {
-        getMyNotifications()
-            .then((notifications) => {
-                if (notifications.length > 0) setHasUnread(true);
-            })
-            .catch(() => {});
+        let unsubscribe: (() => void) | undefined;
 
-        const unsubscribe = subscribeToNotifications(() => {
-            setHasUnread(true);
-        });
-        return unsubscribe;
+        const connect = () => {
+            const token = localStorage.getItem('jwt');
+            if (!token) return;
+
+            getMyNotifications()
+                .then((notifications) => {
+                    if (notifications.length > 0) setHasUnread(true);
+                })
+                .catch(() => {});
+
+            unsubscribe?.();
+            unsubscribe = subscribeToNotifications(() => setHasUnread(true));
+        };
+
+        connect();
+        window.addEventListener('auth-login', connect);
+
+        return () => {
+            window.removeEventListener('auth-login', connect);
+            unsubscribe?.();
+        };
     }, []);
 
     const markAllRead = () => setHasUnread(false);
