@@ -5,10 +5,17 @@ import { ForbiddenError } from '../../errors/forbidden.error';
 export class GetPostByIdUsecase {
     constructor(private readonly postsRepository: PostRepository) {}
 
-    async execute(id: string, userId?: string): Promise<Post> {
-        const post: Post = await this.postsRepository.findById(id);
+    async execute(
+        id: string,
+        ownerUserId?: string,
+        requestingUserId?: string,
+    ): Promise<Post> {
+        const post: Post = await this.postsRepository.findById(
+            id,
+            requestingUserId,
+        );
 
-        if (userId && post.userId !== userId) {
+        if (ownerUserId && post.userId !== ownerUserId) {
             throw new ForbiddenError('You are not allowed to access this post');
         }
 
