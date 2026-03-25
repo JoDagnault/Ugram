@@ -2,14 +2,18 @@ import { NavLink } from 'react-router';
 import {
     MagnifyingGlassCircleIcon,
     Bars3Icon,
+    BellIcon,
 } from '@heroicons/react/24/outline';
 import { HomeIcon } from '@heroicons/react/24/outline';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 import UgramLettering from '../../assets/ugramLettering.tsx';
 import NavbarItem from './NavbarItem.tsx';
 import NavbarItemLogout from './NavbarItemLogout.tsx';
+import { useNotifications } from '../../context/NotificationContext.tsx';
 
 export default function Navbar() {
+    const { hasUnread } = useNotifications();
+
     return (
         <div
             style={{
@@ -38,6 +42,16 @@ export default function Navbar() {
                         label="Profile"
                         icon={UserCircleIcon}
                     />
+                    <div className="relative">
+                        <NavbarItem
+                            to="/Notifications"
+                            label="Notifications"
+                            icon={BellIcon}
+                        />
+                        {hasUnread && (
+                            <span className="absolute top-0 right-0 size-2.5 rounded-full bg-red-500" />
+                        )}
+                    </div>
                     <NavbarItemLogout label="Logout" icon={Bars3Icon} />
                 </div>
             </nav>
