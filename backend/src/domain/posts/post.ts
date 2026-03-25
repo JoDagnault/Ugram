@@ -14,6 +14,8 @@ export class Post {
         private _comments: PostComment[],
         private _likes: PostLike[],
         private readonly _createdAt: string = new Date().toISOString(),
+        private _likesCount: number = 0,
+        private _isLikedByMe: boolean = false,
     ) {}
 
     get id(): string {
@@ -50,6 +52,14 @@ export class Post {
 
     get createdAt(): string {
         return this._createdAt;
+    }
+
+    get likesCount(): number {
+        return this._likesCount;
+    }
+
+    get isLikedByMe(): boolean {
+        return this._isLikedByMe;
     }
 
     updateFields(fields: {

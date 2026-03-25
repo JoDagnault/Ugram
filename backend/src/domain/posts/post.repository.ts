@@ -1,4 +1,5 @@
 import { Post } from './post';
+import { PostComment } from './post-comment';
 import { HashtagStats } from './hashtag-stats';
 
 export interface PostRepository {
@@ -20,7 +21,7 @@ export interface PostRepository {
         hashtag: string,
         pagination: { page: number; limit: number },
     ): Promise<Post[]>;
-    findById(id: string): Promise<Post>;
+    findById(id: string, requestingUserId?: string): Promise<Post>;
     update(post: Post): Promise<Post>;
     deleteById(id: string): Promise<void>;
     getPopularHashtags(limit: number): Promise<HashtagStats[]>;
@@ -28,4 +29,12 @@ export interface PostRepository {
         query: string,
         limit: number,
     ): Promise<HashtagStats[]>;
+    removeMentionsOfUser(userId: string): Promise<void>;
+    likePost(postId: string, userId: string): Promise<void>;
+    unlikePost(postId: string, userId: string): Promise<void>;
+    addComment(
+        postId: string,
+        userId: string,
+        content: string,
+    ): Promise<PostComment>;
 }
