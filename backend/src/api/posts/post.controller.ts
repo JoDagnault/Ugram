@@ -11,6 +11,7 @@ import { DeletePostUsecase } from '../../application/posts/delete-post.usecase';
 import { PostFieldsValidator } from './assembler/post-fields-validator';
 import { SearchPostsByDescriptionUsecase } from '../../application/posts/search-posts-by-description.usecase';
 import { SearchPostsByHashtagUsecase } from '../../application/posts/search-posts-by-hashtag.usecase';
+import { CreateNotificationUsecase } from '../../application/notifications/create-notification.usecase';
 import { logger } from '../../logger';
 import { CommentPostUseCase } from '../../application/posts/comment-post.usecase';
 import { LikePostUseCase } from '../../application/posts/like-post.usecase';
@@ -33,8 +34,10 @@ export class PostController {
         private readonly likePost: LikePostUseCase,
         private readonly getPopularHashtagsUsecase: GetPopularHashtagsUsecase,
         private readonly searchHashtagsByQueryUsecase: SearchHashtagsByQueryUsecase,
+        private readonly createNotification: CreateNotificationUsecase,
         private postAssembler: PostAssembler,
     ) {}
+
     createPostHandler = async (
         req: Request<{}, {}, PostFieldsDto>,
         res: Response,
@@ -44,6 +47,15 @@ export class PostController {
             const post: Post = this.postAssembler.toPost(req, req.userId!);
 
             await this.createPost.execute(post);
+
+            for (const mentionedUserId of post.mentions) {
+                await this.createNotification.execute(
+                    mentionedUserId,
+                    req.userId!,
+                    post.id,
+                    'mention',
+                );
+            }
 
             const postDTO: ResponsePostDTO = this.postAssembler.toPostDTO(
                 post,
@@ -135,6 +147,7 @@ export class PostController {
             const post: Post = await this.getPostById.execute(
                 postId,
                 ownerUserId,
+                req.userId,
             );
             const responsePostDTO: ResponsePostDTO =
                 this.postAssembler.toPostDTO(post, req.userId);

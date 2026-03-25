@@ -68,6 +68,7 @@ export function PostModule(
         likePost,
         getPopularHashtagsUsecase,
         searchHashtagsByQueryUsecase,
+        createNotification,
         assembler,
     );
     const routers = new PostRouter(controller);

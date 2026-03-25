@@ -91,6 +91,18 @@ export class PostRouter {
             this.postsController.searchHashtagsByQuery,
         );
         this.publicRouter.get('/:id', this.postsController.getPostByIdHandler);
+        this.publicRouter.post(
+            '/:id/like',
+            this.postsController.likePostHandler,
+        );
+        this.publicRouter.delete(
+            '/:id/like',
+            this.postsController.unlikePostHandler,
+        );
+        this.publicRouter.post(
+            '/:id/comments',
+            this.postsController.commentPostHandler,
+        );
     }
 
     private initializeAnotherUserRoutes() {
