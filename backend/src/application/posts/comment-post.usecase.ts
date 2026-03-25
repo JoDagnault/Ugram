@@ -3,9 +3,13 @@ import { PostComment } from '../../domain/posts/post-comment';
 import { NotFoundError } from '../../errors/not-found.error';
 import { ForbiddenError } from '../../errors/forbidden.error';
 import { Post } from '../../domain/posts/post';
+import { CreateNotificationUsecase } from '../notifications/create-notification.usecase';
 
 export class CommentPostUseCase {
-    constructor(private readonly postsRepository: PostRepository) {}
+    constructor(
+        private readonly postsRepository: PostRepository,
+        private readonly createNotification: CreateNotificationUsecase,
+    ) {}
 
     async execute(
         postId: string,
@@ -18,7 +22,9 @@ export class CommentPostUseCase {
             throw new ForbiddenError('You are not allowed to comment post');
         }
         post.addComment(comment);
-        return await this.postsRepository.update(post);
+        const updated = await this.postsRepository.update(post);
+        await this.createNotification.execute(post.userId, userId, postId, 'comment');
+        return updated;
     }
 
     async executeDelete(

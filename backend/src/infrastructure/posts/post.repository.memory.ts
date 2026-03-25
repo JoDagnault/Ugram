@@ -1,9 +1,14 @@
 import { PostRepository } from '../../domain/posts/post.repository';
 import { Post } from '../../domain/posts/post';
+import { PostComment } from '../../domain/posts/post-comment';
+import { PostLike } from '../../domain/posts/post-like';
 import { NotFoundError } from '../../errors/not-found.error';
+import { HashtagStats } from '../../domain/posts/hashtag-stats';
 
 export class InMemoryPostsRepository implements PostRepository {
     private posts: Post[] = [];
+    private likes = new Map<string, Set<string>>();
+    private comments = new Map<string, PostComment[]>();
 
     async save(post: Post): Promise<void> {
         this.posts.push(post);
@@ -26,12 +31,28 @@ export class InMemoryPostsRepository implements PostRepository {
         return sorted.slice(start, start + limit);
     }
 
-    async findById(id: string): Promise<Post> {
+    async findById(id: string, requestingUserId?: string): Promise<Post> {
         const post: Post | undefined = this.posts.find(
             (post: Post) => post.id === id,
         );
         if (!post) throw new NotFoundError('Post not found');
-        return post;
+
+        const likers = this.likes.get(id) ?? new Set();
+        const comments = this.comments.get(id) ?? [];
+
+        return new Post(
+            post.id,
+            post.userId,
+            post.imageURL,
+            post.description,
+            post.hashtags,
+            post.mentions,
+            comments,
+            post.likes,
+            post.createdAt,
+            likers.size,
+            requestingUserId ? likers.has(requestingUserId) : false,
+        );
     }
 
     async update(post: Post): Promise<Post> {
@@ -122,9 +143,10 @@ export class InMemoryPostsRepository implements PostRepository {
             )
             .slice(start, start + limit);
     }
+
     async getPopularHashtags(
         limit: number = 10,
-    ): Promise<{ name: string; count: number }[]> {
+    ): Promise<HashtagStats[]> {
         const counts: Record<string, number> = {};
         for (const post of this.posts) {
             for (const hashtag of post.hashtags) {
@@ -132,7 +154,7 @@ export class InMemoryPostsRepository implements PostRepository {
             }
         }
         return Object.entries(counts)
-            .map(([name, count]) => ({ name, count }))
+            .map(([name, count]) => new HashtagStats(name, count))
             .sort((a, b) => b.count - a.count)
             .slice(0, limit);
     }
@@ -168,5 +190,32 @@ export class InMemoryPostsRepository implements PostRepository {
             });
             return post;
         });
+    }
+
+    async likePost(postId: string, userId: string): Promise<void> {
+        const likers = this.likes.get(postId) ?? new Set<string>();
+        if (likers.has(userId)) return;
+        likers.add(userId);
+        this.likes.set(postId, likers);
+    }
+
+    async unlikePost(postId: string, userId: string): Promise<void> {
+        this.likes.get(postId)?.delete(userId);
+    }
+
+    async addComment(
+        postId: string,
+        userId: string,
+        content: string,
+    ): Promise<PostComment> {
+        const comment = new PostComment(
+            crypto.randomUUID(),
+            content,
+            userId,
+            new Date().toISOString(),
+        );
+        const existing = this.comments.get(postId) ?? [];
+        this.comments.set(postId, [...existing, comment]);
+        return comment;
     }
 }

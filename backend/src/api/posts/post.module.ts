@@ -14,10 +14,12 @@ import { PostRepository } from '../../domain/posts/post.repository';
 import { GetPopularHashtagsUsecase } from '../../application/posts/get-popular-hashtags.usecase';
 import { SearchHashtagsByQueryUsecase } from '../../application/posts/search-hashtags-by-query.usecase';
 import { UserRepository } from '../../domain/users/user.repository';
+import { CreateNotificationUsecase } from '../../application/notifications/create-notification.usecase';
 
 export function PostModule(
     postRepository: PostRepository,
     userRepository: UserRepository,
+    createNotification: CreateNotificationUsecase,
 ) {
     const createPost: CreatePostUsecase = new CreatePostUsecase(
         postRepository,
@@ -40,8 +42,12 @@ export function PostModule(
         new SearchPostsByHashtagUsecase(postRepository);
     const commentPost: CommentPostUseCase = new CommentPostUseCase(
         postRepository,
+        createNotification,
     );
-    const likePost: LikePostUseCase = new LikePostUseCase(postRepository);
+    const likePost: LikePostUseCase = new LikePostUseCase(
+        postRepository,
+        createNotification,
+    );
 
     const assembler: PostAssembler = new PostAssembler();
     const getPopularHashtagsUsecase = new GetPopularHashtagsUsecase(
