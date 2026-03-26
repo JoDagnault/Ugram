@@ -96,10 +96,41 @@ export class PostFieldsValidator {
         throw new BadRequestError('Must be an array of strings');
     }
 
-    static validateComment(comment: string): void {
-        const result = CommentSchema.safeParse(comment);
-        if (!result.success) {
-            throw new BadRequestError(result.error.issues[0].message);
+    private static validateHashtags(tags: string[]): void {
+        const regex = /^[a-zA-Z0-9_]+$/;
+
+        tags.forEach((tag) => {
+            if (tag.length > MAX_HASHTAG_LENGTH) {
+                throw new BadRequestError(
+                    `Hashtag "${tag}" exceeds ${MAX_HASHTAG_LENGTH} characters`,
+                );
+            }
+
+            if (!regex.test(tag)) {
+                throw new BadRequestError(`Invalid hashtag: "${tag}"`);
+            }
+        });
+    }
+
+    private static validateMentions(mentions: string[]): void {
+        const regex = /^[a-zA-Z0-9._-]+$/;
+
+        mentions.forEach((m) => {
+            if (!regex.test(m)) {
+                throw new BadRequestError(`Invalid mention: "${m}"`);
+            }
+        });
+    }
+
+    public static validateComment(comment: string): void {
+        if (comment.length <= 0) {
+            throw new BadRequestError('Comment must not be empty');
+        }
+
+        if (comment.length > MAX_COMMENT_LENGTH) {
+            throw new BadRequestError(
+                `Comment exceeds ${MAX_COMMENT_LENGTH} characters`,
+            );
         }
     }
 }
