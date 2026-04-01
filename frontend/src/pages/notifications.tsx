@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import {
     deleteNotification,
     getMyNotifications,
     subscribeToNotifications,
     type NotificationDto,
 } from '../api/notifications/notificationsService.ts';
+import { getImage } from '../api/images/imagesService.ts';
 import { useNotifications } from '../context/NotificationContext.tsx';
 
 const notificationMessage = (n: NotificationDto): string => {
@@ -16,11 +18,29 @@ const notificationMessage = (n: NotificationDto): string => {
 
 export default function Notifications() {
     const [notifications, setNotifications] = useState<NotificationDto[]>([]);
+    const [postImages, setPostImages] = useState<Record<string, string>>({});
     const { markAllRead } = useNotifications();
+    const navigate = useNavigate();
 
     useEffect(() => {
         getMyNotifications()
-            .then(setNotifications)
+            .then((notifs) => {
+                setNotifications(notifs);
+                const uniquePostIds = [...new Set(notifs.map((n) => n.postId))];
+                Promise.all(
+                    uniquePostIds.map((id) =>
+                        getImage(id).then((img) =>
+                            img ? { id, url: img.imageUrl } : null,
+                        ),
+                    ),
+                ).then((results) => {
+                    const map: Record<string, string> = {};
+                    for (const r of results) {
+                        if (r) map[r.id] = r.url;
+                    }
+                    setPostImages(map);
+                });
+            })
             .catch(() => {});
         markAllRead();
 
@@ -47,12 +67,27 @@ export default function Notifications() {
                         key={n.id}
                         className="border rounded p-3 bg-white dark:bg-dark flex items-start justify-between gap-2"
                     >
-                        <div>
-                            <p className="text-sm">{notificationMessage(n)}</p>
-                            <p className="text-xs text-gray-500">
-                                {new Date(n.createdAt).toLocaleString()}
-                            </p>
-                        </div>
+                        <button
+                            type="button"
+                            className="text-left flex-1 flex items-center gap-3"
+                            onClick={() => navigate(`/?post=${n.postId}`)}
+                        >
+                            {postImages[n.postId] && (
+                                <img
+                                    src={postImages[n.postId]}
+                                    alt=""
+                                    className="size-12 rounded object-cover flex-shrink-0"
+                                />
+                            )}
+                            <div>
+                                <p className="text-sm">
+                                    {notificationMessage(n)}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                    {new Date(n.createdAt).toLocaleString()}
+                                </p>
+                            </div>
+                        </button>
                         <button
                             type="button"
                             onClick={() => handleDelete(n.id)}

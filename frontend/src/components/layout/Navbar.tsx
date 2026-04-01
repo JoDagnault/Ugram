@@ -42,7 +42,7 @@ export default function Navbar() {
                         label="Profile"
                         icon={UserCircleIcon}
                     />
-                    <div className="relative">
+                    <div className="relative flex items-center">
                         <NavbarItem
                             to="/Notifications"
                             label="Notifications"
