@@ -228,7 +228,9 @@ export class PrismaPostRepository implements PostRepository {
     }
 
     async unlikePost(postId: string, userId: string): Promise<void> {
-        await this.prisma.postLike.deleteMany({ where: { postId, from: userId } });
+        await this.prisma.postLike.deleteMany({
+            where: { postId, from: userId },
+        });
     }
 
     async addComment(
@@ -244,7 +246,12 @@ export class PrismaPostRepository implements PostRepository {
                 comment: content,
             },
         });
-        return new PostComment(c.id, c.comment, c.from, c.createdAt.toISOString());
+        return new PostComment(
+            c.id,
+            c.comment,
+            c.from,
+            c.createdAt.toISOString(),
+        );
     }
 
     private toDomain(p: any, requestingUserId?: string): Post {

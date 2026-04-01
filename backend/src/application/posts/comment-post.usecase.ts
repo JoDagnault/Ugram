@@ -23,7 +23,12 @@ export class CommentPostUseCase {
         }
         post.addComment(comment);
         const updated = await this.postsRepository.update(post);
-        await this.createNotification.execute(post.userId, userId, postId, 'comment');
+        await this.createNotification.execute(
+            post.userId,
+            userId,
+            postId,
+            'comment',
+        );
         return updated;
     }
 

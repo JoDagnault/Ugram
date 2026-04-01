@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type {
-    ImageDetails,
-    ImageDetailsFields,
-} from '../../../types/image.ts';
+import type { ImageDetails, ImageDetailsFields } from '../../../types/image.ts';
 import {
     createMyImage,
     deleteMyImage,

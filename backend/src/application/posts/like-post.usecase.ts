@@ -23,7 +23,12 @@ export class LikePostUseCase {
         }
         post.addLike(like);
         const updated = await this.postsRepository.update(post);
-        await this.createNotification.execute(post.userId, userId, postId, 'like');
+        await this.createNotification.execute(
+            post.userId,
+            userId,
+            postId,
+            'like',
+        );
         return updated;
     }
 

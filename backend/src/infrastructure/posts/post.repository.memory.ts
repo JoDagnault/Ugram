@@ -144,9 +144,7 @@ export class InMemoryPostsRepository implements PostRepository {
             .slice(start, start + limit);
     }
 
-    async getPopularHashtags(
-        limit: number = 10,
-    ): Promise<HashtagStats[]> {
+    async getPopularHashtags(limit: number = 10): Promise<HashtagStats[]> {
         const counts: Record<string, number> = {};
         for (const post of this.posts) {
             for (const hashtag of post.hashtags) {
