@@ -14,6 +14,7 @@ import useHashtagEditor, {
 } from './useHashtagEditor.ts';
 import useMentionEditor from './useMentionEditor.ts';
 import { prepareImageForUpload } from '../imageCompression.ts';
+import ImageEditor, { type ImageEditorResult } from './ImageEditor.tsx';
 
 type ImageFormErrors = {
     description?: string;
@@ -103,6 +104,8 @@ export default function EditImageForm({
         }));
     };
 
+    const [pendingFile, setPendingFile] = useState<File | undefined>(undefined);
+
     const handleSelectedFile = async (selectedFile?: File) => {
         if (!selectedFile) {
             setFile(undefined);
@@ -110,8 +113,16 @@ export default function EditImageForm({
             return;
         }
 
+        setPendingFile(selectedFile);
+        setFileError();
+        setSubmitError();
+    };
+
+    const handleEditorConfirm = async ({
+        file: resizedFile,
+    }: ImageEditorResult) => {
         try {
-            setFile(await prepareImageForUpload(selectedFile));
+            setFile(await prepareImageForUpload(resizedFile));
             setFileError();
             setSubmitError();
         } catch (error) {
@@ -121,8 +132,14 @@ export default function EditImageForm({
                     ? error.message
                     : 'Unable to process the selected image',
             );
-            setSubmitError();
+        } finally {
+            setPendingFile(undefined);
         }
+    };
+
+    const handleEditorCancel = () => {
+        setPendingFile(undefined);
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -216,18 +233,26 @@ export default function EditImageForm({
                         className="sr-only"
                         tabIndex={-1}
                     />
-                    <div className="flex items-center gap-2">
-                        <div className="w-full border rounded p-2 bg-gray-100 dark:bg-black/20 text-gray-500 dark:text-gray-400 cursor-not-allowed select-none truncate">
-                            {file?.name ?? 'No file selected'}
+                    {pendingFile ? (
+                        <ImageEditor
+                            sourceFile={pendingFile}
+                            onConfirm={handleEditorConfirm}
+                            onCancel={handleEditorCancel}
+                        />
+                    ) : (
+                        <div className="flex items-center gap-2">
+                            <div className="w-full border rounded p-2 bg-gray-100 dark:bg-black/20 text-gray-500 dark:text-gray-400 cursor-not-allowed select-none truncate">
+                                {file?.name ?? 'No file selected'}
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="px-3 py-2 rounded-full border dark:border-gray-500 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
+                            >
+                                Browse
+                            </button>
                         </div>
-                        <button
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            className="px-3 py-2 rounded-full border dark:border-gray-500 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
-                        >
-                            Browse
-                        </button>
-                    </div>
+                    )}
                     {errors.file && (
                         <p className="text-xs text-red-500 mt-1">
                             {errors.file}
