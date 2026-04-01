@@ -1,50 +1,32 @@
-import { UpdateMeDto } from '../dto/update-me.dto';
+import { z } from 'zod';
 import { BadRequestError } from '../../../errors/bad-request.error';
+import { UpdateMeDto } from '../dto/update-me.dto';
+
+const UpdateMeSchema = z.object({
+    username: z
+        .string()
+        .trim()
+        .min(1, 'Username cannot be empty')
+        .regex(/^\S+$/, 'Username cannot contain spaces')
+        .optional(),
+    firstName: z
+        .string()
+        .trim()
+        .min(1, 'First name cannot be empty')
+        .optional(),
+    lastName: z.string().trim().min(1, 'Last name cannot be empty').optional(),
+    email: z.email('Invalid email format').optional(),
+    phoneNumber: z
+        .string()
+        .regex(/^[0-9+\-\s()]{7,20}$/, 'Invalid phone number format')
+        .optional(),
+});
 
 export class UserValidator {
-    static validateUsername(username?: string) {
-        if (username !== undefined && username.trim().length === 0) {
-            throw new BadRequestError('Username cannot be empty');
-        }
-    }
-
-    static validateFirstName(firstName?: string) {
-        if (firstName !== undefined && firstName.trim().length === 0) {
-            throw new BadRequestError('First name cannot be empty');
-        }
-    }
-
-    static validateLastName(lastName?: string) {
-        if (lastName !== undefined && lastName.trim().length === 0) {
-            throw new BadRequestError('Last name cannot be empty');
-        }
-    }
-
-    static validateEmail(email?: string) {
-        if (email === undefined) return;
-
-        const trimmed = email.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (!emailRegex.test(trimmed)) {
-            throw new BadRequestError('Invalid email format');
-        }
-    }
-
-    static validatePhoneNumber(phoneNumber?: string) {
-        if (
-            phoneNumber !== undefined &&
-            !phoneNumber.match(/^[0-9+\-\s()]{7,20}$/)
-        ) {
-            throw new BadRequestError('Invalid phone number format');
-        }
-    }
-
     static validateUser(fields: UpdateMeDto): void {
-        this.validateUsername(fields.username);
-        this.validateFirstName(fields.firstName);
-        this.validateLastName(fields.lastName);
-        this.validateEmail(fields.email);
-        this.validatePhoneNumber(fields.phoneNumber);
+        const result = UpdateMeSchema.safeParse(fields);
+        if (!result.success) {
+            throw new BadRequestError(result.error.issues[0].message);
+        }
     }
 }

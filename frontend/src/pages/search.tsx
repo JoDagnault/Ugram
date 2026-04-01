@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate } from 'react-router';
 import { getMe, getUsers } from '../api/users/usersService';
 import type { UserListItem } from '../types/user';
 import ImageSearchResults from '../components/search/ImageSearchResults.tsx';
 import UserSearchResults from '../components/search/UserSearchResults.tsx';
-import * as Sentry from '@sentry/react';
+import { useLogger } from '../logger/logger.context.tsx';
+import type { Logger } from '../logger/logger.interface.ts';
 
 export default function Search() {
+    const logger = useRef<Logger>(useLogger());
     const location = useLocation();
     const navigate = useNavigate();
     const onResultsPage = useMatch('/Search/results');
@@ -40,7 +42,7 @@ export default function Search() {
                 if (ignore) return;
                 setUsers(fetchedUsers);
                 setMeId(me?.id ?? null);
-                Sentry.logger.info(`User ${me!.id} opened search page`);
+                logger.current.info(`User ${me!.id} opened search page`);
             })
             .finally(() => {
                 if (!ignore) setLoading(false);

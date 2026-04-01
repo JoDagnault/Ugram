@@ -1,0 +1,42 @@
+import { PostRepository } from '../../domain/posts/post.repository';
+import { PostComment } from '../../domain/posts/post-comment';
+import { NotFoundError } from '../../errors/not-found.error';
+import { ForbiddenError } from '../../errors/forbidden.error';
+import { Post } from '../../domain/posts/post';
+
+export class CommentPostUseCase {
+    constructor(private readonly postsRepository: PostRepository) {}
+
+    async execute(
+        postId: string,
+        comment: PostComment,
+        userId: string,
+    ): Promise<Post> {
+        const post = await this.postsRepository.findById(postId);
+        if (!post) throw new NotFoundError('Post not found');
+        if (userId !== comment.from) {
+            throw new ForbiddenError('You are not allowed to comment post');
+        }
+        post.addComment(comment);
+        return await this.postsRepository.update(post);
+    }
+
+    async executeDelete(
+        postId: string,
+        commentId: string,
+        userId: string,
+    ): Promise<Post> {
+        const post: Post = await this.postsRepository.findById(postId);
+        if (!post) throw new NotFoundError('Post not found');
+
+        const comment: PostComment | undefined = post.comments.find(
+            (c) => c.id === commentId,
+        );
+        if (!comment) throw new NotFoundError('Comment not found');
+        if (comment.from !== userId)
+            throw new ForbiddenError('You can only delete your own comments');
+
+        post.deleteComment(commentId);
+        return await this.postsRepository.update(post);
+    }
+}

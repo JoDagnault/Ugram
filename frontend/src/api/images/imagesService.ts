@@ -65,10 +65,21 @@ export const searchHashtags = async (
     return [...new Set(hashtags)].slice(0, limit);
 };
 
-export const getFeedImages = async (): Promise<ImageDetails[]> => {
-    const posts = await apiGetJsonOrUndefinedOn404<PostResponseDto[]>('/posts');
-    if (!posts) return [];
+export const getFeedImages = async (
+    hashtag?: string,
+    exactMatch: boolean = false,
+): Promise<ImageDetails[]> => {
+    let url = '/posts';
 
+    if (hashtag) {
+        const params = new URLSearchParams();
+        params.append('hashtag', hashtag);
+        if (exactMatch) params.append('exactMatch', 'true');
+        url = `/posts?${params.toString()}`;
+    }
+
+    const posts = await apiGetJsonOrUndefinedOn404<PostResponseDto[]>(url);
+    if (!posts) return [];
     return posts.map(mapPostResponseToImageDetails);
 };
 
@@ -136,4 +147,64 @@ export const deleteMyImage = async (imageId: string): Promise<boolean> => {
     }
 
     return true;
+};
+
+export const likeImage = async (imageId: string): Promise<void> => {
+    const response = await apiFetch(`/users/me/posts/${imageId}/like`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+        await handleErrorResponse(response);
+        throw new Error(`API request failed (${response.status})`);
+    }
+};
+
+export const unlikeImage = async (imageId: string): Promise<void> => {
+    const response = await apiFetch(`/users/me/posts/${imageId}/like`, {
+        method: 'DELETE',
+    });
+
+    if (!response.ok) {
+        await handleErrorResponse(response);
+        throw new Error(`API request failed (${response.status})`);
+    }
+};
+
+export const commentImage = async (
+    imageId: string,
+    comment: string,
+): Promise<ImageDetails | undefined> => {
+    const response = await apiFetch(`/users/me/posts/${imageId}/comment`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comment }),
+    });
+
+    if (!response.ok) {
+        await handleErrorResponse(response);
+        throw new Error(`API request failed (${response.status})`);
+    }
+
+    const updatedPost = (await response.json()) as PostResponseDto;
+    return mapPostResponseToImageDetails(updatedPost);
+};
+
+export const uncommentImage = async (
+    imageId: string,
+    commentId: string,
+): Promise<void> => {
+    const response = await apiFetch(
+        `/users/me/posts/${imageId}/comment/${commentId}`,
+        {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+        },
+    );
+
+    if (!response.ok) {
+        await handleErrorResponse(response);
+        throw new Error(`API request failed (${response.status})`);
+    }
 };

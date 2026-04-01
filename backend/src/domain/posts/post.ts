@@ -1,3 +1,8 @@
+import { PostComment } from './post-comment';
+import { PostLike } from './post-like';
+import { NotFoundError } from '../../errors/not-found.error';
+import { BadRequestError } from '../../errors/bad-request.error';
+
 export class Post {
     constructor(
         private readonly _id: string,
@@ -6,6 +11,8 @@ export class Post {
         private _description: string,
         private _hashtags: string[],
         private _mentions: string[],
+        private _comments: PostComment[],
+        private _likes: PostLike[],
         private readonly _createdAt: string = new Date().toISOString(),
     ) {}
 
@@ -33,6 +40,14 @@ export class Post {
         return this._mentions;
     }
 
+    get comments(): PostComment[] {
+        return this._comments;
+    }
+
+    get likes(): PostLike[] {
+        return this._likes;
+    }
+
     get createdAt(): string {
         return this._createdAt;
     }
@@ -51,5 +66,32 @@ export class Post {
         if (fields.mentions !== undefined) {
             this._mentions = fields.mentions;
         }
+    }
+
+    addComment(comment: PostComment) {
+        this._comments.push(comment);
+    }
+
+    addLike(like: PostLike) {
+        const alreadyLiked: boolean = this._likes.some(
+            (l) => l.from === like.from,
+        );
+        if (alreadyLiked)
+            throw new BadRequestError('User already liked this post');
+        this._likes.push(like);
+    }
+
+    deleteComment(commentId: string) {
+        const index: number = this._comments.findIndex(
+            (c) => c.id === commentId,
+        );
+        if (index === -1) throw new NotFoundError('Comment not found');
+        this._comments.splice(index, 1);
+    }
+
+    deleteLike(userId: string) {
+        const index: number = this._likes.findIndex((l) => l.from === userId);
+        if (index === -1) throw new NotFoundError('Like not found');
+        this._likes.splice(index, 1);
     }
 }

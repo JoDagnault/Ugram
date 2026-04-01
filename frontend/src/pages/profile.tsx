@@ -1,15 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 import { getMe, getUser } from '../api/users/usersService';
 import { getUserImages } from '../api/images/imagesService';
 import type { MyUser, UserProfile } from '../types/user';
 import type { ImageListItem } from '../types/image';
-import * as Sentry from '@sentry/react';
 import ProfileInfo from '../components/profile/ProfileInfo.tsx';
 import UserGallery from '../components/image/Gallery/UserGallery.tsx';
 import ImageModal from '../components/image/ImageModal/ImageModal.tsx';
+import type { Logger } from '../logger/logger.interface.ts';
+import { useLogger } from '../logger/logger.context.tsx';
 
 const Profile = () => {
+    const logger = useRef<Logger>(useLogger());
     const { userId } = useParams();
     const [user, setUser] = useState<MyUser | UserProfile | null>(null);
     const [images, setImages] = useState<ImageListItem[]>([]);
@@ -39,7 +41,7 @@ const Profile = () => {
 
                 setUser(nextUser);
                 setImages(nextImages);
-                Sentry.logger.info(`User ${nextUser.id} opened its profile`);
+                logger.current.info(`User ${nextUser.id} opened its profile`);
             } finally {
                 if (!ignore) {
                     setLoading(false);

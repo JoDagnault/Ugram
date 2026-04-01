@@ -1,6 +1,41 @@
+import { z } from 'zod';
 import type { MyUser } from '../../types/user';
 import { useState, type SubmitEvent } from 'react';
 import { deleteMe } from '../../api/users/usersService.ts';
+
+const UserSchema = z.object({
+    username: z
+        .string()
+        .trim()
+        .min(1, 'Username is required')
+        .max(30, 'Maximum 30 characters')
+        .regex(
+            /^[\p{L}\p{N}_-]+$/u,
+            'Only letters, numbers, underscores and hyphens are allowed',
+        ),
+    firstName: z
+        .string()
+        .trim()
+        .min(1, 'First name is required')
+        .max(100, 'Maximum 100 characters')
+        .regex(/^[\p{L} -]+$/u, 'Only letters, spaces and hyphens are allowed'),
+    lastName: z
+        .string()
+        .trim()
+        .min(1, 'Last name is required')
+        .max(100, 'Maximum 100 characters')
+        .regex(/^[\p{L} -]+$/u, 'Only letters, spaces and hyphens are allowed'),
+    email: z.email('Invalid email format').min(1, 'Email is required'),
+    phoneNumber: z
+        .string()
+        .min(1, 'Phone number is required')
+        .regex(
+            /^\d{3}-\d{3}-\d{4}$/,
+            'Format must be xxx-xxx-xxxx with only numbers',
+        ),
+});
+
+type FormErrors = Partial<Record<keyof MyUser, string>>;
 
 type Props = {
     user: MyUser;
@@ -8,51 +43,6 @@ type Props = {
     onSave: (user: MyUser) => void;
     onDelete: () => void;
     error?: string | null;
-};
-
-type FormErrors = Partial<Record<keyof MyUser, string>>;
-
-const validateForm = (data: MyUser): FormErrors => {
-    const errors: FormErrors = {};
-
-    if (!data.username.trim()) {
-        errors.username = 'Username is required';
-    } else if (data.username.length > 30) {
-        errors.username = 'Maximum 30 characters';
-    } else if (!/^[\p{L}\p{N} _-]+$/u.test(data.username)) {
-        errors.username =
-            'Only letters, numbers, spaces, underscores and hyphens are allowed';
-    }
-
-    if (!data.firstName.trim()) {
-        errors.firstName = 'First name is required';
-    } else if (data.firstName.length > 250) {
-        errors.firstName = 'Maximum 250 characters';
-    } else if (!/^[\p{L} -]+$/u.test(data.firstName)) {
-        errors.firstName = 'Only letters, spaces and hyphens are allowed';
-    }
-
-    if (!data.lastName.trim()) {
-        errors.lastName = 'Last name is required';
-    } else if (data.lastName.length > 250) {
-        errors.lastName = 'Maximum 250 characters';
-    } else if (!/^[\p{L} -]+$/u.test(data.lastName)) {
-        errors.lastName = 'Only letters, spaces and hyphens are allowed';
-    }
-
-    if (!data.email.trim()) {
-        errors.email = 'Email is required';
-    } else if (!/^\S+@\S+\.\S+$/.test(data.email)) {
-        errors.email = 'Invalid email format';
-    }
-
-    if (!data.phoneNumber.trim()) {
-        errors.phoneNumber = 'Phone number is required';
-    } else if (!/^\d{3}-\d{3}-\d{4}$/.test(data.phoneNumber)) {
-        errors.phoneNumber = 'Format must be xxx-xxx-xxxx with only numbers';
-    }
-
-    return errors;
 };
 
 interface FieldProps {
@@ -105,10 +95,17 @@ const EditProfileModal = ({
     const handleSubmit = (e: SubmitEvent) => {
         e.preventDefault();
 
-        const validationErrors = validateForm(formData);
+        const result = UserSchema.safeParse(formData);
 
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
+        if (!result.success) {
+            const fieldErrors: FormErrors = {};
+            for (const issue of result.error.issues) {
+                const field = issue.path[0] as keyof MyUser;
+                if (!fieldErrors[field]) {
+                    fieldErrors[field] = issue.message;
+                }
+            }
+            setErrors(fieldErrors);
             return;
         }
 

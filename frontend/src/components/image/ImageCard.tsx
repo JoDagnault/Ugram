@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import type { ImageDetails } from '../../types/image';
 import { getUsers } from '../../api/users/usersService';
 import type { UserListItem } from '../../types/user';
+import LikeButton from '../common/LikeButton.tsx';
+import CommentButton from '../common/CommentButton.tsx';
+import { useAuth } from '../../context/AuthContext.tsx';
 
 type Props = {
     image: ImageDetails;
@@ -11,6 +14,7 @@ const dateFormat = (iso: string): string => new Date(iso).toLocaleDateString();
 
 export default function ImageCard({ image }: Props) {
     const [users, setUsers] = useState<UserListItem[]>([]);
+    const { me, loading } = useAuth();
 
     useEffect(() => {
         getUsers()
@@ -40,6 +44,10 @@ export default function ImageCard({ image }: Props) {
 
     const hasDescription = image.description.trim().length > 0;
 
+    if (loading || !me) {
+        return null;
+    }
+
     return (
         <div className="flex justify-center w-full h-135 min-[385px]:h-155 min-[1242px]:h-175">
             <div className="flex flex-col border rounded-lg w-95/100 min-w-[290px] min-[750px]:w-7/10 min-[1242px]:w-9/10">
@@ -50,6 +58,16 @@ export default function ImageCard({ image }: Props) {
                         className="w-full h-full object-contain"
                         loading="lazy"
                     />
+                </div>
+
+                <div className="w-full flex space-x-3 min-[750px]:px-3 min-[1242px]:px-4 mt-2">
+                    <LikeButton
+                        imageId={image.id}
+                        className="w-12"
+                        initialCount={image.likes.length}
+                        initialLiked={image.isLiked}
+                    />
+                    <CommentButton count={image.comments.length} />
                 </div>
 
                 <div className="flex flex-col justify-end h-1/4 p-2.5 min-[750px]:p-3 min-[1242px]:p-4 space-y-1.5 min-[750px]:space-y-2 text-xs min-[750px]:text-sm">

@@ -12,7 +12,7 @@ const pool = new Pool({
 const adapter = new PrismaPg(pool as unknown as PrismaPgPool);
 const prisma = new PrismaClient({ adapter });
 
-const ME_USER_ID = '21550515-d7c8-4fae-a759-7dfb437c8442';
+const BOB_USER_ID = '21550515-d7c8-4fae-a759-7dfb437c8442';
 const ALICE_USER_ID = '8c1b9c62-2f0d-4f21-9a76-8c0a1f0e6a11';
 const CHARLIE_USER_ID = '3b6e2d8a-6d2a-4d8f-b0d9-7e7d8b2a4f22';
 
@@ -20,10 +20,10 @@ async function main() {
     console.log('Seeding database...');
 
     await prisma.user.upsert({
-        where: { id: ME_USER_ID },
+        where: { id: BOB_USER_ID },
         update: {},
         create: {
-            id: ME_USER_ID,
+            id: BOB_USER_ID,
             profilePictureUrl: 'https://picsum.photos/id/0/200',
             username: 'BobTheBuilder',
             firstName: 'Bob',
@@ -77,7 +77,7 @@ async function main() {
         },
         create: {
             id: '1f518f0a-5ee1-4f06-81b4-353b762415d4',
-            authorId: ME_USER_ID,
+            authorId: BOB_USER_ID,
             imageURL: 'https://picsum.photos/seed/img-3/800/600',
             description: 'Little drive to see the wind turbines',
             hashtags: {
@@ -87,6 +87,12 @@ async function main() {
                 ],
             },
             mentions: { create: [{ userId: CHARLIE_USER_ID }] },
+            comments: {
+                create: [{ from: ALICE_USER_ID, comment: 'Looks amazing 🌬️' }],
+            },
+            likes: {
+                create: [{ from: ALICE_USER_ID }, { from: CHARLIE_USER_ID }],
+            },
             createdAt: new Date('2026-02-14T08:30:00.000Z'),
         },
     });
@@ -101,11 +107,20 @@ async function main() {
         },
         create: {
             id: '84424f89-249d-4978-ac6a-67bcab4b1395',
-            authorId: ME_USER_ID,
+            authorId: BOB_USER_ID,
             imageURL: 'https://picsum.photos/seed/img-1/800/600',
             description: 'Travelling with friends 🏙️',
             hashtags: {
                 create: [{ name: 'newyork' }, { name: 'wow' }],
+            },
+            comments: {
+                create: [
+                    { from: CHARLIE_USER_ID, comment: 'Love New York️' },
+                    { from: ALICE_USER_ID, comment: "Next time, I'll come!" },
+                ],
+            },
+            likes: {
+                create: [{ from: CHARLIE_USER_ID }],
             },
             mentions: { create: [] },
             createdAt: new Date('2026-01-30T08:30:00.000Z'),
@@ -122,7 +137,7 @@ async function main() {
         },
         create: {
             id: '3e12a474-c84b-4c94-b81b-da647a6e10c5',
-            authorId: ME_USER_ID,
+            authorId: BOB_USER_ID,
             imageURL: 'https://picsum.photos/seed/img-2/600/600',
             description: 'New challenge',
             hashtags: {
@@ -134,6 +149,8 @@ async function main() {
                     { userId: CHARLIE_USER_ID },
                 ],
             },
+            comments: { create: [] },
+            likes: { create: [] },
             createdAt: new Date('2025-12-31T08:30:00.000Z'),
         },
     });
@@ -148,6 +165,8 @@ async function main() {
             description: '',
             hashtags: { create: [] },
             mentions: { create: [] },
+            comments: { create: [] },
+            likes: { create: [] },
             createdAt: new Date('2026-02-05T08:30:00.000Z'),
         },
     });
@@ -169,6 +188,8 @@ async function main() {
                 create: [{ name: 'friends' }],
             },
             mentions: { create: [] },
+            comments: { create: [] },
+            likes: { create: [] },
             createdAt: new Date('2026-01-20T08:30:00.000Z'),
         },
     });
@@ -183,6 +204,10 @@ async function main() {
             description: 'Good times in Toronto',
             hashtags: { create: [] },
             mentions: { create: [{ userId: ALICE_USER_ID }] },
+            comments: { create: [] },
+            likes: {
+                create: [{ from: CHARLIE_USER_ID }],
+            },
             createdAt: new Date('2026-02-07T08:30:00.000Z'),
         },
     });

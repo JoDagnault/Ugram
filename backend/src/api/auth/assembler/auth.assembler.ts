@@ -1,4 +1,5 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { config } from '../../../config/config';
 import { RevokedToken } from '../../../domain/auth/token';
 import { BadRequestError } from '../../../errors/bad-request.error';
 
@@ -7,7 +8,7 @@ export class AuthAssembler {
         try {
             const decoded = jwt.verify(
                 idToken,
-                process.env.JWT_SECRET!,
+                config.auth.JWT_SECRET,
             ) as JwtPayload;
 
             if (!decoded.exp) {

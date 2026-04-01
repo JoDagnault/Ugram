@@ -1,61 +1,62 @@
+import { z } from 'zod';
 import { BadRequestError } from '../../../errors/bad-request.error';
 
+const IdTokenSchema = z
+    .string()
+    .trim()
+    .min(1, 'idToken is required')
+    .regex(/^\S+$/, 'idToken cannot contain spaces');
+
+const RegisterSchema = z.object({
+    idToken: IdTokenSchema,
+    username: z
+        .string()
+        .trim()
+        .min(1, 'Username is required')
+        .max(30, 'Maximum 30 characters for the username')
+        .regex(/^\S+$/, 'Username cannot contain spaces'),
+    firstName: z
+        .string()
+        .trim()
+        .min(1, 'First name cannot be empty')
+        .max(100, 'Maximum 100 characters for the first name')
+        .regex(
+            /^[\p{L} -]+$/u,
+            'First name can only contain letters, spaces, and hyphens',
+        ),
+    lastName: z
+        .string()
+        .trim()
+        .min(1, 'Last name cannot be empty')
+        .max(100, 'Maximum 100 characters for the last name')
+        .regex(
+            /^[\p{L} -]+$/u,
+            'Last name can only contain letters, spaces, and hyphens',
+        ),
+    phoneNumber: z
+        .string()
+        .min(1, 'Phone number cannot be empty')
+        .regex(
+            /^\d{3}-\d{3}-\d{4}$/,
+            'Phone number format must be xxx-xxx-xxxx with only numbers',
+        ),
+});
+
+const LoginSchema = RegisterSchema.pick({ idToken: true });
+
 export class AuthValidator {
-    static validateIdToken(idToken?: string) {
-        if (!idToken || idToken.trim().length === 0) {
-            throw new BadRequestError('idToken is required');
-        }
-    }
-
-    static validateUsername(username?: string) {
-        if (!username || username.trim().length === 0) {
-            throw new BadRequestError('Username is required');
-        } else if (username.trim().length > 30) {
-            throw new BadRequestError('Maximum 30 characters for the username');
-        }
-    }
-
-    static validateFirstName(firstName?: string) {
-        if (!firstName || firstName.trim().length === 0) {
-            throw new BadRequestError('First name cannot be empty');
-        } else if (firstName.trim().length > 250) {
-            throw new BadRequestError(
-                'Maximum 250 characters for the first name',
-            );
-        } else if (!/^[\p{L} -]+$/u.test(firstName)) {
-            throw new BadRequestError(
-                'First name can only contain letters, spaces, and hyphens',
-            );
-        }
-    }
-
-    static validateLastName(lastName?: string) {
-        if (!lastName || lastName.trim().length === 0) {
-            throw new BadRequestError('Last name cannot be empty');
-        } else if (lastName.trim().length > 250) {
-            throw new BadRequestError(
-                'Maximum 250 characters for the last name',
-            );
-        }
-        if (!/^[\p{L} -]+$/u.test(lastName)) {
-            throw new BadRequestError(
-                'Last name can only contain letters, spaces, and hyphens',
-            );
-        }
-    }
-
-    static validatePhoneNumber(phoneNumber?: string) {
-        if (!phoneNumber || phoneNumber.trim().length === 0) {
-            throw new BadRequestError('Phone number cannot be empty');
-        } else if (!/^\d{3}-\d{3}-\d{4}$/.test(phoneNumber)) {
-            throw new BadRequestError(
-                'Phone number format must be xxx-xxx-xxxx with only numbers',
-            );
+    static validateIdToken(idToken?: string): void {
+        const result = IdTokenSchema.safeParse(idToken);
+        if (!result.success) {
+            throw new BadRequestError(result.error.issues[0].message);
         }
     }
 
     static validateLogin(body: { idToken?: string }): void {
-        this.validateIdToken(body.idToken);
+        const result = LoginSchema.safeParse(body);
+        if (!result.success) {
+            throw new BadRequestError(result.error.issues[0].message);
+        }
     }
 
     static validateRegister(body: {
@@ -65,10 +66,9 @@ export class AuthValidator {
         lastName?: string;
         phoneNumber?: string;
     }): void {
-        this.validateIdToken(body.idToken);
-        this.validateUsername(body.username);
-        this.validateFirstName(body.firstName);
-        this.validateLastName(body.lastName);
-        this.validatePhoneNumber(body.phoneNumber);
+        const result = RegisterSchema.safeParse(body);
+        if (!result.success) {
+            throw new BadRequestError(result.error.issues[0].message);
+        }
     }
 }

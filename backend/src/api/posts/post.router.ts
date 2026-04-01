@@ -1,38 +1,27 @@
 import { Router } from 'express';
-import { PostController } from './post.controller';
 import fs from 'fs';
-import { UPLOAD_DIR } from '../../config/storage';
-import { s3 } from '../../config/s3';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import path from 'path';
-
-const MAX_IMAGE_SIZE_BYTES = Number(
-    process.env.MAX_IMAGE_SIZE_BYTES ?? 10 * 1024 * 1024,
-);
+import { PostController } from './post.controller';
+import { config } from '../../config/config';
+import { s3 } from '../../config/s3';
+import { UPLOAD_DIR } from '../../config/storage';
 
 if (!fs.existsSync(UPLOAD_DIR)) {
     fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
 
-const bucketName: string | undefined = process.env.AWS_BUCKET_NAME;
-
-if (!bucketName) {
-    throw new Error(
-        'AWS_BUCKET_NAME must be defined in your environment variables',
-    );
-}
-
-export const upload = multer({
+const upload = multer({
     limits: {
-        fileSize: MAX_IMAGE_SIZE_BYTES,
+        fileSize: config.uploads.MAX_IMAGE_SIZE_BYTES,
     },
     storage: multerS3({
-        s3: s3,
-        bucket: bucketName,
+        s3,
+        bucket: config.aws.BUCKET_NAME,
         acl: 'public-read',
         contentType: multerS3.AUTO_CONTENT_TYPE,
-        key: (req, file, cb) => {
+        key: (_req, file, cb) => {
             const ext = path.extname(file.originalname);
             cb(null, `posts/${Date.now()}-${file.fieldname}${ext}`);
         },
@@ -63,10 +52,27 @@ export class PostRouter {
         this.meRouter.get('/:id', this.postsController.getPostByIdHandler);
         this.meRouter.delete('/:id', this.postsController.deletePostHandler);
         this.meRouter.patch('/:id', this.postsController.updatePostHandler);
+        this.meRouter.patch(
+            '/:id/comment',
+            this.postsController.commentPostHandler,
+        );
+        this.meRouter.patch('/:id/like', this.postsController.likePostHandler);
+        this.meRouter.delete(
+            '/:id/comment/:commentId',
+            this.postsController.deleteCommentPostHandler,
+        );
+        this.meRouter.delete(
+            '/:id/like',
+            this.postsController.deleteLikePostHandler,
+        );
     }
 
     private initializePublicRoutes() {
         this.publicRouter.get('/', this.postsController.getAllPostsHandler);
+        this.publicRouter.get(
+            '/hashtags/popular',
+            this.postsController.getPopularHashtags,
+        );
         this.publicRouter.get('/:id', this.postsController.getPostByIdHandler);
     }
 

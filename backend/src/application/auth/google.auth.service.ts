@@ -1,4 +1,5 @@
 import { googleOAuthClient } from '../../config/google-oauth.config';
+import { config } from '../../config/config';
 import { GoogleTokenPayload } from '../../types/auth.types';
 import jwt from 'jsonwebtoken';
 import { LoginTicket } from 'google-auth-library';
@@ -7,7 +8,7 @@ export class GoogleAuthService {
     async verifyGoogleToken(idToken: string): Promise<GoogleTokenPayload> {
         const ticket: LoginTicket = await googleOAuthClient.verifyIdToken({
             idToken,
-            audience: process.env.GOOGLE_CLIENT_ID,
+            audience: config.auth.GOOGLE_CLIENT_ID,
         });
 
         const payload = ticket.getPayload();
@@ -17,7 +18,7 @@ export class GoogleAuthService {
     }
 
     generateAppToken(userId: string, email: string): string {
-        return jwt.sign({ userId, email }, process.env.JWT_SECRET!, {
+        return jwt.sign({ userId, email }, config.auth.JWT_SECRET, {
             expiresIn: '30m',
         });
     }

@@ -4,6 +4,7 @@ import {
     createMyImage,
     deleteMyImage,
     getImage,
+    uncommentImage,
     updateMyImage,
 } from '../../../api/images/imagesService.ts';
 import { getMe, getUsers } from '../../../api/users/usersService.ts';
@@ -14,7 +15,13 @@ import EditImageForm, {
 import ImageActionsMenu from './ImageActionsMenu.tsx';
 import ImageModalFrame from './ImageModalFrame.tsx';
 import ImageMetadataSummary from './ImageMetadataSummary.tsx';
-import * as Sentry from '@sentry/react';
+import CommentSection from './CommentSection.tsx';
+import CommentInput from './CommentInput.tsx';
+import LikeButton from '../../common/LikeButton.tsx';
+import { useAuth } from '../../../context/AuthContext.tsx';
+import LikesModal from './LikesModal.tsx';
+import { useLogger } from '../../../logger/logger.context.tsx';
+import type { Logger } from '../../../logger/logger.interface.ts';
 
 type ExistingImageModalProps = {
     mode?: 'view';
@@ -46,7 +53,9 @@ const toImageDetailsFields = (image: ImageDetails): ImageDetailsFields => ({
 const dateFormat = (iso: string): string => new Date(iso).toLocaleDateString();
 
 export default function ImageModal(props: Props) {
+    const logger: Logger = useLogger();
     const { onClose } = props;
+    const { me } = useAuth();
     const isCreateModal = props.mode === 'create';
     const imageId = isCreateModal ? undefined : props.imageId;
 
@@ -55,6 +64,8 @@ export default function ImageModal(props: Props) {
     const [loading, setLoading] = useState(!isCreateModal);
     const [users, setUsers] = useState<UserListItem[]>([]);
     const [currentUsername, setCurrentUsername] = useState('');
+    const [currentUserId, setCurrentUserId] = useState('');
+    const [showLikes, setShowLikes] = useState(false);
 
     useEffect(() => {
         const previousBodyOverflow = document.body.style.overflow;
@@ -75,6 +86,7 @@ export default function ImageModal(props: Props) {
             if (ignore) return;
             setUsers(fetchedUsers);
             setCurrentUsername(me?.username ?? '');
+            setCurrentUserId(me?.id ?? '');
         });
 
         return () => {
@@ -122,7 +134,7 @@ export default function ImageModal(props: Props) {
         if (!ok) return;
 
         if ('onDeleted' in props) props.onDeleted?.(imageId);
-        Sentry.logger.info(`post ${imageId} deleted`);
+        logger.info(`post ${imageId} deleted`);
         onClose();
     };
 
@@ -135,7 +147,7 @@ export default function ImageModal(props: Props) {
 
         setImage(updated);
         if ('onUpdated' in props) props.onUpdated?.(updated);
-        Sentry.logger.info(`post ${updated.id} updated`);
+        logger.info(`post ${updated.id} updated`);
         setMode('view');
     };
 
@@ -148,12 +160,45 @@ export default function ImageModal(props: Props) {
         const created = await createMyImage({ ...nextFields, file });
 
         if ('onCreated' in props) props.onCreated?.(created);
-        Sentry.logger.info(`post ${created.id} created`);
+        logger.info(`post ${created.id} created`);
         onClose();
     };
 
-    const modalTitle = isCreateModal ? 'Create Post' : '';
+    const handleCommentPosted = (updated: ImageDetails) => {
+        setImage(updated);
+        if ('onUpdated' in props) props.onUpdated?.(updated);
+    };
 
+    const handleLikeToggled = (liked: boolean) => {
+        setImage((prev) => {
+            if (!prev) return prev;
+            const likes = liked
+                ? [
+                      ...prev.likes,
+                      {
+                          from: currentUserId,
+                          createdAt: new Date().toISOString(),
+                      },
+                  ]
+                : prev.likes.filter((l) => l.from !== currentUserId);
+            return { ...prev, likes };
+        });
+    };
+
+    const handleCommentDeleted = async (commentId: string) => {
+        if (!imageId) return;
+        await uncommentImage(imageId, commentId);
+        logger.info(`comment ${commentId} deleted`);
+        setImage((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                comments: prev.comments.filter((c) => c.id !== commentId),
+            };
+        });
+    };
+
+    const modalTitle = isCreateModal ? 'Create Post' : '';
     if (!isCreateModal && (loading || !image)) {
         const isNotFound = !loading && !image;
         return (
@@ -213,7 +258,7 @@ export default function ImageModal(props: Props) {
                             />
                         </div>
 
-                        <div>
+                        <div className="flex flex-col h-full min-h-0">
                             {mode === 'edit' && !!image?.isOwner ? (
                                 <EditImageForm
                                     users={users}
@@ -223,7 +268,7 @@ export default function ImageModal(props: Props) {
                                     onSubmit={handleSave}
                                 />
                             ) : (
-                                <div className="space-y-3 flex flex-col justify-end h-full p-2 min-[1242px]:block  min-[1242px]:p-0">
+                                <div className="flex-shrink-0 space-y-3 flex flex-col justify-end p-2 min-[1242px]:block  min-[1242px]:p-0">
                                     <div className="text-sm text-gray-600 dark:text-gray-400">
                                         Posted on {dateFormat(image.createdAt)}
                                     </div>
@@ -241,6 +286,45 @@ export default function ImageModal(props: Props) {
                                     />
                                 </div>
                             )}
+                            <CommentSection
+                                comments={image.comments}
+                                userIdToUsername={userIdToUsername}
+                                onCommentDeleted={handleCommentDeleted}
+                                className="flex-1 min-h-0 overflow-hidden"
+                            />
+
+                            <div className="py-2 flex items-center">
+                                {me && (
+                                    <LikeButton
+                                        imageId={image.id}
+                                        className="w-12"
+                                        initialCount={image.likes.length}
+                                        initialLiked={image.isLiked}
+                                        showCount={false}
+                                        onToggle={handleLikeToggled}
+                                    />
+                                )}
+
+                                <button
+                                    onClick={() => setShowLikes(true)}
+                                    className="text-sm text-gray-400 hover:underline -ml-4.5"
+                                >
+                                    {image.likes.length} likes
+                                </button>
+                            </div>
+
+                            {showLikes && (
+                                <LikesModal
+                                    likes={image.likes}
+                                    userIdToUsername={userIdToUsername}
+                                    onClose={() => setShowLikes(false)}
+                                />
+                            )}
+
+                            <CommentInput
+                                imageId={image.id}
+                                onCommentPosted={handleCommentPosted}
+                            />
                         </div>
                     </div>
                 )

@@ -1,6 +1,46 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { registerWithGoogle } from '../../api/auth/authService.ts';
+import { getMe } from '../../api/users/usersService.ts';
+import { useAuth } from '../../context/AuthContext.tsx';
+import { z } from 'zod';
+
+const RegisterSchema = z.object({
+    username: z
+        .string()
+        .trim()
+        .min(1, 'Username is required')
+        .max(30, 'Maximum 30 characters for the username.')
+        .regex(
+            /^[\p{L}\p{N}_-]+$/u,
+            'Only letters, numbers, underscores and hyphens are allowed',
+        ),
+    firstName: z
+        .string()
+        .trim()
+        .min(1, 'First name is required')
+        .max(100, 'Maximum 100 characters for the first name.')
+        .regex(
+            /^[\p{L} -]+$/u,
+            'Only letters, spaces and hyphens are allowed for the first name.',
+        ),
+    lastName: z
+        .string()
+        .trim()
+        .min(1, 'Last name is required')
+        .max(100, 'Maximum 100 characters for the last name.')
+        .regex(
+            /^[\p{L} -]+$/u,
+            'Only letters, spaces and hyphens are allowed for the last name.',
+        ),
+    phoneNumber: z
+        .string()
+        .min(1, 'Phone number is required')
+        .regex(
+            /^\d{3}-\d{3}-\d{4}$/,
+            'Phone number format must be xxx-xxx-xxxx with only numbers',
+        ),
+});
 
 interface RegisterModalProps {
     idToken: string;
@@ -25,41 +65,18 @@ export default function RegisterModal({
     const [phoneNumber, setPhoneNumber] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const { setMe } = useAuth();
 
     const handleSubmit = async () => {
-        if (firstName.length > 250 || lastName.length > 250) {
-            setError(
-                'Maximum 250 characters for the first and last name and username.',
-            );
-            return;
-        } else if (
-            !/^[\p{L} -]+$/u.test(firstName) ||
-            !/^[\p{L} -]+$/u.test(lastName)
-        ) {
-            setError(
-                'Only letters, spaces and hyphens are allowed for the first and last name.',
-            );
-            return;
-        }
+        const result = RegisterSchema.safeParse({
+            username,
+            firstName,
+            lastName,
+            phoneNumber,
+        });
 
-        if (username.length > 30) {
-            setError('Maximum 30 characters for the username.');
-            return;
-        }
-
-        if (!/^\d{3}-\d{3}-\d{4}$/.test(phoneNumber)) {
-            setError(
-                'Phone number format must be xxx-xxx-xxxx with only numbers',
-            );
-            return;
-        }
-        if (
-            !username.trim() ||
-            !firstName.trim() ||
-            !lastName.trim() ||
-            !phoneNumber.trim()
-        ) {
-            setError('All fields are required');
+        if (!result.success) {
+            setError(result.error.issues[0].message);
             return;
         }
 
@@ -68,13 +85,16 @@ export default function RegisterModal({
             setError(null);
             const data = await registerWithGoogle(
                 idToken,
-                username,
-                firstName,
-                lastName,
-                phoneNumber,
+                result.data.username,
+                result.data.firstName,
+                result.data.lastName,
+                result.data.phoneNumber,
             );
             localStorage.setItem('jwt', data.jwt);
+            const me = await getMe();
+            setMe(me ?? null);
             navigate('/');
+            onClose();
         } catch (err: any) {
             setError(err.message ?? 'Registration failed');
         } finally {

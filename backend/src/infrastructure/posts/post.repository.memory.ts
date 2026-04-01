@@ -93,6 +93,20 @@ export class InMemoryPostsRepository implements PostRepository {
                 new Date(a.createdAt).getTime(),
         );
     }
+    async getPopularHashtags(
+        limit: number = 10,
+    ): Promise<{ name: string; count: number }[]> {
+        const counts: Record<string, number> = {};
+        for (const post of this.posts) {
+            for (const hashtag of post.hashtags) {
+                counts[hashtag] = (counts[hashtag] || 0) + 1;
+            }
+        }
+        return Object.entries(counts)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, limit);
+    }
 
     async removeMentionsOfUser(userId: string): Promise<void> {
         this.posts = this.posts.map((post) => {

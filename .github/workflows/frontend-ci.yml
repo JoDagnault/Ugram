@@ -12,6 +12,7 @@ on:
     pull_request:
         branches:
             - main
+            - dev
         paths:
             - 'frontend/**'
             - 'eslint.config.js'

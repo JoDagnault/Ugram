@@ -11,4 +11,11 @@ export class SearchPostsByHashtagUsecase {
         }
         return this.postsRepository.findByMatchingHashtag(normalized);
     }
+    async executeExact(hashtag: string): Promise<Post[]> {
+        const normalized = hashtag.trim().toLowerCase();
+        if (!normalized) {
+            return [];
+        }
+        return this.postsRepository.findByExactHashtag(normalized);
+    }
 }

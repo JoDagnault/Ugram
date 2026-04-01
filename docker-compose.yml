@@ -57,8 +57,6 @@ services:
       - ./backend/.env
     ports:
       - "${PORT:-3000}:${PORT:-3000}"
-    environment:
-      NODE_ENV: production
     volumes:
       - uploads_data:/app/uploads
     networks:

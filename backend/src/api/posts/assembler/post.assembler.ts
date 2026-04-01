@@ -6,6 +6,10 @@ import { ResponsePostDTO } from '../dto/response-post.dto';
 import { PostFieldsValidator } from './post-fields-validator';
 import { S3File } from '../../../types/s3-file';
 import { BadRequestError } from '../../../errors/bad-request.error';
+import { LikeDto } from '../dto/like.dto';
+import { CommentDto } from '../dto/comment.dto';
+import { PostComment } from '../../../domain/posts/post-comment';
+import { PostLike } from '../../../domain/posts/post-like';
 
 export class PostAssembler {
     toPost(req: Request<{}, {}, PostFieldsDto>, userId: string): Post {
@@ -28,7 +32,18 @@ export class PostAssembler {
             fields.description || '',
             fields.hashtags || [],
             fields.mentions || [],
+            [],
+            [],
         );
+    }
+
+    toComment(commentDTO: CommentDto, userId: string): PostComment {
+        PostFieldsValidator.validateComment(commentDTO.comment);
+        return new PostComment(uuid(), commentDTO.comment, userId);
+    }
+
+    toLike(userId: string): PostLike {
+        return new PostLike(uuid(), userId);
     }
 
     toPostDTO(post: Post, currentUserId?: string): ResponsePostDTO {
@@ -43,8 +58,13 @@ export class PostAssembler {
             Array.isArray(post.mentions)
                 ? post.mentions
                 : JSON.parse(post.mentions),
+            post.likes.map((l) => new LikeDto(l.from, l.createdAt)),
+            post.comments.map(
+                (c) => new CommentDto(c.comment, c.from, c.createdAt, c.id),
+            ),
             post.createdAt,
             !!currentUserId && post.userId === currentUserId,
+            !!currentUserId && post.likes.some((l) => l.from === currentUserId),
         );
     }
 }

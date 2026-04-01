@@ -1,4 +1,5 @@
 import winston from 'winston';
+import { config } from './config/config';
 
 const levels = {
     error: 0,
@@ -8,11 +9,6 @@ const levels = {
     verbose: 4,
     debug: 5,
     silly: 6,
-};
-
-export const getLogLevel = () => {
-    const env = process.env.NODE_ENV || 'development';
-    return env === 'development' ? 'debug' : 'info';
 };
 
 const format = winston.format.combine(
@@ -33,7 +29,7 @@ const transports = [
 ];
 
 export const logger = winston.createLogger({
-    level: getLogLevel(),
+    level: config.logging.LEVEL,
     levels,
     format,
     transports,

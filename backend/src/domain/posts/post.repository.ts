@@ -1,4 +1,5 @@
 import { Post } from './post';
+import { HashtagStats } from './hashtag-stats';
 
 export interface PostRepository {
     save(post: Post): Promise<void>;
@@ -10,4 +11,5 @@ export interface PostRepository {
     findById(id: string): Promise<Post>;
     update(post: Post): Promise<Post>;
     deleteById(id: string): Promise<void>;
+    getPopularHashtags(limit: number): Promise<HashtagStats[]>;
 }
