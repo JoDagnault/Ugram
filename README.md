@@ -1,6 +1,11 @@
-# ugram-h2026-team-01 - Livrable 2
+# ugram-h2026-team-01 - Livrable 3
 
-## Preuve du logging au sein de l'application  à l'intérieur de ce document: 
+## Fonctionnalités avancées implémentées
+* L'usager doit pouvoir rechercher par mot clé ou description avec autocomplétion
+* L'usager doit pouvoir consulter les mots-clés les plus populaires
+* L'usager doit pouvoir appliquer des filtres sur ses photos lors du téléversement
+
+## Preuve du logging, du monitoring et des métriques de performance au sein de l'application  à l'intérieur de ce document: 
 https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/edit?usp=sharing
 
 ## Prérequis
@@ -40,7 +45,6 @@ VITE_MAX_IMAGE_SIZE_BYTES=10485760
 ```
 
 Les vraies valeurs à utiliser sont dans le document suivant : https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/edit?usp=sharing
-
 
 # 3. Exécution
 
