@@ -1,4 +1,3 @@
-import { InMemoryNotificationRepository } from '../../infrastructure/notifications/notification.repository.memory';
 import { PrismaNotificationRepository } from '../../infrastructure/notifications/notification.repository.prisma';
 import { SseNotificationBus } from '../../infrastructure/notifications/sse-notification.bus';
 import { CreateNotificationUsecase } from '../../application/notifications/create-notification.usecase';
@@ -10,12 +9,9 @@ import { getPrismaClient } from '../../infrastructure/prisma/client';
 import { UserRepository } from '../../domain/users/user.repository';
 
 export function NotificationModule(userRepository: UserRepository) {
-    const env = process.env.NODE_ENV ?? 'development';
-    const useInMemory = env === 'development' || env === 'test';
-
-    const notificationRepository = useInMemory
-        ? new InMemoryNotificationRepository()
-        : new PrismaNotificationRepository(getPrismaClient());
+    const notificationRepository = new PrismaNotificationRepository(
+        getPrismaClient(),
+    );
 
     const notificationBus = new SseNotificationBus();
 
