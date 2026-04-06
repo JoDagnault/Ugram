@@ -12,9 +12,16 @@ import { CommentPostUseCase } from '../../application/posts/comment-post.usecase
 import { LikePostUseCase } from '../../application/posts/like-post.usecase';
 import { PostRepository } from '../../domain/posts/post.repository';
 import { GetPopularHashtagsUsecase } from '../../application/posts/get-popular-hashtags.usecase';
+import { UserRepository } from '../../domain/users/user.repository';
 
-export function PostModule(postRepository: PostRepository) {
-    const createPost: CreatePostUsecase = new CreatePostUsecase(postRepository);
+export function PostModule(
+    postRepository: PostRepository,
+    userRepository: UserRepository,
+) {
+    const createPost: CreatePostUsecase = new CreatePostUsecase(
+        postRepository,
+        userRepository,
+    );
     const deletePost: DeletePostUsecase = new DeletePostUsecase(postRepository);
     const getAllPosts: GetAllPostsUsecase = new GetAllPostsUsecase(
         postRepository,
@@ -22,7 +29,10 @@ export function PostModule(postRepository: PostRepository) {
     const getPostById: GetPostByIdUsecase = new GetPostByIdUsecase(
         postRepository,
     );
-    const updatePost: UpdatePostUsecase = new UpdatePostUsecase(postRepository);
+    const updatePost: UpdatePostUsecase = new UpdatePostUsecase(
+        postRepository,
+        userRepository,
+    );
     const searchPostsByDescription: SearchPostsByDescriptionUsecase =
         new SearchPostsByDescriptionUsecase(postRepository);
     const searchPostsByHashtag: SearchPostsByHashtagUsecase =

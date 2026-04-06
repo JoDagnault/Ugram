@@ -33,7 +33,7 @@ const postRepository = new PrismaPostRepository(prisma);
 const userRepository = new PrismaUserRepository(prisma);
 const revokedTokenRepository = new PrismaRevokedTokenRepository(prisma);
 
-const postModule = PostModule(postRepository);
+const postModule = PostModule(postRepository, userRepository);
 const userModule = UserModule(userRepository);
 const authModule = AuthModule(userRepository, revokedTokenRepository);
 

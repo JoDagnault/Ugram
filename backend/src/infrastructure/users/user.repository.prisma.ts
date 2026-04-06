@@ -120,4 +120,17 @@ export class PrismaUserRepository implements UserRepository {
             where: { id },
         });
     }
+
+    async mentionedUserIdsExist(ids: string[]): Promise<boolean> {
+        const users = await this.prisma.user.findMany({
+            where: {
+                id: {
+                    in: ids,
+                },
+            },
+        });
+
+        const existingIds = new Set(users.map((u) => u.id));
+        return ids.every((id) => existingIds.has(id));
+    }
 }
