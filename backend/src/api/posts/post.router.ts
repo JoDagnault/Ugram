@@ -7,6 +7,7 @@ import { PostController } from './post.controller';
 import { config } from '../../config/config';
 import { s3 } from '../../config/s3';
 import { UPLOAD_DIR } from '../../config/storage';
+import { BadRequestError } from '../../errors/bad-request.error';
 
 if (!fs.existsSync(UPLOAD_DIR)) {
     fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -15,6 +16,18 @@ if (!fs.existsSync(UPLOAD_DIR)) {
 const upload = multer({
     limits: {
         fileSize: config.uploads.MAX_IMAGE_SIZE_BYTES,
+    },
+    fileFilter: (_req, file, cb) => {
+        const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+        if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(
+                new BadRequestError(
+                    `Invalid file type. Allowed: ${ALLOWED_MIME_TYPES.join(', ')}`,
+                ),
+            );
+        }
     },
     storage: multerS3({
         s3,

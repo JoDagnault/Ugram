@@ -17,6 +17,8 @@ import { prepareImageForUpload } from '../imageCompression.ts';
 import { z } from 'zod';
 import { FILTERS } from './filters';
 
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
 type ImageFormErrors = {
     description?: string;
     hashtags?: string;
@@ -120,6 +122,12 @@ export default function EditImageForm({
         if (!selectedFile) {
             setFile(undefined);
             setFileError();
+            return;
+        }
+
+        if (!ALLOWED_MIME_TYPES.includes(selectedFile.type)) {
+            setFile(undefined);
+            setFileError('Invalid file type. Allowed: JPEG, PNG, WebP');
             return;
         }
 
@@ -248,7 +256,7 @@ export default function EditImageForm({
                     <input
                         ref={fileInputRef}
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/webp"
                         onChange={handleFileChange}
                         className="sr-only"
                         tabIndex={-1}
