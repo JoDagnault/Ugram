@@ -7,7 +7,7 @@ import {
     uncommentImage,
     updateMyImage,
 } from '../../../api/images/imagesService.ts';
-import { getMe, getUsers } from '../../../api/users/usersService.ts';
+import { getMe } from '../../../api/users/usersService.ts';
 import type { UserListItem } from '../../../types/user.ts';
 import EditImageForm, {
     type ImageFormSubmission,
@@ -22,6 +22,7 @@ import { useAuth } from '../../../context/AuthContext.tsx';
 import LikesModal from './LikesModal.tsx';
 import { useLogger } from '../../../logger/logger.context.tsx';
 import type { Logger } from '../../../logger/logger.interface.ts';
+import { useUsers } from '../../../hooks/useUsers.ts';
 
 type ExistingImageModalProps = {
     mode?: 'view';
@@ -62,7 +63,7 @@ export default function ImageModal(props: Props) {
     const [mode, setMode] = useState<'view' | 'edit'>('view');
     const [image, setImage] = useState<ImageDetails | null>(null);
     const [loading, setLoading] = useState(!isCreateModal);
-    const [users, setUsers] = useState<UserListItem[]>([]);
+    const users: UserListItem[] = useUsers();
     const [currentUsername, setCurrentUsername] = useState('');
     const [currentUserId, setCurrentUserId] = useState('');
     const [showLikes, setShowLikes] = useState(false);
@@ -79,12 +80,8 @@ export default function ImageModal(props: Props) {
     useEffect(() => {
         let ignore = false;
 
-        Promise.all([
-            getUsers().catch(() => [] as UserListItem[]),
-            getMe().catch(() => undefined),
-        ]).then(([fetchedUsers, me]) => {
+        Promise.all([getMe().catch(() => undefined)]).then(([me]) => {
             if (ignore) return;
-            setUsers(fetchedUsers);
             setCurrentUsername(me?.username ?? '');
             setCurrentUserId(me?.id ?? '');
         });

@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { ImageDetails } from '../../types/image';
-import { getUsers } from '../../api/users/usersService';
 import type { UserListItem } from '../../types/user';
 import LikeButton from '../common/LikeButton.tsx';
 import CommentButton from '../common/CommentButton.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
+import { useUsers } from '../../hooks/useUsers.ts';
 
 type Props = {
     image: ImageDetails;
@@ -13,14 +13,8 @@ type Props = {
 const dateFormat = (iso: string): string => new Date(iso).toLocaleDateString();
 
 export default function ImageCard({ image }: Props) {
-    const [users, setUsers] = useState<UserListItem[]>([]);
+    const users: UserListItem[] = useUsers();
     const { me, loading } = useAuth();
-
-    useEffect(() => {
-        getUsers()
-            .then(setUsers)
-            .catch(() => setUsers([]));
-    }, []);
 
     const userIdToUsername = useMemo(() => {
         const map = new Map<string, string>();
