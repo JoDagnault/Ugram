@@ -86,6 +86,10 @@ export class PostRouter {
             '/hashtags/popular',
             this.postsController.getPopularHashtags,
         );
+        this.publicRouter.get(
+            '/hashtags/search',
+            this.postsController.searchHashtagsByQuery,
+        );
         this.publicRouter.get('/:id', this.postsController.getPostByIdHandler);
     }
 

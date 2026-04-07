@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { searchHashtags } from '../../api/images/imagesService.ts';
+import { searchHashtags } from '../../api/hashtags/hashtagsService.ts';
 
 const MAX_RESULT_QUANTITY = 5;
 

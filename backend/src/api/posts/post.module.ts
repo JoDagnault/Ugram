@@ -12,6 +12,7 @@ import { CommentPostUseCase } from '../../application/posts/comment-post.usecase
 import { LikePostUseCase } from '../../application/posts/like-post.usecase';
 import { PostRepository } from '../../domain/posts/post.repository';
 import { GetPopularHashtagsUsecase } from '../../application/posts/get-popular-hashtags.usecase';
+import { SearchHashtagsByQueryUsecase } from '../../application/posts/search-hashtags-by-query.usecase';
 import { UserRepository } from '../../domain/users/user.repository';
 
 export function PostModule(
@@ -46,6 +47,9 @@ export function PostModule(
     const getPopularHashtagsUsecase = new GetPopularHashtagsUsecase(
         postRepository,
     );
+    const searchHashtagsByQueryUsecase = new SearchHashtagsByQueryUsecase(
+        postRepository,
+    );
     const controller: PostController = new PostController(
         createPost,
         getAllPosts,
@@ -57,6 +61,7 @@ export function PostModule(
         commentPost,
         likePost,
         getPopularHashtagsUsecase,
+        searchHashtagsByQueryUsecase,
         assembler,
     );
     const routers = new PostRouter(controller);

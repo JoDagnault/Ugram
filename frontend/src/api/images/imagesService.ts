@@ -36,51 +36,47 @@ const getCreateImageErrorMessage = async (
 
 export const getUserImages = async (
     userId: string,
-): Promise<ImageListItem[]> => {
-    const posts = await apiGetJsonOrUndefinedOn404<PostResponseDto[]>(
-        `/users/${userId}/posts`,
-    );
+    page: number = 1,
+): Promise<{ images: ImageListItem[]; hasMore: boolean }> => {
+    const params = new URLSearchParams();
+    params.append('page', String(page));
+    params.append('limit', '20');
 
-    if (!posts) return [];
+    const res = await apiGetJsonOrUndefinedOn404<{
+        data: PostResponseDto[];
+        hasMore: boolean;
+    }>(`/users/${userId}/posts?${params.toString()}`);
 
-    return posts.map(mapPostResponseToImageDetails).map(toImageListItem);
-};
-
-export const searchHashtags = async (
-    query: string,
-    limit?: number,
-): Promise<string[]> => {
-    const params = new URLSearchParams({ hashtag: query });
-    if (limit) params.append('limit', String(limit));
-
-    const posts = await apiGetJsonOrUndefinedOn404<PostResponseDto[]>(
-        `/posts?${params.toString()}`,
-    );
-    if (!posts) return [];
-
-    const normalizedQuery = query.toLowerCase();
-    const hashtags = posts
-        .flatMap((post) => post.hashtags ?? [])
-        .filter((tag) => tag.toLowerCase().includes(normalizedQuery));
-    return [...new Set(hashtags)].slice(0, limit);
+    if (!res) return { images: [], hasMore: false };
+    return {
+        images: res.data
+            .map(mapPostResponseToImageDetails)
+            .map(toImageListItem),
+        hasMore: res.hasMore,
+    };
 };
 
 export const getFeedImages = async (
+    page: number = 1,
     hashtag?: string,
     exactMatch: boolean = false,
-): Promise<ImageDetails[]> => {
-    let url = '/posts';
+): Promise<{ images: ImageDetails[]; hasMore: boolean }> => {
+    const params = new URLSearchParams();
+    params.append('page', String(page));
+    params.append('limit', '20');
+    if (hashtag) params.append('hashtag', hashtag);
+    if (exactMatch) params.append('exactMatch', 'true');
 
-    if (hashtag) {
-        const params = new URLSearchParams();
-        params.append('hashtag', hashtag);
-        if (exactMatch) params.append('exactMatch', 'true');
-        url = `/posts?${params.toString()}`;
-    }
+    const res = await apiGetJsonOrUndefinedOn404<{
+        data: PostResponseDto[];
+        hasMore: boolean;
+    }>(`/posts?${params.toString()}`);
 
-    const posts = await apiGetJsonOrUndefinedOn404<PostResponseDto[]>(url);
-    if (!posts) return [];
-    return posts.map(mapPostResponseToImageDetails);
+    if (!res) return { images: [], hasMore: false };
+    return {
+        images: res.data.map(mapPostResponseToImageDetails),
+        hasMore: res.hasMore,
+    };
 };
 
 export const getImage = async (

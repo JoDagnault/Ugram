@@ -33,9 +33,17 @@ export class PrismaPostRepository implements PostRepository {
         });
     }
 
-    async findAll(): Promise<Post[]> {
+    async findAll({
+        page,
+        limit,
+    }: {
+        page: number;
+        limit: number;
+    }): Promise<Post[]> {
         const posts = await this.prisma.post.findMany({
             orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * limit,
+            take: limit,
             include: {
                 hashtags: true,
                 mentions: true,
@@ -61,10 +69,15 @@ export class PrismaPostRepository implements PostRepository {
         return this.toDomain(p);
     }
 
-    async findByUserId(userId: string): Promise<Post[]> {
+    async findByUserId(
+        userId: string,
+        { page, limit }: { page: number; limit: number },
+    ): Promise<Post[]> {
         const posts = await this.prisma.post.findMany({
             where: { authorId: userId },
             orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * limit,
+            take: limit,
             include: {
                 hashtags: true,
                 mentions: true,
@@ -76,69 +89,64 @@ export class PrismaPostRepository implements PostRepository {
         return posts.map((p) => this.toDomain(p));
     }
 
-    async findByExactHashtag(hashtag: string): Promise<Post[]> {
+    async findByExactHashtag(
+        hashtag: string,
+        { page, limit }: { page: number; limit: number },
+    ): Promise<Post[]> {
+        const posts = await this.prisma.post.findMany({
+            where: { hashtags: { some: { name: { equals: hashtag } } } },
+            orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * limit,
+            take: limit,
+            include: {
+                hashtags: true,
+                mentions: true,
+                likes: true,
+                comments: true,
+            },
+        });
+        return posts.map((p) => this.toDomain(p));
+    }
+
+    async findByMatchingHashtag(
+        query: string,
+        { page, limit }: { page: number; limit: number },
+    ): Promise<Post[]> {
         const posts = await this.prisma.post.findMany({
             where: {
                 hashtags: {
-                    some: {
-                        name: {
-                            equals: hashtag,
-                        },
-                    },
+                    some: { name: { contains: query, mode: 'insensitive' } },
                 },
             },
+            orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * limit,
+            take: limit,
             include: {
                 hashtags: true,
                 mentions: true,
                 likes: true,
                 comments: true,
             },
-            orderBy: { createdAt: 'desc' },
-        });
-
-        return posts.map((p) => this.toDomain(p));
-    }
-
-    async findByMatchingHashtag(query: string): Promise<Post[]> {
-        const posts = await this.prisma.post.findMany({
-            where: {
-                hashtags: {
-                    some: {
-                        name: {
-                            contains: query,
-                            mode: 'insensitive',
-                        },
-                    },
-                },
-            },
-            include: {
-                hashtags: true,
-                mentions: true,
-                likes: true,
-                comments: true,
-            },
-            orderBy: { createdAt: 'desc' },
         });
         return posts.map((p) => this.toDomain(p));
     }
 
-    async findByDescription(query: string): Promise<Post[]> {
+    async findByDescription(
+        query: string,
+        { page, limit }: { page: number; limit: number },
+    ): Promise<Post[]> {
         const posts = await this.prisma.post.findMany({
-            where: {
-                description: {
-                    contains: query,
-                    mode: 'insensitive',
-                },
-            },
+            where: { description: { contains: query, mode: 'insensitive' } },
+            orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * limit,
+            take: limit,
             include: {
                 hashtags: true,
                 mentions: true,
                 likes: true,
                 comments: true,
             },
-            orderBy: { createdAt: 'desc' },
         });
-
         return posts.map((p) => this.toDomain(p));
     }
 
@@ -194,6 +202,23 @@ export class PrismaPostRepository implements PostRepository {
     async getPopularHashtags(limit: number = 10): Promise<HashtagStats[]> {
         const result = await this.prisma.postHashtag.groupBy({
             by: ['name'],
+            _count: { name: true },
+            orderBy: { _count: { name: 'desc' } },
+            take: limit,
+        });
+        return result.map((r) => new HashtagStats(r.name, r._count.name));
+    }
+
+    async searchHashtagsByQuery(
+        query: string,
+        limit: number = 20,
+    ): Promise<HashtagStats[]> {
+        const normalizedQuery = query.trim().toLowerCase();
+        if (!normalizedQuery) return [];
+
+        const result = await this.prisma.postHashtag.groupBy({
+            by: ['name'],
+            where: { name: { contains: normalizedQuery, mode: 'insensitive' } },
             _count: { name: true },
             orderBy: { _count: { name: 'desc' } },
             take: limit,

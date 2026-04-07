@@ -18,6 +18,7 @@ import { CommentDto } from './dto/comment.dto';
 import { PostLike } from '../../domain/posts/post-like';
 import { PostComment } from '../../domain/posts/post-comment';
 import { GetPopularHashtagsUsecase } from '../../application/posts/get-popular-hashtags.usecase';
+import { SearchHashtagsByQueryUsecase } from '../../application/posts/search-hashtags-by-query.usecase';
 
 export class PostController {
     constructor(
@@ -31,6 +32,7 @@ export class PostController {
         private readonly commentPost: CommentPostUseCase,
         private readonly likePost: LikePostUseCase,
         private readonly getPopularHashtagsUsecase: GetPopularHashtagsUsecase,
+        private readonly searchHashtagsByQueryUsecase: SearchHashtagsByQueryUsecase,
         private postAssembler: PostAssembler,
     ) {}
     createPostHandler = async (
@@ -61,11 +63,25 @@ export class PostController {
         req: Request<{ userId?: string }>,
         res: Response,
     ) => {
-        const { q, hashtag, exactMatch } = req.query as {
+        const {
+            q,
+            hashtag,
+            exactMatch,
+            page = '1',
+            limit = '20',
+        } = req.query as {
             q?: string;
             hashtag?: string;
             exactMatch?: string;
+            page?: string;
+            limit?: string;
         };
+
+        const pagination = {
+            page: parseInt(page),
+            limit: parseInt(limit),
+        };
+
         const { userId: userIdParam } = req.params;
         const userId: string | undefined =
             userIdParam === 'me' ? req.userId : userIdParam;
@@ -74,14 +90,20 @@ export class PostController {
         if (hashtag && !userId) {
             posts =
                 exactMatch === 'true'
-                    ? await this.searchPostsByHashtag.executeExact(hashtag)
-                    : await this.searchPostsByHashtag.execute(hashtag);
+                    ? await this.searchPostsByHashtag.executeExact(
+                          hashtag,
+                          pagination,
+                      )
+                    : await this.searchPostsByHashtag.execute(
+                          hashtag,
+                          pagination,
+                      );
         } else if (q && !userId) {
-            posts = await this.searchPostsByDescription.execute(q);
+            posts = await this.searchPostsByDescription.execute(q, pagination);
         } else if (userId) {
-            posts = await this.getAllPosts.executeForUser(userId);
+            posts = await this.getAllPosts.executeForUser(userId, pagination);
         } else {
-            posts = await this.getAllPosts.execute();
+            posts = await this.getAllPosts.execute(pagination);
         }
 
         req.userLogger.debug('Posts fetched', {
@@ -89,11 +111,14 @@ export class PostController {
             targetId: userId,
         });
 
-        const postsDTO: ResponsePostDTO[] = posts.map(
-            (post: Post): ResponsePostDTO =>
-                this.postAssembler.toPostDTO(post, req.userId),
+        const postsDTO = posts.map((post) =>
+            this.postAssembler.toPostDTO(post, req.userId),
         );
-        return res.status(200).json(postsDTO);
+
+        return res.status(200).json({
+            data: postsDTO,
+            hasMore: postsDTO.length === pagination.limit,
+        });
     };
 
     getPostByIdHandler = async (
@@ -310,6 +335,48 @@ export class PostController {
             return res.status(200).json(hashtags);
         } catch (error) {
             req.userLogger.error('Failed to fetch popular hashtags', { error });
+            next(error);
+        }
+    };
+
+    searchHashtagsByQuery = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const { q } = req.query as { q?: string };
+            const rawLimit = req.query.limit;
+            const limit = rawLimit ? Number(rawLimit) : 20;
+
+            if (!q) {
+                req.userLogger.warn('Missing query parameter');
+                return res
+                    .status(400)
+                    .json({ message: 'Query parameter is required' });
+            }
+
+            if (rawLimit && Number.isNaN(limit)) {
+                req.userLogger.warn('Invalid limit parameter', { rawLimit });
+                return res
+                    .status(400)
+                    .json({ message: 'Invalid limit parameter' });
+            }
+
+            const hashtags = await this.searchHashtagsByQueryUsecase.execute(
+                q,
+                limit,
+            );
+
+            req.userLogger.info('Hashtags searched', {
+                query: q,
+                count: hashtags.length,
+                limit,
+            });
+
+            return res.status(200).json(hashtags);
+        } catch (error) {
+            req.userLogger.error('Failed to search hashtags', { error });
             next(error);
         }
     };

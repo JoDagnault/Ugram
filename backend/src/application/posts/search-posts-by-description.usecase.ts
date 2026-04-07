@@ -4,11 +4,12 @@ import { PostRepository } from '../../domain/posts/post.repository';
 export class SearchPostsByDescriptionUsecase {
     constructor(private readonly postsRepository: PostRepository) {}
 
-    async execute(query: string): Promise<Post[]> {
+    async execute(
+        query: string,
+        pagination: { page: number; limit: number },
+    ): Promise<Post[]> {
         const trimmed = query.trim();
-        if (!trimmed) {
-            return [];
-        }
-        return this.postsRepository.findByDescription(trimmed);
+        if (!trimmed) return [];
+        return this.postsRepository.findByDescription(trimmed, pagination);
     }
 }
