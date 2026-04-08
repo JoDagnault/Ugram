@@ -82,4 +82,10 @@ export class InMemoryUserRepository implements UserRepository {
         }
         this.usersById.delete(id);
     }
+
+    async mentionedUserIdsExist(ids: string[]): Promise<boolean> {
+        const users = await this.getAll();
+        const existingIds = new Set(users.map((u) => u.id));
+        return ids.every((id) => existingIds.has(id));
+    }
 }

@@ -34,8 +34,6 @@ RUN chmod +x /usr/local/bin/wait-for-it.sh
 RUN npm install -g pnpm
 RUN pnpm install --prod --ignore-scripts --frozen-lockfile --filter backend...
 
-ENV NODE_ENV=production
-
 EXPOSE 3000
 
 CMD ["sh","-c","pnpm --dir backend run prisma:migrate:deploy && exec node backend/dist/src/index.js"]

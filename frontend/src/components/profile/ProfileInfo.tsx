@@ -3,7 +3,8 @@ import { PencilSquareIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 import EditProfileModal from './EditProfileModal.tsx';
 import { updateMe } from '../../api/users/usersService.ts';
-import * as Sentry from '@sentry/react';
+import type { Logger } from '../../logger/logger.interface.ts';
+import { useLogger } from '../../logger/logger.context.tsx';
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
     day: '2-digit',
@@ -18,6 +19,7 @@ type Props = {
 };
 
 const ProfileInfo = ({ user, isMyProfile, onUserUpdated }: Props) => {
+    const logger: Logger = useLogger();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(user);
     const [updateError, setUpdateError] = useState<string | null>(null);
@@ -32,9 +34,9 @@ const ProfileInfo = ({ user, isMyProfile, onUserUpdated }: Props) => {
             setCurrentUser(savedUser);
             onUserUpdated?.();
             setIsModalOpen(false);
-            Sentry.logger.info(`User ${savedUser.id} updated`);
+            logger.info(`User ${savedUser.id} updated`);
         } catch (error: any) {
-            Sentry.logger.warn('User updated failed');
+            logger.warn('User updated failed');
             setUpdateError(error.message);
         }
     };

@@ -7,4 +7,12 @@ export type PostResponseDto = {
     mentions: string[];
     createdAt: string;
     isOwner: boolean;
+    isLiked: boolean;
+    likes: { from: string; createdAt: string }[];
+    comments: {
+        id: string;
+        comment: string;
+        from: string;
+        createdAt: string;
+    }[];
 };

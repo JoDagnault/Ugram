@@ -1,12 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate } from 'react-router';
-import { getMe, getUsers } from '../api/users/usersService';
+import { getMe } from '../api/users/usersService';
 import type { UserListItem } from '../types/user';
 import ImageSearchResults from '../components/search/ImageSearchResults.tsx';
 import UserSearchResults from '../components/search/UserSearchResults.tsx';
-import * as Sentry from '@sentry/react';
+import { useLogger } from '../logger/logger.context.tsx';
+import type { Logger } from '../logger/logger.interface.ts';
+import { useUsers } from '../hooks/useUsers.ts';
 
 export default function Search() {
+    const logger = useRef<Logger>(useLogger());
     const location = useLocation();
     const navigate = useNavigate();
     const onResultsPage = useMatch('/Search/results');
@@ -20,7 +23,7 @@ export default function Search() {
         return params.get('q')?.trim() ?? '';
     });
 
-    const [users, setUsers] = useState<UserListItem[]>([]);
+    const users: UserListItem[] = useUsers();
     const [meId, setMeId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -32,15 +35,11 @@ export default function Search() {
     useEffect(() => {
         let ignore = false;
 
-        Promise.all([
-            getUsers().catch(() => [] as UserListItem[]),
-            getMe().catch(() => undefined),
-        ])
-            .then(([fetchedUsers, me]) => {
+        Promise.all([getMe().catch(() => undefined)])
+            .then(([me]) => {
                 if (ignore) return;
-                setUsers(fetchedUsers);
                 setMeId(me?.id ?? null);
-                Sentry.logger.info(`User ${me!.id} opened search page`);
+                logger.current.info(`User ${me!.id} opened search page`);
             })
             .finally(() => {
                 if (!ignore) setLoading(false);

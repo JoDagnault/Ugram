@@ -1,14 +1,16 @@
 name: Backend CD
 
 on:
-    push:
-        paths:
-            - 'backend/**'
-            - 'package.json'
-            - 'pnpm-lock.yaml'
-            - 'pnpm-workspace.yaml'
-            - '.github/workflows/backend-cd.yml'
-    workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/backend-cd.yml'
+  workflow_dispatch:
 
 jobs:
     deploy:

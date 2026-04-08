@@ -18,6 +18,8 @@ model User {
   phoneNumber       String
   posts             Post[]
   mentionedIn       PostMention[]
+  postsLikes             PostLike[]
+  postsComments          PostComment[]
 
   @@map("users")
 }
@@ -29,6 +31,8 @@ model Post {
   description String
   hashtags    PostHashtag[]
   mentions    PostMention[]
+  comments    PostComment[]
+  likes       PostLike[]
   createdAt   DateTime @default(now())
 
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -51,6 +55,29 @@ model PostHashtag {
   post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([name])  // ← important pour les performances de recherche
+}
+
+model PostLike {
+  id        String   @id @default(uuid())
+  postId    String
+  from      String
+  createdAt DateTime @default(now())
+
+  post      Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User   @relation(fields: [from], references: [id], onDelete: Cascade)
+
+  @@unique([postId, from])
+}
+
+model PostComment {
+  id        String   @id @default(uuid())
+  postId    String
+  from      String
+  comment   String
+  createdAt DateTime @default(now())
+
+  post      Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User   @relation(fields: [from], references: [id], onDelete: Cascade)
 }
 
 model RevokedToken {

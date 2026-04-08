@@ -63,11 +63,24 @@ export default function SearchResults() {
         });
     };
 
-    const { status: hashtagStatus, images: hashtagImages } =
-        useImageSearchByHashtag(activeTab === 'hashtags' ? query : '');
+    const {
+        status: hashtagStatus,
+        images: hashtagImages,
+        hasMore: hashtagHasMore,
+        loaderRef: hashtagLoaderRef,
+    } = useImageSearchByHashtag(activeTab === 'hashtags' ? query : '');
 
-    const { status: imageStatus, images: descriptionImages } =
-        useImageSearchByDescription(activeTab === 'images' ? query : '');
+    const {
+        status: imageStatus,
+        images: descriptionImages,
+        hasMore: descriptionHasMore,
+        loaderRef: descriptionLoaderRef,
+    } = useImageSearchByDescription(activeTab === 'images' ? query : '');
+
+    const loaderRef =
+        activeTab === 'hashtags' ? hashtagLoaderRef : descriptionLoaderRef;
+    const hasMore =
+        activeTab === 'hashtags' ? hashtagHasMore : descriptionHasMore;
 
     const isLoading =
         activeTab === 'hashtags'
@@ -141,6 +154,12 @@ export default function SearchResults() {
                         </div>
                     ))
                 )}
+                <div
+                    ref={loaderRef}
+                    className="py-4 text-center text-dark-gray text-sm"
+                >
+                    {hasMore ? 'Loading...' : ''}
+                </div>
             </div>
 
             {selectedImage && (

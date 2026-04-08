@@ -8,4 +8,5 @@ export interface UserRepository {
     findByUsername(username: string): Promise<UserProfile | undefined>;
     save(user: UserProfile): Promise<void>;
     deleteById(id: string): Promise<void>;
+    mentionedUserIdsExist(ids: string[]): Promise<boolean>;
 }

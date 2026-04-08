@@ -1,25 +1,56 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 import { getMe, getUser } from '../api/users/usersService';
 import { getUserImages } from '../api/images/imagesService';
 import type { MyUser, UserProfile } from '../types/user';
 import type { ImageListItem } from '../types/image';
-import * as Sentry from '@sentry/react';
 import ProfileInfo from '../components/profile/ProfileInfo.tsx';
 import UserGallery from '../components/image/Gallery/UserGallery.tsx';
 import ImageModal from '../components/image/ImageModal/ImageModal.tsx';
+import type { Logger } from '../logger/logger.interface.ts';
+import { useLogger } from '../logger/logger.context.tsx';
 
 const Profile = () => {
+    const logger = useRef<Logger>(useLogger());
     const { userId } = useParams();
     const [user, setUser] = useState<MyUser | UserProfile | null>(null);
     const [images, setImages] = useState<ImageListItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [showLoading, setShowLoading] = useState(false);
-
+    const [hasMore, setHasMore] = useState(true);
+    const [ready, setReady] = useState(false);
     const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const isMyProfile = useMemo(() => !userId, [userId]);
+    const loaderRef = useRef<HTMLDivElement>(null);
+    const pageRef = useRef(1);
+    const hasMoreRef = useRef(true);
+    const isLoadingMore = useRef(false);
+    const userIdRef = useRef<string | null>(null);
+
+    const updateHasMore = (more: boolean) => {
+        setHasMore(more);
+        hasMoreRef.current = more;
+    };
+
+    const loadMoreRef = useRef(async () => {
+        if (isLoadingMore.current || !hasMoreRef.current || !userIdRef.current)
+            return;
+        isLoadingMore.current = true;
+        try {
+            const nextPage = pageRef.current + 1;
+            const { images: imgs, hasMore: more } = await getUserImages(
+                userIdRef.current,
+                nextPage,
+            );
+            setImages((prev) => [...prev, ...imgs]);
+            updateHasMore(more);
+            pageRef.current = nextPage;
+        } finally {
+            isLoadingMore.current = false;
+        }
+    });
 
     useEffect(() => {
         let ignore = false;
@@ -32,22 +63,28 @@ const Profile = () => {
                 const nextUser = isMyProfile
                     ? await getMe()
                     : await getUser(userId!);
-                if (!nextUser) return;
+                if (!nextUser || ignore) return;
 
-                const nextImages = await getUserImages(nextUser.id);
+                userIdRef.current = nextUser.id;
+                const { images: nextImages, hasMore: more } =
+                    await getUserImages(nextUser.id, 1);
                 if (ignore) return;
 
                 setUser(nextUser);
                 setImages(nextImages);
-                Sentry.logger.info(`User ${nextUser.id} opened its profile`);
+                updateHasMore(more);
+                pageRef.current = 1;
+                logger.current.info(`User ${nextUser.id} opened its profile`);
             } finally {
                 if (!ignore) {
                     setLoading(false);
                     setShowLoading(false);
+                    setReady(true);
                 }
             }
         };
 
+        setReady(false);
         fetchData();
         return () => {
             ignore = true;
@@ -55,10 +92,30 @@ const Profile = () => {
         };
     }, [userId, isMyProfile]);
 
+    useEffect(() => {
+        if (!ready || !loaderRef.current) return;
+        const node = loaderRef.current;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) loadMoreRef.current();
+            },
+            { threshold: 0.1 },
+        );
+
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, [ready]);
+
     const refreshImages = async () => {
-        if (!user) return;
-        const imgs = await getUserImages(user.id);
+        if (!userIdRef.current) return;
+        const { images: imgs, hasMore: more } = await getUserImages(
+            userIdRef.current,
+            1,
+        );
         setImages(imgs);
+        updateHasMore(more);
+        pageRef.current = 1;
     };
 
     const refreshUser = async () => {
@@ -95,6 +152,13 @@ const Profile = () => {
                     images={images}
                     onImageClick={(id) => setSelectedImageId(id)}
                 />
+
+                <div
+                    ref={loaderRef}
+                    className="py-4 text-center text-dark-gray text-sm"
+                >
+                    {hasMore ? 'Loading...' : 'No other post'}
+                </div>
 
                 {isMyProfile && isCreateModalOpen && (
                     <ImageModal

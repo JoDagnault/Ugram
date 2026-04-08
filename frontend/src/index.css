@@ -24,6 +24,19 @@
         font-style: normal;
         font-variation-settings: 'YEAR' 1990;
     }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #6b7280;
+        border-radius: 9999px;
+    }
 }
 
 @layer base {

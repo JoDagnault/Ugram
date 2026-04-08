@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import { authMiddleware } from './middleware/auth.middleware';
 import { UPLOAD_DIR } from './config/storage';
 import { UserModule } from './api/users/user.module';
@@ -9,8 +8,10 @@ import { errorHandler } from './middleware/error.handler';
 import { AuthModule } from './api/auth/auth.module';
 import { createHealthRouter } from './api/health/health.router';
 import { httpLogger } from './middleware/httpLogger';
-
-dotenv.config();
+import { PrismaPostRepository } from './infrastructure/posts/post.repository.prisma';
+import { PrismaRevokedTokenRepository } from './infrastructure/auth/revoked-token.repository.prisma';
+import { getPrismaClient } from './infrastructure/prisma/client';
+import { PrismaUserRepository } from './infrastructure/users/user.repository.prisma';
 
 const app = express();
 
@@ -27,18 +28,19 @@ app.use((req, res, next) => {
 app.use('/health', createHealthRouter());
 app.use('/uploads', express.static(UPLOAD_DIR));
 
-const postModule = PostModule();
-const userModule = UserModule(postModule.postRepository);
-const authModule = AuthModule(userModule.userRepository);
+const prisma = getPrismaClient();
+const postRepository = new PrismaPostRepository(prisma);
+const userRepository = new PrismaUserRepository(prisma);
+const revokedTokenRepository = new PrismaRevokedTokenRepository(prisma);
 
-app.use(
-    '/users',
-    authMiddleware(authModule.revokedTokenRepository),
-    userModule.router,
-);
+const postModule = PostModule(postRepository, userRepository);
+const userModule = UserModule(userRepository);
+const authModule = AuthModule(userRepository, revokedTokenRepository);
+
+app.use('/users', authMiddleware(revokedTokenRepository), userModule.router);
 app.use(
     '/posts',
-    authMiddleware(authModule.revokedTokenRepository),
+    authMiddleware(revokedTokenRepository),
     postModule.publicRouter,
 );
 

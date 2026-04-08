@@ -9,12 +9,21 @@ export class InMemoryPostsRepository implements PostRepository {
         this.posts.push(post);
     }
 
-    async findAll(): Promise<Post[]> {
-        return [...this.posts].sort(
+    async findAll({
+        page,
+        limit,
+    }: {
+        page: number;
+        limit: number;
+    }): Promise<Post[]> {
+        const sorted = [...this.posts].sort(
             (a: Post, b: Post): number =>
                 new Date(b.createdAt).getTime() -
                 new Date(a.createdAt).getTime(),
         );
+
+        const start = (page - 1) * limit;
+        return sorted.slice(start, start + limit);
     }
 
     async findById(id: string): Promise<Post> {
@@ -40,58 +49,115 @@ export class InMemoryPostsRepository implements PostRepository {
         this.posts.splice(index, 1);
     }
 
-    async findByUserId(userId: string): Promise<Post[]> {
-        return [
-            ...this.posts.filter(
-                (post: Post): boolean => post.userId === userId,
-            ),
-        ].sort(
-            (a: Post, b: Post): number =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime(),
-        );
+    async findByUserId(
+        userId: string,
+        { page, limit }: { page: number; limit: number },
+    ): Promise<Post[]> {
+        const start = (page - 1) * limit;
+        return [...this.posts.filter((post: Post) => post.userId === userId)]
+            .sort(
+                (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime(),
+            )
+            .slice(start, start + limit);
     }
 
-    async findByExactHashtag(hashtag: string): Promise<Post[]> {
+    async findByExactHashtag(
+        hashtag: string,
+        { page, limit }: { page: number; limit: number },
+    ): Promise<Post[]> {
+        const start = (page - 1) * limit;
         return [
-            ...this.posts.filter((post: Post): boolean =>
+            ...this.posts.filter((post) =>
                 post.hashtags.some(
                     (tag) => tag.toLowerCase() === hashtag.toLowerCase(),
                 ),
             ),
-        ].sort(
-            (a: Post, b: Post): number =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime(),
-        );
+        ]
+            .sort(
+                (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime(),
+            )
+            .slice(start, start + limit);
     }
 
-    async findByMatchingHashtag(matchingHashtag: string): Promise<Post[]> {
+    async findByMatchingHashtag(
+        matchingHashtag: string,
+        { page, limit }: { page: number; limit: number },
+    ): Promise<Post[]> {
         const normalized = matchingHashtag.toLowerCase();
+        const start = (page - 1) * limit;
         return [
-            ...this.posts.filter((post: Post): boolean =>
+            ...this.posts.filter((post) =>
                 post.hashtags.some((tag) =>
                     tag.toLowerCase().includes(normalized),
                 ),
             ),
-        ].sort(
-            (a: Post, b: Post): number =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime(),
-        );
+        ]
+            .sort(
+                (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime(),
+            )
+            .slice(start, start + limit);
     }
 
-    async findByDescription(query: string): Promise<Post[]> {
+    async findByDescription(
+        query: string,
+        { page, limit }: { page: number; limit: number },
+    ): Promise<Post[]> {
         const normalized = query.toLowerCase();
+        const start = (page - 1) * limit;
         return [
-            ...this.posts.filter((post: Post): boolean =>
+            ...this.posts.filter((post) =>
                 post.description.toLowerCase().includes(normalized),
             ),
-        ].sort(
-            (a: Post, b: Post): number =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime(),
-        );
+        ]
+            .sort(
+                (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime(),
+            )
+            .slice(start, start + limit);
+    }
+    async getPopularHashtags(
+        limit: number = 10,
+    ): Promise<{ name: string; count: number }[]> {
+        const counts: Record<string, number> = {};
+        for (const post of this.posts) {
+            for (const hashtag of post.hashtags) {
+                counts[hashtag] = (counts[hashtag] || 0) + 1;
+            }
+        }
+        return Object.entries(counts)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, limit);
+    }
+
+    async searchHashtagsByQuery(
+        query: string,
+        limit: number = 20,
+    ): Promise<{ name: string; count: number }[]> {
+        const normalizedQuery = query.trim().toLowerCase();
+        if (!normalizedQuery) return [];
+
+        const counts: Record<string, number> = {};
+        for (const post of this.posts) {
+            for (const hashtag of post.hashtags) {
+                const normalizedHashtag = hashtag.toLowerCase();
+                if (normalizedHashtag.includes(normalizedQuery)) {
+                    counts[normalizedHashtag] =
+                        (counts[normalizedHashtag] || 0) + 1;
+                }
+            }
+        }
+        return Object.entries(counts)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, limit);
     }
 
     async removeMentionsOfUser(userId: string): Promise<void> {

@@ -14,7 +14,14 @@ import useHashtagEditor, {
 } from './useHashtagEditor.ts';
 import useMentionEditor from './useMentionEditor.ts';
 import { prepareImageForUpload } from '../imageCompression.ts';
+<<<<<<< images-resizing
 import ImageEditor, { type ImageEditorResult } from './ImageEditor.tsx';
+=======
+import { z } from 'zod';
+import { FILTERS } from './filters';
+
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+>>>>>>> main
 
 type ImageFormErrors = {
     description?: string;
@@ -31,6 +38,15 @@ const MAX_DESCRIPTION_LENGTH = 300;
 
 const toMentionLabel = (value: string): string =>
     value.startsWith('@') ? value : `@${value}`;
+
+const ImageFormSchema = z.object({
+    description: z
+        .string()
+        .max(300, `Max ${MAX_DESCRIPTION_LENGTH} characters`),
+    hashtags: z.array(z.string()),
+    mentions: z.array(z.string()),
+    file: z.instanceof(File).optional(),
+});
 
 type Props = {
     initial: ImageDetailsFields;
@@ -53,6 +69,8 @@ export default function EditImageForm({
 
     const [description, setDescription] = useState(initial.description);
     const [file, setFile] = useState<File>();
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [selectedFilter, setSelectedFilter] = useState('none');
     const [errors, setErrors] = useState<ImageFormErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -113,6 +131,7 @@ export default function EditImageForm({
             return;
         }
 
+<<<<<<< images-resizing
         setPendingFile(selectedFile);
         setFileError();
         setSubmitError();
@@ -123,6 +142,23 @@ export default function EditImageForm({
     }: ImageEditorResult) => {
         try {
             setFile(await prepareImageForUpload(resizedFile));
+=======
+        if (!ALLOWED_MIME_TYPES.includes(selectedFile.type)) {
+            setFile(undefined);
+            setFileError('Invalid file type. Allowed: JPEG, PNG, WebP');
+            return;
+        }
+
+        try {
+            setFile(selectedFile);
+            if (selectedFile) {
+                const url = URL.createObjectURL(selectedFile);
+                setPreviewUrl(url);
+            }
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+>>>>>>> main
             setFileError();
             setSubmitError();
         } catch (error) {
@@ -156,21 +192,29 @@ export default function EditImageForm({
             file,
         };
 
-        const nextErrors: ImageFormErrors = {};
-        if (next.description.length > MAX_DESCRIPTION_LENGTH) {
-            nextErrors.description = `Max ${MAX_DESCRIPTION_LENGTH} characters`;
-        }
-        if (isCreateMode && !next.file) {
-            nextErrors.file = errors.file ?? 'Image file is required';
-        }
-
         if (hashtagsInput.trim()) {
-            nextErrors.hashtags =
-                'Click "Add" to add your hashtags before posting';
+            setErrors({
+                hashtags: 'Click "Add" to add your hashtags before posting',
+            });
+            return;
         }
 
-        if (Object.keys(nextErrors).length > 0) {
-            setErrors(nextErrors);
+        if (isCreateMode && !next.file) {
+            setErrors({ file: errors.file ?? 'Image file is required' });
+            return;
+        }
+
+        const result = ImageFormSchema.safeParse(next);
+
+        if (!result.success) {
+            const fieldErrors: ImageFormErrors = {};
+            for (const issue of result.error.issues) {
+                const field = issue.path[0] as keyof ImageFormErrors;
+                if (!fieldErrors[field]) {
+                    fieldErrors[field] = issue.message;
+                }
+            }
+            setErrors(fieldErrors);
             return;
         }
 
@@ -178,7 +222,16 @@ export default function EditImageForm({
 
         try {
             setIsSubmitting(true);
-            await onSubmit(next);
+            let processedFile = file;
+
+            if (isCreateMode && file) {
+                processedFile = await prepareImageForUpload(
+                    file,
+                    FILTERS.find((f) => f.id === selectedFilter)?.css,
+                );
+            }
+
+            await onSubmit({ ...next, file: processedFile });
         } catch (error) {
             const message =
                 error instanceof Error
@@ -228,7 +281,7 @@ export default function EditImageForm({
                     <input
                         ref={fileInputRef}
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/webp"
                         onChange={handleFileChange}
                         className="sr-only"
                         tabIndex={-1}
@@ -261,6 +314,41 @@ export default function EditImageForm({
                 </div>
             )}
 
+            {isCreateMode && file && (
+                <div>
+                    <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
+                        Filter
+                    </label>
+
+                    <div className="flex gap-3 overflow-x-auto py-2">
+                        {FILTERS.map((f) => (
+                            <button
+                                key={f.id}
+                                type="button"
+                                onClick={() => setSelectedFilter(f.id)}
+                                className={`flex flex-col items-center text-xs ${
+                                    selectedFilter === f.id
+                                        ? 'text-accent'
+                                        : 'text-gray-400'
+                                }`}
+                            >
+                                <div
+                                    className="w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded overflow-hidden border"
+                                    style={{
+                                        filter: f.css,
+                                        backgroundImage: previewUrl
+                                            ? `url(${previewUrl})`
+                                            : undefined,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                    }}
+                                />
+                                {f.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
             <div>
                 <label className="text-gray-400 text-xs uppercase tracking-widest mb-1">
                     Hashtags (comma separated)

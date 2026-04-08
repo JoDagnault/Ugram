@@ -1,14 +1,10 @@
-const DEFAULT_API_BASE_URL = 'http://localhost:3000';
-
-const API_BASE_URL = (import.meta.env.VITE_API_URL ?? DEFAULT_API_BASE_URL)
-    .trim()
-    .replaceAll(/\/+$/g, '');
+import { config } from '../config';
 
 const normalizePath = (path: string): string =>
     path.startsWith('/') ? path : `/${path}`;
 
 export const apiUrl = (path: string): string =>
-    `${API_BASE_URL}${normalizePath(path)}`;
+    `${config.api.BASE_URL}${normalizePath(path)}`;
 
 export const apiFetch = async (
     path: string,

@@ -16,4 +16,7 @@ export const mapPostResponseToImageDetails = (
     hashtags: post.hashtags,
     mentions: post.mentions,
     isOwner: post.isOwner,
+    isLiked: post.isLiked,
+    likes: post.likes,
+    comments: post.comments,
 });

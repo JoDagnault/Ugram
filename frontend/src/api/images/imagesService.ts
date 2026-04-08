@@ -36,40 +36,47 @@ const getCreateImageErrorMessage = async (
 
 export const getUserImages = async (
     userId: string,
-): Promise<ImageListItem[]> => {
-    const posts = await apiGetJsonOrUndefinedOn404<PostResponseDto[]>(
-        `/users/${userId}/posts`,
-    );
+    page: number = 1,
+): Promise<{ images: ImageListItem[]; hasMore: boolean }> => {
+    const params = new URLSearchParams();
+    params.append('page', String(page));
+    params.append('limit', '20');
 
-    if (!posts) return [];
+    const res = await apiGetJsonOrUndefinedOn404<{
+        data: PostResponseDto[];
+        hasMore: boolean;
+    }>(`/users/${userId}/posts?${params.toString()}`);
 
-    return posts.map(mapPostResponseToImageDetails).map(toImageListItem);
+    if (!res) return { images: [], hasMore: false };
+    return {
+        images: res.data
+            .map(mapPostResponseToImageDetails)
+            .map(toImageListItem),
+        hasMore: res.hasMore,
+    };
 };
 
-export const searchHashtags = async (
-    query: string,
-    limit?: number,
-): Promise<string[]> => {
-    const params = new URLSearchParams({ hashtag: query });
-    if (limit) params.append('limit', String(limit));
+export const getFeedImages = async (
+    page: number = 1,
+    hashtag?: string,
+    exactMatch: boolean = false,
+): Promise<{ images: ImageDetails[]; hasMore: boolean }> => {
+    const params = new URLSearchParams();
+    params.append('page', String(page));
+    params.append('limit', '20');
+    if (hashtag) params.append('hashtag', hashtag);
+    if (exactMatch) params.append('exactMatch', 'true');
 
-    const posts = await apiGetJsonOrUndefinedOn404<PostResponseDto[]>(
-        `/posts?${params.toString()}`,
-    );
-    if (!posts) return [];
+    const res = await apiGetJsonOrUndefinedOn404<{
+        data: PostResponseDto[];
+        hasMore: boolean;
+    }>(`/posts?${params.toString()}`);
 
-    const normalizedQuery = query.toLowerCase();
-    const hashtags = posts
-        .flatMap((post) => post.hashtags ?? [])
-        .filter((tag) => tag.toLowerCase().includes(normalizedQuery));
-    return [...new Set(hashtags)].slice(0, limit);
-};
-
-export const getFeedImages = async (): Promise<ImageDetails[]> => {
-    const posts = await apiGetJsonOrUndefinedOn404<PostResponseDto[]>('/posts');
-    if (!posts) return [];
-
-    return posts.map(mapPostResponseToImageDetails);
+    if (!res) return { images: [], hasMore: false };
+    return {
+        images: res.data.map(mapPostResponseToImageDetails),
+        hasMore: res.hasMore,
+    };
 };
 
 export const getImage = async (
@@ -136,4 +143,64 @@ export const deleteMyImage = async (imageId: string): Promise<boolean> => {
     }
 
     return true;
+};
+
+export const likeImage = async (imageId: string): Promise<void> => {
+    const response = await apiFetch(`/users/me/posts/${imageId}/like`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+        await handleErrorResponse(response);
+        throw new Error(`API request failed (${response.status})`);
+    }
+};
+
+export const unlikeImage = async (imageId: string): Promise<void> => {
+    const response = await apiFetch(`/users/me/posts/${imageId}/like`, {
+        method: 'DELETE',
+    });
+
+    if (!response.ok) {
+        await handleErrorResponse(response);
+        throw new Error(`API request failed (${response.status})`);
+    }
+};
+
+export const commentImage = async (
+    imageId: string,
+    comment: string,
+): Promise<ImageDetails | undefined> => {
+    const response = await apiFetch(`/users/me/posts/${imageId}/comment`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comment }),
+    });
+
+    if (!response.ok) {
+        await handleErrorResponse(response);
+        throw new Error(`API request failed (${response.status})`);
+    }
+
+    const updatedPost = (await response.json()) as PostResponseDto;
+    return mapPostResponseToImageDetails(updatedPost);
+};
+
+export const uncommentImage = async (
+    imageId: string,
+    commentId: string,
+): Promise<void> => {
+    const response = await apiFetch(
+        `/users/me/posts/${imageId}/comment/${commentId}`,
+        {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+        },
+    );
+
+    if (!response.ok) {
+        await handleErrorResponse(response);
+        throw new Error(`API request failed (${response.status})`);
+    }
 };

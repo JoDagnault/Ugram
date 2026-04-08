@@ -1,14 +1,17 @@
 name: Frontend CD
 
 on:
-    push:
-        paths:
-            - 'frontend/**'
-            - 'package.json'
-            - 'pnpm-lock.yaml'
-            - 'pnpm-workspace.yaml'
-            - '.github/workflows/frontend-cd.yml'
-    workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/frontend-cd.yml'
+  workflow_dispatch:
+
 
 jobs:
     deploy:
@@ -40,6 +43,7 @@ jobs:
                   VITE_API_URL: ${{ secrets.VITE_API_URL }}
                   VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID || vars.VITE_GOOGLE_CLIENT_ID }}
                   VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+                  VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID }}
 
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4

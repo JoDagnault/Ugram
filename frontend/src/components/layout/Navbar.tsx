@@ -16,7 +16,7 @@ export default function Navbar() {
                 background:
                     'linear-gradient(90deg, #FFCC00, #FE4A05, #E30613, #009FE3)',
             }}
-            className="pb-[2px] rounded sticky top-0 w-full"
+            className="pb-0.5 rounded sticky top-0 w-full"
         >
             <nav className="flex justify-between px-3 pt-3 pb-2 md:pb-1 bg-dark">
                 <NavLink

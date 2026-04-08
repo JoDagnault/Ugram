@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { config } from '../config/config';
 import { RevokedTokenRepository } from '../domain/auth/revoked-token.repository';
 import { logger } from '../logger';
 
@@ -16,7 +17,7 @@ export const authMiddleware = (
         }
 
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+            const decoded = jwt.verify(token, config.auth.JWT_SECRET) as {
                 userId: string;
             };
 

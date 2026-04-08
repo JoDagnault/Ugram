@@ -1,15 +1,19 @@
 import { useState } from 'react';
-
-const HASHTAG_PATTERN = /^[a-zA-Z0-9_]+$/;
+import { z } from 'zod';
 
 export const MAX_HASHTAGS = 10;
 export const MAX_HASHTAG_LENGTH = 30;
 
-const HASHTAG_CHARACTERS_ERROR =
-    'Hashtags must contain only letters, numbers, underscore';
-const MAX_HASHTAGS_ERROR = `Max ${MAX_HASHTAGS} hashtags`;
-const MAX_HASHTAG_LENGTH_ERROR = `Hashtag too long (max ${MAX_HASHTAG_LENGTH} characters)`;
-
+const HashtagSchema = z
+    .string()
+    .max(
+        MAX_HASHTAG_LENGTH,
+        `Hashtag too long (max ${MAX_HASHTAG_LENGTH} characters)`,
+    )
+    .regex(
+        /^[a-zA-Z0-9_]+$/,
+        'Hashtags must contain only letters, numbers, underscore',
+    );
 export default function useHashtagEditor(initialHashtags: string[]) {
     const [hashtags, setHashtags] = useState<string[]>(initialHashtags);
     const [hashtagsInput, setHashtagsInput] = useState('');
@@ -19,46 +23,38 @@ export default function useHashtagEditor(initialHashtags: string[]) {
 
         const nextHashtags = [...hashtags];
         const seen = new Set(nextHashtags.map((tag) => tag.toLowerCase()));
-        let hasInvalidCharacters = false;
-        let reachedLimit = false;
-        let tooLong = false;
+        let error: string | undefined;
 
         for (const token of hashtagsInput.split(',')) {
             const candidate = token.trim().replace(/^#/, '');
             if (!candidate) continue;
 
-            if (candidate.length > MAX_HASHTAG_LENGTH) {
-                tooLong = true;
+            const result = HashtagSchema.safeParse(candidate);
+            if (!result.success) {
+                error = result.error.issues[0].message;
                 continue;
             }
 
-            if (!HASHTAG_PATTERN.test(candidate)) {
-                hasInvalidCharacters = true;
-                continue;
-            }
+            const normalized = candidate.toLowerCase();
+            if (seen.has(normalized)) continue;
 
-            const normalizedCandidate = candidate.toLowerCase();
-            if (seen.has(normalizedCandidate)) continue;
             if (nextHashtags.length >= MAX_HASHTAGS) {
-                reachedLimit = true;
+                error = `Max ${MAX_HASHTAGS} hashtags`;
                 continue;
             }
 
-            seen.add(normalizedCandidate);
+            seen.add(normalized);
             nextHashtags.push(candidate);
         }
 
         if (nextHashtags.length !== hashtags.length) {
             setHashtags(nextHashtags);
         }
-        if (!hasInvalidCharacters && !reachedLimit && !tooLong) {
+        if (!error) {
             setHashtagsInput('');
         }
 
-        if (tooLong) return MAX_HASHTAG_LENGTH_ERROR;
-        if (hasInvalidCharacters) return HASHTAG_CHARACTERS_ERROR;
-        if (reachedLimit) return MAX_HASHTAGS_ERROR;
-        return undefined;
+        return error;
     };
 
     const removeHashtag = (tag: string) => {

@@ -1,6 +1,3 @@
-import 'dotenv/config';
-import path from 'path';
+import { config } from './config';
 
-export const UPLOAD_DIR = process.env.UPLOAD_DIR
-    ? path.resolve(process.env.UPLOAD_DIR)
-    : path.resolve(process.cwd(), 'uploads');
+export const UPLOAD_DIR = config.uploads.DIRECTORY;

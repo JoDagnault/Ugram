@@ -13,7 +13,7 @@ const UserGallery = ({ images, onImageClick }: Props) => {
 
     return (
         <div className="w-full flex justify-center">
-            <div className="grid grid-cols-3 gap-1 max-w-[1200px]">
+            <div className="grid grid-cols-3 gap-1 max-w-300">
                 {images.map((image) => (
                     <GalleryImageCard
                         key={image.id}

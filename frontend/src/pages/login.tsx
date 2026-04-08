@@ -5,8 +5,13 @@ import { useState } from 'react';
 import RegisterModal from '../components/profile/RegisterModal.tsx';
 import { loginWithGoogle } from '../api/auth/authService.ts';
 import * as Sentry from '@sentry/react';
+import { useAuth } from '../context/AuthContext.tsx';
+import { getMe } from '../api/users/usersService.ts';
+import { useLogger } from '../logger/logger.context.tsx';
+import type { Logger } from '../logger/logger.interface.ts';
 
 export default function Login() {
+    const logger: Logger = useLogger();
     const navigate = useNavigate();
     const [pendingToken, setPendingToken] = useState<string | null>(null);
     const [pendingGoogleUser, setPendingGoogleUser] = useState<{
@@ -16,6 +21,8 @@ export default function Login() {
         picture?: string;
     } | null>(null);
 
+    const { setMe } = useAuth();
+
     const handleSuccess = async (credentialResponse: any) => {
         const token = credentialResponse.credential;
         const payload = JSON.parse(atob(token.split('.')[1]));
@@ -24,6 +31,9 @@ export default function Login() {
             const data = await loginWithGoogle(token);
             localStorage.setItem('jwt', data.jwt);
             Sentry.logger.info(`User ${data.user.id} connected`);
+            const me = await getMe();
+            setMe(me ?? null);
+            logger.info(`User ${data.user.id} connected`);
             navigate('/');
         } catch (err: any) {
             if (err.status === 400) {
