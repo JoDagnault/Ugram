@@ -35,7 +35,11 @@ const revokedTokenRepository = new PrismaRevokedTokenRepository(prisma);
 const postRepository = new PrismaPostRepository(prisma);
 
 const notificationModule = NotificationModule(userRepository);
-const postModule = PostModule(postRepository, userRepository, notificationModule.createNotification);
+const postModule = PostModule(
+    postRepository,
+    userRepository,
+    notificationModule.createNotification,
+);
 const userModule = UserModule(userRepository);
 const authModule = AuthModule(userRepository, revokedTokenRepository);
 
