@@ -18,8 +18,6 @@ import ImageEditor, { type ImageEditorResult } from './ImageEditor.tsx';
 import { z } from 'zod';
 import { FILTERS } from './filters';
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-
 type ImageFormErrors = {
     description?: string;
     hashtags?: string;
@@ -137,7 +135,9 @@ export default function EditImageForm({
         file: resizedFile,
     }: ImageEditorResult) => {
         try {
-            setFile(await prepareImageForUpload(resizedFile));
+            const processed = await prepareImageForUpload(resizedFile);
+            setFile(processed);
+            setPreviewUrl(URL.createObjectURL(processed));
             setFileError();
             setSubmitError();
         } catch (error) {
