@@ -1,24 +1,24 @@
 name: Backend CD
 
-#on:
-#  push:
-#    branches:
-#      - main
-#    paths:
-#      - 'backend/**'
-#      - 'package.json'
-#      - 'pnpm-lock.yaml'
-#      - 'pnpm-workspace.yaml'
-#      - '.github/workflows/backend-cd.yml'
-#  pull_request:
-#    branches:
-#      - main
-#    paths:
-#      - 'backend/**'
-#      - 'package.json'
-#      - 'pnpm-lock.yaml'
-#      - 'pnpm-workspace.yaml'
-#      - '.github/workflows/backend-cd.yml'
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/backend-cd.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/backend-cd.yml'
   workflow_dispatch:
 
 jobs:
