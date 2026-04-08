@@ -14,14 +14,11 @@ import useHashtagEditor, {
 } from './useHashtagEditor.ts';
 import useMentionEditor from './useMentionEditor.ts';
 import { prepareImageForUpload } from '../imageCompression.ts';
-<<<<<<< images-resizing
 import ImageEditor, { type ImageEditorResult } from './ImageEditor.tsx';
-=======
 import { z } from 'zod';
 import { FILTERS } from './filters';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
->>>>>>> main
 
 type ImageFormErrors = {
     description?: string;
@@ -131,7 +128,6 @@ export default function EditImageForm({
             return;
         }
 
-<<<<<<< images-resizing
         setPendingFile(selectedFile);
         setFileError();
         setSubmitError();
@@ -142,23 +138,6 @@ export default function EditImageForm({
     }: ImageEditorResult) => {
         try {
             setFile(await prepareImageForUpload(resizedFile));
-=======
-        if (!ALLOWED_MIME_TYPES.includes(selectedFile.type)) {
-            setFile(undefined);
-            setFileError('Invalid file type. Allowed: JPEG, PNG, WebP');
-            return;
-        }
-
-        try {
-            setFile(selectedFile);
-            if (selectedFile) {
-                const url = URL.createObjectURL(selectedFile);
-                setPreviewUrl(url);
-            }
-            if (previewUrl) {
-                URL.revokeObjectURL(previewUrl);
-            }
->>>>>>> main
             setFileError();
             setSubmitError();
         } catch (error) {

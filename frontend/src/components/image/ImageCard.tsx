@@ -54,9 +54,6 @@ export default function ImageCard({ image }: Props) {
                     />
                 </div>
 
-<<<<<<< images-resizing
-                <div className="flex flex-col p-2.5 min-[750px]:p-3 min-[1242px]:p-4 space-y-1.5 min-[750px]:space-y-2 text-xs min-[750px]:text-sm">
-=======
                 <div className="w-full flex space-x-3 min-[750px]:px-3 min-[1242px]:px-4 mt-2">
                     <LikeButton
                         imageId={image.id}
@@ -68,7 +65,6 @@ export default function ImageCard({ image }: Props) {
                 </div>
 
                 <div className="flex flex-col justify-end h-1/4 p-2.5 min-[750px]:p-3 min-[1242px]:p-4 space-y-1.5 min-[750px]:space-y-2 text-xs min-[750px]:text-sm">
->>>>>>> main
                     <div className="text-xs min-[750px]:text-sm text-gray-500">
                         {dateFormat(image.createdAt)}
                     </div>
