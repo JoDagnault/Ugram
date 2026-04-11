@@ -22,7 +22,6 @@ export class PrismaNotificationRepository implements NotificationRepository {
     async findById(id: string): Promise<Notification | null> {
         const row = await this.prisma.notification.findUnique({
             where: { id },
-            include: { fromUser: true },
         });
         if (!row) return null;
         return new Notification(
@@ -31,7 +30,6 @@ export class PrismaNotificationRepository implements NotificationRepository {
             row.fromUserId,
             row.postId,
             row.type as NotificationType,
-            row.fromUser.username,
             row.createdAt.toISOString(),
         );
     }
@@ -44,7 +42,6 @@ export class PrismaNotificationRepository implements NotificationRepository {
         const rows = await this.prisma.notification.findMany({
             where: { userId },
             orderBy: { createdAt: 'desc' },
-            include: { fromUser: true },
         });
 
         return rows.map(
@@ -55,7 +52,6 @@ export class PrismaNotificationRepository implements NotificationRepository {
                     r.fromUserId,
                     r.postId,
                     r.type as NotificationType,
-                    r.fromUser.username,
                     r.createdAt.toISOString(),
                 ),
         );

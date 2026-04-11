@@ -30,6 +30,7 @@ export function NotificationModule(userRepository: UserRepository) {
         getUserNotifications,
         deleteNotification,
         notificationBus,
+        userRepository,
     );
     const { router } = new NotificationRouter(controller);
 

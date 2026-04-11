@@ -2,12 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import { GetUserNotificationsUsecase } from '../../application/notifications/get-user-notifications.usecase';
 import { DeleteNotificationUsecase } from '../../application/notifications/delete-notification.usecase';
 import { SseNotificationBus } from '../../infrastructure/notifications/sse-notification.bus';
+import { UserRepository } from '../../domain/users/user.repository';
 
 export class NotificationController {
     constructor(
         private readonly getUserNotifications: GetUserNotificationsUsecase,
         private readonly deleteNotification: DeleteNotificationUsecase,
         private readonly notificationBus: SseNotificationBus,
+        private readonly userRepository: UserRepository,
     ) {}
 
     getNotificationsHandler = async (
@@ -19,16 +21,22 @@ export class NotificationController {
             const notifications = await this.getUserNotifications.execute(
                 req.userId!,
             );
-            return res.status(200).json(
-                notifications.map((n) => ({
-                    id: n.id,
-                    fromUserId: n.fromUserId,
-                    fromUsername: n.fromUsername,
-                    postId: n.postId,
-                    type: n.type,
-                    createdAt: n.createdAt,
-                })),
+            const result = await Promise.all(
+                notifications.map(async (n) => {
+                    const fromUser = await this.userRepository.findById(
+                        n.fromUserId,
+                    );
+                    return {
+                        id: n.id,
+                        fromUserId: n.fromUserId,
+                        fromUsername: fromUser.username,
+                        postId: n.postId,
+                        type: n.type,
+                        createdAt: n.createdAt,
+                    };
+                }),
             );
+            return res.status(200).json(result);
         } catch (error) {
             next(error);
         }

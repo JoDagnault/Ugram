@@ -44,8 +44,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                 .catch(() => {});
 
             unsubscribe?.();
-            unsubscribe = subscribeToNotifications((notification) => {
-                setNotifications((prev) => [notification, ...prev]);
+            unsubscribe = subscribeToNotifications(() => {
+                getMyNotifications()
+                    .then((notifs) => setNotifications(notifs))
+                    .catch(() => {});
                 setHasUnread(true);
             });
         };

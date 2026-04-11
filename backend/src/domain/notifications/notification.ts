@@ -7,7 +7,6 @@ export class Notification {
         private readonly _fromUserId: string,
         private readonly _postId: string,
         private readonly _type: NotificationType = NotificationType.Mention,
-        private readonly _fromUsername: string = '',
         private readonly _createdAt: string = new Date().toISOString(),
     ) {}
 
@@ -33,9 +32,5 @@ export class Notification {
 
     get createdAt(): string {
         return this._createdAt;
-    }
-
-    get fromUsername(): string {
-        return this._fromUsername;
     }
 }

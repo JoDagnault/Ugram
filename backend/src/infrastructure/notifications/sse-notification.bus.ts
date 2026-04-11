@@ -25,7 +25,6 @@ export class SseNotificationBus implements NotificationBus {
         const data = JSON.stringify({
             id: notification.id,
             fromUserId: notification.fromUserId,
-            fromUsername: notification.fromUsername,
             postId: notification.postId,
             type: notification.type,
             createdAt: notification.createdAt,
