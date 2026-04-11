@@ -8,20 +8,26 @@ import {
 import {
     getMyNotifications,
     subscribeToNotifications,
+    type NotificationDto,
 } from '../api/notifications/notificationsService.ts';
 
 type NotificationContextValue = {
     hasUnread: boolean;
     markAllRead: () => void;
+    notifications: NotificationDto[];
+    removeNotification: (id: string) => void;
 };
 
 const NotificationContext = createContext<NotificationContextValue>({
     hasUnread: false,
     markAllRead: () => {},
+    notifications: [],
+    removeNotification: () => {},
 });
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
     const [hasUnread, setHasUnread] = useState(false);
+    const [notifications, setNotifications] = useState<NotificationDto[]>([]);
 
     useEffect(() => {
         let unsubscribe: (() => void) | undefined;
@@ -31,13 +37,17 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             if (!token) return;
 
             getMyNotifications()
-                .then((notifications) => {
-                    if (notifications.length > 0) setHasUnread(true);
+                .then((notifs) => {
+                    setNotifications(notifs);
+                    if (notifs.length > 0) setHasUnread(true);
                 })
                 .catch(() => {});
 
             unsubscribe?.();
-            unsubscribe = subscribeToNotifications(() => setHasUnread(true));
+            unsubscribe = subscribeToNotifications((notification) => {
+                setNotifications((prev) => [notification, ...prev]);
+                setHasUnread(true);
+            });
         };
 
         connect();
@@ -50,9 +60,18 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const markAllRead = () => setHasUnread(false);
+    const removeNotification = (id: string) =>
+        setNotifications((prev) => prev.filter((n) => n.id !== id));
 
     return (
-        <NotificationContext.Provider value={{ hasUnread, markAllRead }}>
+        <NotificationContext.Provider
+            value={{
+                hasUnread,
+                markAllRead,
+                notifications,
+                removeNotification,
+            }}
+        >
             {children}
         </NotificationContext.Provider>
     );

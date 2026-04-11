@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
     deleteNotification,
-    getMyNotifications,
-    subscribeToNotifications,
     type NotificationDto,
 } from '../api/notifications/notificationsService.ts';
 import { getImage } from '../api/images/imagesService.ts';
@@ -17,43 +15,35 @@ const notificationMessage = (n: NotificationDto): string => {
 };
 
 export default function Notifications() {
-    const [notifications, setNotifications] = useState<NotificationDto[]>([]);
     const [postImages, setPostImages] = useState<Record<string, string>>({});
-    const { markAllRead } = useNotifications();
+    const { markAllRead, notifications, removeNotification } =
+        useNotifications();
     const navigate = useNavigate();
 
     useEffect(() => {
-        getMyNotifications()
-            .then((notifs) => {
-                setNotifications(notifs);
-                const uniquePostIds = [...new Set(notifs.map((n) => n.postId))];
-                Promise.all(
-                    uniquePostIds.map((id) =>
-                        getImage(id).then((img) =>
-                            img ? { id, url: img.imageUrl } : null,
-                        ),
-                    ),
-                ).then((results) => {
-                    const map: Record<string, string> = {};
-                    for (const r of results) {
-                        if (r) map[r.id] = r.url;
-                    }
-                    setPostImages(map);
-                });
-            })
-            .catch(() => {});
         markAllRead();
-
-        const unsubscribe = subscribeToNotifications((notification) => {
-            setNotifications((prev) => [notification, ...prev]);
-        });
-
-        return unsubscribe;
     }, []);
+
+    useEffect(() => {
+        const uniquePostIds = [...new Set(notifications.map((n) => n.postId))];
+        Promise.all(
+            uniquePostIds.map((id) =>
+                getImage(id).then((img) =>
+                    img ? { id, url: img.imageUrl } : null,
+                ),
+            ),
+        ).then((results) => {
+            const map: Record<string, string> = {};
+            for (const r of results) {
+                if (r) map[r.id] = r.url;
+            }
+            setPostImages(map);
+        });
+    }, [notifications]);
 
     const handleDelete = (id: string) => {
         deleteNotification(id).catch(() => {});
-        setNotifications((prev) => prev.filter((n) => n.id !== id));
+        removeNotification(id);
     };
 
     return (
