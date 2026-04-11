@@ -6,11 +6,13 @@ import { PostLike } from '../../domain/posts/post-like';
 import { CreateNotificationUsecase } from '../notifications/create-notification.usecase';
 import { NotificationType } from '../../domain/notifications/notification-type';
 import { Notification } from '../../domain/notifications/notification';
+import { UserRepository } from '../../domain/users/user.repository';
 
 export class LikePostUseCase {
     constructor(
         private readonly postsRepository: PostRepository,
         private readonly createNotification: CreateNotificationUsecase,
+        private readonly userRepository: UserRepository,
     ) {}
 
     async execute(
@@ -25,6 +27,7 @@ export class LikePostUseCase {
         }
         post.addLike(like);
         const updated = await this.postsRepository.update(post);
+        const fromUser = await this.userRepository.findById(userId);
         await this.createNotification.execute(
             new Notification(
                 crypto.randomUUID(),
@@ -32,6 +35,7 @@ export class LikePostUseCase {
                 userId,
                 postId,
                 NotificationType.Like,
+                fromUser.username,
             ),
         );
         return updated;

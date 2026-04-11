@@ -22,6 +22,7 @@ import { GetPopularHashtagsUsecase } from '../../application/posts/get-popular-h
 import { SearchHashtagsByQueryUsecase } from '../../application/posts/search-hashtags-by-query.usecase';
 import { NotificationType } from '../../domain/notifications/notification-type';
 import { Notification } from '../../domain/notifications/notification';
+import { UserRepository } from '../../domain/users/user.repository';
 
 export class PostController {
     constructor(
@@ -37,6 +38,7 @@ export class PostController {
         private readonly getPopularHashtagsUsecase: GetPopularHashtagsUsecase,
         private readonly searchHashtagsByQueryUsecase: SearchHashtagsByQueryUsecase,
         private readonly createNotification: CreateNotificationUsecase,
+        private readonly userRepository: UserRepository,
         private postAssembler: PostAssembler,
     ) {}
 
@@ -50,6 +52,7 @@ export class PostController {
 
             await this.createPost.execute(post);
 
+            const fromUser = await this.userRepository.findById(req.userId!);
             for (const mentionedUserId of post.mentions) {
                 await this.createNotification.execute(
                     new Notification(
@@ -58,6 +61,7 @@ export class PostController {
                         req.userId!,
                         post.id,
                         NotificationType.Mention,
+                        fromUser.username,
                     ),
                 );
             }

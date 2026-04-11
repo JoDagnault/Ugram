@@ -1,6 +1,7 @@
 import { PrismaClient } from '../../generated/prisma';
 import { Notification } from '../../domain/notifications/notification';
 import { NotificationRepository } from '../../domain/notifications/notification.repository';
+import { NotificationType } from '../../domain/notifications/notification-type';
 
 export class PrismaNotificationRepository implements NotificationRepository {
     constructor(private readonly prisma: PrismaClient) {}
@@ -29,7 +30,7 @@ export class PrismaNotificationRepository implements NotificationRepository {
             row.userId,
             row.fromUserId,
             row.postId,
-            row.type,
+            row.type as NotificationType,
             row.fromUser.username,
             row.createdAt.toISOString(),
         );
@@ -53,7 +54,7 @@ export class PrismaNotificationRepository implements NotificationRepository {
                     r.userId,
                     r.fromUserId,
                     r.postId,
-                    r.type,
+                    r.type as NotificationType,
                     r.fromUser.username,
                     r.createdAt.toISOString(),
                 ),

@@ -43,10 +43,12 @@ export function PostModule(
     const commentPost: CommentPostUseCase = new CommentPostUseCase(
         postRepository,
         createNotification,
+        userRepository,
     );
     const likePost: LikePostUseCase = new LikePostUseCase(
         postRepository,
         createNotification,
+        userRepository,
     );
 
     const assembler: PostAssembler = new PostAssembler();
@@ -69,6 +71,7 @@ export function PostModule(
         getPopularHashtagsUsecase,
         searchHashtagsByQueryUsecase,
         createNotification,
+        userRepository,
         assembler,
     );
     const routers = new PostRouter(controller);
