@@ -23,7 +23,6 @@ export class CreateNotificationUsecase {
             fromUserId,
             postId,
             type,
-            new Date().toISOString(),
             fromUser.username,
         );
 
