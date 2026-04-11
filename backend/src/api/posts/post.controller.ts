@@ -20,6 +20,7 @@ import { PostLike } from '../../domain/posts/post-like';
 import { PostComment } from '../../domain/posts/post-comment';
 import { GetPopularHashtagsUsecase } from '../../application/posts/get-popular-hashtags.usecase';
 import { SearchHashtagsByQueryUsecase } from '../../application/posts/search-hashtags-by-query.usecase';
+import { NotificationType } from '../../domain/notifications/notification-type';
 
 export class PostController {
     constructor(
@@ -53,7 +54,7 @@ export class PostController {
                     mentionedUserId,
                     req.userId!,
                     post.id,
-                    'mention',
+                    NotificationType.Mention,
                 );
             }
 

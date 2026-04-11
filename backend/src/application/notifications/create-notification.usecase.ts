@@ -2,6 +2,7 @@ import { Notification } from '../../domain/notifications/notification';
 import { NotificationRepository } from '../../domain/notifications/notification.repository';
 import { NotificationBus } from '../../domain/notifications/notification.bus';
 import { UserRepository } from '../../domain/users/user.repository';
+import { NotificationType } from '../../domain/notifications/notification-type';
 
 export class CreateNotificationUsecase {
     constructor(
@@ -14,7 +15,7 @@ export class CreateNotificationUsecase {
         userId: string,
         fromUserId: string,
         postId: string,
-        type: string = 'mention',
+        type: NotificationType = NotificationType.Mention,
     ): Promise<void> {
         const fromUser = await this.userRepository.findById(fromUserId);
         const notification = new Notification(

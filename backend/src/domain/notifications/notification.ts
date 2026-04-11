@@ -1,10 +1,12 @@
+import { NotificationType } from './notification-type';
+
 export class Notification {
     constructor(
         private readonly _id: string,
         private readonly _userId: string,
         private readonly _fromUserId: string,
         private readonly _postId: string,
-        private readonly _type: string = 'mention',
+        private readonly _type: NotificationType = NotificationType.Mention,
         private readonly _fromUsername: string = '',
         private readonly _createdAt: string = new Date().toISOString(),
     ) {}
@@ -25,7 +27,7 @@ export class Notification {
         return this._postId;
     }
 
-    get type(): string {
+    get type(): NotificationType {
         return this._type;
     }
 

@@ -4,6 +4,7 @@ import { NotFoundError } from '../../errors/not-found.error';
 import { ForbiddenError } from '../../errors/forbidden.error';
 import { Post } from '../../domain/posts/post';
 import { CreateNotificationUsecase } from '../notifications/create-notification.usecase';
+import { NotificationType } from '../../domain/notifications/notification-type';
 
 export class CommentPostUseCase {
     constructor(
@@ -27,7 +28,7 @@ export class CommentPostUseCase {
             post.userId,
             userId,
             postId,
-            'comment',
+            NotificationType.Comment,
         );
         return updated;
     }

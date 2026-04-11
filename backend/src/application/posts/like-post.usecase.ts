@@ -4,6 +4,7 @@ import { Post } from '../../domain/posts/post';
 import { ForbiddenError } from '../../errors/forbidden.error';
 import { PostLike } from '../../domain/posts/post-like';
 import { CreateNotificationUsecase } from '../notifications/create-notification.usecase';
+import { NotificationType } from '../../domain/notifications/notification-type';
 
 export class LikePostUseCase {
     constructor(
@@ -27,7 +28,7 @@ export class LikePostUseCase {
             post.userId,
             userId,
             postId,
-            'like',
+            NotificationType.Like,
         );
         return updated;
     }
