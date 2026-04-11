@@ -145,15 +145,14 @@ export class PostController {
     ) => {
         const { id: postId, userId: userIdParam } = req.params;
 
-        const ownerUserId: string | undefined =
-            userIdParam === 'me' ? req.userId : undefined;
-
         try {
             const post: Post = await this.getPostById.execute(
                 postId,
-                ownerUserId,
                 req.userId,
             );
+            if (userIdParam === 'me' && post.userId !== req.userId) {
+                return res.status(403).json({ message: 'Forbidden' });
+            }
             const responsePostDTO: ResponsePostDTO =
                 this.postAssembler.toPostDTO(post, req.userId);
             logger.debug('Post fetched', { postId });
