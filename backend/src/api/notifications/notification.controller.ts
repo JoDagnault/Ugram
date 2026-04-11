@@ -36,8 +36,14 @@ export class NotificationController {
                     };
                 }),
             );
+            req.userLogger.info('Notifications fetched', {
+                count: result.length,
+            });
             return res.status(200).json(result);
         } catch (error) {
+            req.userLogger.error('Failed to fetch notifications', {
+                error,
+            });
             next(error);
         }
     };
@@ -49,8 +55,15 @@ export class NotificationController {
     ) => {
         try {
             await this.deleteNotification.execute(req.params.id, req.userId!);
+            req.userLogger.info('Notification deleted', {
+                notificationId: req.params.id,
+            });
             return res.status(204).send();
         } catch (error) {
+            req.userLogger.error('Failed to delete notification', {
+                notificationId: req.params.id,
+                error,
+            });
             next(error);
         }
     };
@@ -63,12 +76,14 @@ export class NotificationController {
 
         const userId = req.userId!;
         this.notificationBus.register(userId, res);
+        req.userLogger.info('SSE stream opened');
 
         const heartbeat = setInterval(() => res.write(':heartbeat\n\n'), 30000);
 
         req.on('close', () => {
             clearInterval(heartbeat);
             this.notificationBus.unregister(userId, res);
+            req.userLogger.info('SSE stream closed');
         });
     };
 }

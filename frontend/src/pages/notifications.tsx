@@ -6,6 +6,7 @@ import {
 } from '../api/notifications/notificationsService.ts';
 import { getImage } from '../api/images/imagesService.ts';
 import { useNotifications } from '../context/NotificationContext.tsx';
+import { useLogger } from '../logger/logger.context.tsx';
 
 const notificationMessage = (n: NotificationDto): string => {
     const name = n.fromUsername || 'Someone';
@@ -19,9 +20,11 @@ export default function Notifications() {
     const { markAllRead, notifications, removeNotification } =
         useNotifications();
     const navigate = useNavigate();
+    const logger = useLogger();
 
     useEffect(() => {
         markAllRead();
+        logger.info('[Notifications] Page opened');
     }, []);
 
     useEffect(() => {
@@ -44,6 +47,7 @@ export default function Notifications() {
     const handleDelete = (id: string) => {
         deleteNotification(id).catch(() => {});
         removeNotification(id);
+        logger.info('[Notifications] Notification deleted', { id });
     };
 
     return (
