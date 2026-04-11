@@ -2,6 +2,7 @@ import { PrismaClient } from '../../generated/prisma';
 import { Notification } from '../../domain/notifications/notification';
 import { NotificationRepository } from '../../domain/notifications/notification.repository';
 import { NotificationType } from '../../domain/notifications/notification-type';
+import { NotFoundError } from '../../errors/not-found.error';
 
 export class PrismaNotificationRepository implements NotificationRepository {
     constructor(private readonly prisma: PrismaClient) {}
@@ -19,11 +20,11 @@ export class PrismaNotificationRepository implements NotificationRepository {
         });
     }
 
-    async findById(id: string): Promise<Notification | null> {
+    async findById(id: string): Promise<Notification> {
         const row = await this.prisma.notification.findUnique({
             where: { id },
         });
-        if (!row) return null;
+        if (!row) throw new NotFoundError('Notification not found');
         return new Notification(
             row.id,
             row.userId,
