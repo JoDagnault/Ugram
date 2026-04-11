@@ -1,5 +1,4 @@
 import { Post } from './post';
-import { PostComment } from './post-comment';
 import { HashtagStats } from './hashtag-stats';
 
 export interface PostRepository {
@@ -30,11 +29,4 @@ export interface PostRepository {
         limit: number,
     ): Promise<HashtagStats[]>;
     removeMentionsOfUser(userId: string): Promise<void>;
-    likePost(postId: string, userId: string): Promise<void>;
-    unlikePost(postId: string, userId: string): Promise<void>;
-    addComment(
-        postId: string,
-        userId: string,
-        content: string,
-    ): Promise<PostComment>;
 }

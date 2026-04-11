@@ -219,41 +219,6 @@ export class PrismaPostRepository implements PostRepository {
         await this.prisma.postMention.deleteMany({ where: { userId } });
     }
 
-    async likePost(postId: string, userId: string): Promise<void> {
-        await this.prisma.postLike.upsert({
-            where: { postId_from: { postId, from: userId } },
-            create: { id: crypto.randomUUID(), postId, from: userId },
-            update: {},
-        });
-    }
-
-    async unlikePost(postId: string, userId: string): Promise<void> {
-        await this.prisma.postLike.deleteMany({
-            where: { postId, from: userId },
-        });
-    }
-
-    async addComment(
-        postId: string,
-        userId: string,
-        content: string,
-    ): Promise<PostComment> {
-        const c = await this.prisma.postComment.create({
-            data: {
-                id: crypto.randomUUID(),
-                postId,
-                from: userId,
-                comment: content,
-            },
-        });
-        return new PostComment(
-            c.id,
-            c.comment,
-            c.from,
-            c.createdAt.toISOString(),
-        );
-    }
-
     private toDomain(p: any, requestingUserId?: string): Post {
         return new Post(
             p.id,
