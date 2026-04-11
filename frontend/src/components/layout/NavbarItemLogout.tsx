@@ -32,6 +32,7 @@ export default function NavbarItemLogout({
             await logout(token!);
             Sentry.logger.info('User logged out');
             localStorage.removeItem('jwt');
+            window.dispatchEvent(new Event('auth-logout'));
             navigate('/login');
         } catch (error: any) {
             Sentry.logger.warn('logout failed');

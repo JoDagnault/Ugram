@@ -10,6 +10,7 @@
     },
     "dependencies": {
         "@heroicons/react": "^2.2.0",
+        "@microsoft/fetch-event-source": "^2.0.1",
         "@react-oauth/google": "^0.13.4",
         "@sentry/react": "^10.14.0",
         "@tailwindcss/vite": "^4.1.18",

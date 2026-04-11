@@ -52,11 +52,20 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             });
         };
 
+        const disconnect = () => {
+            unsubscribe?.();
+            unsubscribe = undefined;
+            setNotifications([]);
+            setHasUnread(false);
+        };
+
         connect();
         window.addEventListener('auth-login', connect);
+        window.addEventListener('auth-logout', disconnect);
 
         return () => {
             window.removeEventListener('auth-login', connect);
+            window.removeEventListener('auth-logout', disconnect);
             unsubscribe?.();
         };
     }, []);

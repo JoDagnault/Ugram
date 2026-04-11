@@ -1,4 +1,5 @@
 import { apiFetch, apiUrl } from '../http.ts';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 export type NotificationDto = {
     id: string;
@@ -23,15 +24,18 @@ export const subscribeToNotifications = (
     onNotification: (notification: NotificationDto) => void,
 ): (() => void) => {
     const token = localStorage.getItem('jwt') ?? '';
-    const source = new EventSource(
-        apiUrl(
-            `/users/me/notifications/stream?token=${encodeURIComponent(token)}`,
-        ),
-    );
+    const controller = new AbortController();
 
-    source.onmessage = (event) => {
-        onNotification(JSON.parse(event.data) as NotificationDto);
-    };
+    fetchEventSource(apiUrl('/users/me/notifications/stream'), {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        signal: controller.signal,
+        onmessage(event) {
+            if (!event.data) return;
+            onNotification(JSON.parse(event.data) as NotificationDto);
+        },
+    });
 
-    return () => source.close();
+    return () => controller.abort();
 };
