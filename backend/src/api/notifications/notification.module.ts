@@ -18,7 +18,6 @@ export function NotificationModule(userRepository: UserRepository) {
     const createNotification = new CreateNotificationUsecase(
         notificationRepository,
         notificationBus,
-        userRepository,
     );
     const getUserNotifications = new GetUserNotificationsUsecase(
         notificationRepository,

@@ -5,6 +5,7 @@ import { ForbiddenError } from '../../errors/forbidden.error';
 import { PostLike } from '../../domain/posts/post-like';
 import { CreateNotificationUsecase } from '../notifications/create-notification.usecase';
 import { NotificationType } from '../../domain/notifications/notification-type';
+import { Notification } from '../../domain/notifications/notification';
 
 export class LikePostUseCase {
     constructor(
@@ -25,10 +26,13 @@ export class LikePostUseCase {
         post.addLike(like);
         const updated = await this.postsRepository.update(post);
         await this.createNotification.execute(
-            post.userId,
-            userId,
-            postId,
-            NotificationType.Like,
+            new Notification(
+                crypto.randomUUID(),
+                post.userId,
+                userId,
+                postId,
+                NotificationType.Like,
+            ),
         );
         return updated;
     }

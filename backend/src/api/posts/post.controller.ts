@@ -21,6 +21,7 @@ import { PostComment } from '../../domain/posts/post-comment';
 import { GetPopularHashtagsUsecase } from '../../application/posts/get-popular-hashtags.usecase';
 import { SearchHashtagsByQueryUsecase } from '../../application/posts/search-hashtags-by-query.usecase';
 import { NotificationType } from '../../domain/notifications/notification-type';
+import { Notification } from '../../domain/notifications/notification';
 
 export class PostController {
     constructor(
@@ -51,10 +52,13 @@ export class PostController {
 
             for (const mentionedUserId of post.mentions) {
                 await this.createNotification.execute(
-                    mentionedUserId,
-                    req.userId!,
-                    post.id,
-                    NotificationType.Mention,
+                    new Notification(
+                        crypto.randomUUID(),
+                        mentionedUserId,
+                        req.userId!,
+                        post.id,
+                        NotificationType.Mention,
+                    ),
                 );
             }
 

@@ -5,6 +5,7 @@ import { ForbiddenError } from '../../errors/forbidden.error';
 import { Post } from '../../domain/posts/post';
 import { CreateNotificationUsecase } from '../notifications/create-notification.usecase';
 import { NotificationType } from '../../domain/notifications/notification-type';
+import { Notification } from '../../domain/notifications/notification';
 
 export class CommentPostUseCase {
     constructor(
@@ -25,10 +26,13 @@ export class CommentPostUseCase {
         post.addComment(comment);
         const updated = await this.postsRepository.update(post);
         await this.createNotification.execute(
-            post.userId,
-            userId,
-            postId,
-            NotificationType.Comment,
+            new Notification(
+                crypto.randomUUID(),
+                post.userId,
+                userId,
+                postId,
+                NotificationType.Comment,
+            ),
         );
         return updated;
     }
