@@ -5,8 +5,8 @@ export class Notification {
         private readonly _fromUserId: string,
         private readonly _postId: string,
         private readonly _type: string = 'mention',
-        private readonly _createdAt: string = new Date().toISOString(),
         private readonly _fromUsername: string = '',
+        private readonly _createdAt: string = new Date().toISOString(),
     ) {}
 
     get id(): string {

@@ -30,8 +30,8 @@ export class PrismaNotificationRepository implements NotificationRepository {
             row.fromUserId,
             row.postId,
             row.type,
-            row.createdAt.toISOString(),
             row.fromUser.username,
+            row.createdAt.toISOString(),
         );
     }
 
@@ -54,8 +54,8 @@ export class PrismaNotificationRepository implements NotificationRepository {
                     r.fromUserId,
                     r.postId,
                     r.type,
-                    r.createdAt.toISOString(),
                     r.fromUser.username,
+                    r.createdAt.toISOString(),
                 ),
         );
     }
