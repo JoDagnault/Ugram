@@ -14,7 +14,6 @@ export class Post {
         private _comments: PostComment[],
         private _likes: PostLike[],
         private readonly _createdAt: string = new Date().toISOString(),
-        private _likesCount: number = 0,
         private _isLikedByMe: boolean = false,
     ) {}
 
@@ -55,7 +54,7 @@ export class Post {
     }
 
     get likesCount(): number {
-        return this._likesCount;
+        return this._likes.length;
     }
 
     get isLikedByMe(): boolean {

@@ -50,7 +50,6 @@ export class InMemoryPostsRepository implements PostRepository {
             comments,
             post.likes,
             post.createdAt,
-            likers.size,
             requestingUserId ? likers.has(requestingUserId) : false,
         );
     }

@@ -281,7 +281,6 @@ export class PrismaPostRepository implements PostRepository {
                     new PostLike(l.id, l.from, l.createdAt.toISOString()),
             ),
             p.createdAt.toISOString(),
-            p.likes.length,
             requestingUserId
                 ? p.likes.some(
                       (l: { from: string }) => l.from === requestingUserId,
