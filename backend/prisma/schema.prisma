@@ -27,15 +27,16 @@ model User {
 }
 
 model Post {
-  id          String        @id @default(uuid())
-  authorId    String
-  imageURL    String
-  description String
-  hashtags    PostHashtag[]
-  mentions    PostMention[]
-  comments    PostComment[]
-  likes       PostLike[]
-  createdAt   DateTime      @default(now())
+  id            String         @id @default(uuid())
+  authorId      String
+  imageURL      String
+  description   String
+  hashtags      PostHashtag[]
+  mentions      PostMention[]
+  comments      PostComment[]
+  likes         PostLike[]
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
 
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
@@ -91,6 +92,7 @@ model Notification {
   createdAt  DateTime @default(now())
   user       User     @relation("ReceivedNotifications", fields: [userId], references: [id], onDelete: Cascade)
   fromUser   User     @relation("SentNotifications", fields: [fromUserId], references: [id], onDelete: Cascade)
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
