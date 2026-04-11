@@ -90,7 +90,7 @@ model Notification {
   type       String   @default("mention")
   createdAt  DateTime @default(now())
   user       User     @relation("ReceivedNotifications", fields: [userId], references: [id], onDelete: Cascade)
-  fromUser   User     @relation("SentNotifications", fields: [fromUserId], references: [id])
+  fromUser   User     @relation("SentNotifications", fields: [fromUserId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
