@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ImageEditorResult {
     file: File;
 }
@@ -11,8 +9,6 @@ interface Props {
     onConfirm: (result: ImageEditorResult) => void;
     onCancel: () => void;
 }
-
-// ─── Constants ────────────────────────────────────────────────────────────────
 
 interface SizePreset {
     label: string;
@@ -31,8 +27,6 @@ const SIZE_PRESETS: SizePreset[] = [
     { label: 'Small', description: 'Max 800 px', maxDimension: 800 },
     { label: 'Thumbnail', description: 'Max 400 px', maxDimension: 400 },
 ];
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function loadImage(src: string): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
@@ -62,8 +56,6 @@ function clampDimension(value: number): number {
     return Math.max(1, Math.min(10000, Math.round(value)));
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export default function ImageEditor({
     sourceFile,
     onConfirm,
@@ -73,29 +65,24 @@ export default function ImageEditor({
     const [naturalW, setNaturalW] = useState(0);
     const [naturalH, setNaturalH] = useState(0);
 
-    // null = custom mode
     const [selectedPreset, setSelectedPreset] = useState<number | null>(0);
 
-    // String inputs to allow free typing
     const [inputW, setInputW] = useState('');
     const [inputH, setInputH] = useState('');
     const [lockAspect, setLockAspect] = useState(true);
 
-    // Effective output dimensions
     const [outputW, setOutputW] = useState(0);
     const [outputH, setOutputH] = useState(0);
 
     const [previewUrl, setPreviewUrl] = useState('');
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    // Load source file
     useEffect(() => {
         const url = URL.createObjectURL(sourceFile);
         setSrcUrl(url);
         return () => URL.revokeObjectURL(url);
     }, [sourceFile]);
 
-    // Read natural dims and initialise inputs
     useEffect(() => {
         if (!srcUrl) return;
         loadImage(srcUrl).then((img) => {
@@ -110,7 +97,6 @@ export default function ImageEditor({
         });
     }, [srcUrl]);
 
-    // When a preset is chosen, update output dims and sync inputs
     useEffect(() => {
         if (selectedPreset === null || !naturalW || !naturalH) return;
         const { w, h } = fitDimensions(
@@ -124,7 +110,6 @@ export default function ImageEditor({
         setInputH(String(h));
     }, [selectedPreset, naturalW, naturalH]);
 
-    // Redraw canvas whenever output dims change
     useEffect(() => {
         if (!srcUrl || !outputW || !outputH) return;
         const canvas = canvasRef.current;
@@ -199,7 +184,6 @@ export default function ImageEditor({
 
     return (
         <div className="flex flex-col gap-4">
-            {/* Preview */}
             <div
                 className="flex items-center justify-center bg-gray-100 dark:bg-black/30 rounded-lg overflow-hidden"
                 style={{ minHeight: 180 }}
@@ -222,7 +206,6 @@ export default function ImageEditor({
                 </p>
             )}
 
-            {/* Size presets */}
             <div>
                 <label className="text-gray-400 text-xs uppercase tracking-widest block mb-2">
                     Size presets
@@ -252,7 +235,6 @@ export default function ImageEditor({
                 </div>
             </div>
 
-            {/* Manual dimensions */}
             <div>
                 <label className="text-gray-400 text-xs uppercase tracking-widest block mb-2">
                     Custom dimensions (px)
@@ -271,7 +253,6 @@ export default function ImageEditor({
                         />
                     </div>
 
-                    {/* Aspect ratio lock */}
                     <button
                         type="button"
                         onClick={() => setLockAspect((v) => !v)}
@@ -342,10 +323,8 @@ export default function ImageEditor({
                 </div>
             </div>
 
-            {/* Hidden canvas */}
             <canvas ref={canvasRef} className="hidden" />
 
-            {/* Actions */}
             <div className="flex gap-2 justify-end pt-1">
                 <button
                     type="button"
