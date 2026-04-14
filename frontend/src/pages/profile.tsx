@@ -3,18 +3,18 @@ import { useParams } from 'react-router';
 import { getMe, getUser } from '../api/users/usersService';
 import { getUserImages } from '../api/images/imagesService';
 import type { MyUser, UserProfile } from '../types/user';
-import type { ImageListItem } from '../types/image';
 import ProfileInfo from '../components/profile/ProfileInfo.tsx';
 import UserGallery from '../components/image/Gallery/UserGallery.tsx';
 import ImageModal from '../components/image/ImageModal/ImageModal.tsx';
 import type { Logger } from '../logger/logger.interface.ts';
 import { useLogger } from '../logger/logger.context.tsx';
+import { useImages } from '../context/ImagesContext.tsx';
 
 const Profile = () => {
     const logger = useRef<Logger>(useLogger());
     const { userId } = useParams();
+    const { images, setImages } = useImages();
     const [user, setUser] = useState<MyUser | UserProfile | null>(null);
-    const [images, setImages] = useState<ImageListItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [showLoading, setShowLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
@@ -86,11 +86,13 @@ const Profile = () => {
 
         setReady(false);
         fetchData();
+
         return () => {
             ignore = true;
             clearTimeout(timer);
+            setImages([]);
         };
-    }, [userId, isMyProfile]);
+    }, [userId, isMyProfile, setImages]);
 
     useEffect(() => {
         if (!ready || !loaderRef.current) return;

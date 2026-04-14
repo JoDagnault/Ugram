@@ -1,22 +1,28 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { getFeedImages, getImage } from '../api/images/imagesService';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
-import { getFeedImages } from '../api/images/imagesService';
 import type { ImageDetails } from '../types/image';
 import ImageCard from '../components/image/ImageCard.tsx';
 import ImageModal from '../components/image/ImageModal/ImageModal.tsx';
+import CommentsBottomSheet from '../components/image/ImageModal/CommentsBottomSheet.tsx';
 import { useLogger } from '../logger/logger.context.tsx';
 import type { Logger } from '../logger/logger.interface.ts';
 import { PopularHashtags } from '../components/hashtags/PopularHashtags';
+import { useImages } from '../context/ImagesContext.tsx';
+import { useUsers } from '../hooks/useUsers.ts';
 
 export default function Home() {
     const logger = useRef<Logger>(useLogger());
-    const [images, setImages] = useState<ImageDetails[]>([]);
+    const { images, setImages, removeComment } = useImages();
+    const users = useUsers();
     const [isLoading, setIsLoading] = useState(true);
     const [showLoading, setShowLoading] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const [selectedImage, setSelectedImage] = useState<ImageDetails | null>(
         null,
     );
+    const [selectedImageForComments, setSelectedImageForComments] =
+        useState<ImageDetails | null>(null);
     const [selectedPostId, setSelectedPostId] = useState<string | null>(
         searchParams.get('post'),
     );
@@ -25,6 +31,12 @@ export default function Home() {
     const [trendingRefreshKey, setTrendingRefreshKey] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [ready, setReady] = useState(false);
+
+    const userIdToUsername = useMemo(() => {
+        const map = new Map<string, string>();
+        for (const u of users) map.set(u.id, u.username);
+        return map;
+    }, [users]);
 
     const pageRef = useRef(1);
     const hasMoreRef = useRef(true);
@@ -52,7 +64,7 @@ export default function Home() {
         } finally {
             isLoadingMore.current = false;
         }
-    }, [selectedHashtag, exactMatch]);
+    }, [selectedHashtag, exactMatch, setImages]);
 
     useEffect(() => {
         if (!selectedHashtag) {
@@ -70,7 +82,7 @@ export default function Home() {
         }
         const timer = setTimeout(() => setShowLoading(true), 300);
         return () => clearTimeout(timer);
-    }, [selectedHashtag]);
+    }, [selectedHashtag, setImages]);
 
     useEffect(() => {
         if (!ready || !loaderRef.current) return;
@@ -101,6 +113,50 @@ export default function Home() {
         setExactMatch(exact);
         const { images: imgs } = await getFeedImages(1, tag, exact);
         setImages(imgs);
+    };
+
+    const handleImageClick = async (image: ImageDetails) => {
+        const fullImage = await getImage(image.id);
+        if (fullImage) {
+            setImages((prev) =>
+                prev.map((img) => (img.id === fullImage.id ? fullImage : img)),
+            );
+            setSelectedImage(fullImage);
+        }
+    };
+
+    const handleCommentClick = async (image: ImageDetails) => {
+        const fullImage = await getImage(image.id);
+        if (fullImage) {
+            setImages((prev) =>
+                prev.map((img) => (img.id === fullImage.id ? fullImage : img)),
+            );
+            setSelectedImageForComments(fullImage);
+        }
+    };
+
+    const handleCommentPosted = async (updated: ImageDetails) => {
+        const freshImage = await getImage(updated.id);
+        if (freshImage) {
+            setImages((prev) =>
+                prev.map((img) =>
+                    img.id === freshImage.id ? freshImage : img,
+                ),
+            );
+            setSelectedImageForComments(freshImage);
+        }
+    };
+
+    const handleCommentDeleted = async (commentId: string) => {
+        if (!selectedImageForComments) return;
+        await removeComment(selectedImageForComments.id, commentId);
+        setSelectedImageForComments((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                comments: prev.comments.filter((c) => c.id !== commentId),
+            };
+        });
     };
 
     const triggerTrendingRefresh = () => setTrendingRefreshKey((k) => k + 1);
@@ -146,15 +202,18 @@ export default function Home() {
                         key={image.id}
                         role="button"
                         tabIndex={0}
-                        onClick={() => setSelectedImage(image)}
+                        onClick={() => handleImageClick(image)}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ')
-                                setSelectedImage(image);
+                                handleImageClick(image);
                         }}
                         className="cursor-pointer"
                         title="Open image"
                     >
-                        <ImageCard image={image} />
+                        <ImageCard
+                            image={image}
+                            onCommentClick={() => handleCommentClick(image)}
+                        />
                     </div>
                 ))}
 
@@ -183,9 +242,22 @@ export default function Home() {
                         triggerTrendingRefresh();
                     }}
                     onUpdated={() => {
-                        refreshFeed();
                         triggerTrendingRefresh();
                     }}
+                />
+            )}
+
+            {selectedImageForComments && (
+                <CommentsBottomSheet
+                    isOpen={!!selectedImageForComments}
+                    image={selectedImageForComments}
+                    onClose={() => {
+                        setSelectedImageForComments(null);
+                        triggerTrendingRefresh();
+                    }}
+                    userIdToUsername={userIdToUsername}
+                    onCommentDeleted={handleCommentDeleted}
+                    onCommentPosted={handleCommentPosted}
                 />
             )}
         </div>

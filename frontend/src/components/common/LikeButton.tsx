@@ -1,58 +1,58 @@
-import { useState, type MouseEvent } from 'react';
+import { type MouseEvent, useEffect, useState } from 'react';
 import { HeartIcon as HeartOutline } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
-import { likeImage, unlikeImage } from '../../api/images/imagesService.ts';
 import { useLogger } from '../../logger/logger.context.tsx';
 import type { Logger } from '../../logger/logger.interface.ts';
 
 interface LikeButtonProps {
     imageId: string;
-    initialCount: number;
-    initialLiked?: boolean;
+    count: number;
+    liked?: boolean;
     showCount?: boolean;
-    onToggle?: (liked: boolean) => void;
+    onToggle?: (liked: boolean) => Promise<void>;
     className?: string;
 }
 
 export default function LikeButton({
     imageId,
-    initialCount,
-    initialLiked = false,
+    count,
+    liked = false,
     showCount = true,
     onToggle,
     className,
 }: LikeButtonProps) {
     const logger: Logger = useLogger();
-    const [liked, setLiked] = useState(initialLiked);
-    const [count, setCount] = useState(initialCount);
+    const [isLiked, setIsLiked] = useState(liked);
+    const [optimisticCount, setOptimisticCount] = useState(count);
 
     const toggle = async (e: MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        const nextLiked = !liked;
-        setCount((c) => (liked ? c - 1 : c + 1));
-        setLiked((l) => !l);
-        onToggle?.(nextLiked);
+        const next = !isLiked;
+
+        setIsLiked(next);
+        setOptimisticCount((c) => c + (next ? 1 : -1));
+
         try {
-            if (liked) {
-                await unlikeImage(imageId);
-                logger.info(`Liked ${imageId}`);
-            } else {
-                await likeImage(imageId);
-                logger.info(`Unliked ${imageId}`);
-            }
-        } catch {
-            setCount((c) => (liked ? c + 1 : c - 1));
-            setLiked((l) => !l);
-            onToggle?.(!nextLiked);
+            await onToggle?.(next);
+            logger.info(`${next ? 'Liked' : 'Unliked'} ${imageId}`);
+        } catch (error) {
+            setIsLiked(!next);
+            setOptimisticCount((c) => c + (next ? -1 : 1));
+            logger.error('Failed to toggle like', { imageId });
         }
     };
+
+    useEffect(() => {
+        setIsLiked(liked);
+        setOptimisticCount(count);
+    }, [liked, count]);
 
     return (
         <button
             onClick={toggle}
             className={`flex items-center gap-1.5 group ${className ?? ''}`}
         >
-            {liked ? (
+            {isLiked ? (
                 <HeartSolid className="size-6 text-red-500" />
             ) : (
                 <HeartOutline className="size-6 text-gray-400 group-hover:text-red-400" />
@@ -60,10 +60,12 @@ export default function LikeButton({
             {showCount && (
                 <span
                     className={
-                        liked ? 'text-red-500 text-sm' : 'text-gray-400 text-sm'
+                        isLiked
+                            ? 'text-red-500 text-sm'
+                            : 'text-gray-400 text-sm'
                     }
                 >
-                    {count}
+                    {optimisticCount}
                 </span>
             )}
         </button>

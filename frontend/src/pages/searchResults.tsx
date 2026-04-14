@@ -1,13 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
 import type { ImageDetails } from '../types/image';
 import ImageCard from '../components/image/ImageCard';
 import ImageModal from '../components/image/ImageModal/ImageModal';
+import CommentsBottomSheet from '../components/image/ImageModal/CommentsBottomSheet.tsx';
 import {
     useImageSearchByDescription,
     useImageSearchByHashtag,
 } from '../api/images/useImageSearch';
+import { getImage } from '../api/images/imagesService';
+import { useImages } from '../context/ImagesContext.tsx';
+import { useUsers } from '../hooks/useUsers.ts';
 
 type Tab = 'hashtags' | 'images';
 
@@ -39,6 +43,11 @@ export default function SearchResults() {
     const [selectedImage, setSelectedImage] = useState<ImageDetails | null>(
         null,
     );
+    const [selectedImageForComments, setSelectedImageForComments] =
+        useState<ImageDetails | null>(null);
+
+    const users = useUsers();
+    const { images: contextImages, setImages, removeComment } = useImages();
 
     const searchParams = useMemo(
         () => new URLSearchParams(location.search),
@@ -77,8 +86,31 @@ export default function SearchResults() {
         loaderRef: descriptionLoaderRef,
     } = useImageSearchByDescription(activeTab === 'images' ? query : '');
 
+    const rawImages =
+        activeTab === 'hashtags' ? hashtagImages : descriptionImages;
+
+    useEffect(() => {
+        setImages(rawImages);
+    }, [rawImages, setImages]);
+
+    const searchIds = useMemo(
+        () => new Set(rawImages.map((img) => img.id)),
+        [rawImages],
+    );
+    const images = useMemo(
+        () => contextImages.filter((img) => searchIds.has(img.id)),
+        [contextImages, searchIds],
+    );
+
+    const userIdToUsername = useMemo(() => {
+        const map = new Map<string, string>();
+        for (const u of users) map.set(u.id, u.username);
+        return map;
+    }, [users]);
+
     const loaderRef =
         activeTab === 'hashtags' ? hashtagLoaderRef : descriptionLoaderRef;
+
     const hasMore =
         activeTab === 'hashtags' ? hashtagHasMore : descriptionHasMore;
 
@@ -87,7 +119,49 @@ export default function SearchResults() {
             ? hashtagStatus === 'loading'
             : imageStatus === 'loading';
 
-    const images = activeTab === 'hashtags' ? hashtagImages : descriptionImages;
+    const handleImageClick = async (image: ImageDetails) => {
+        const fullImage = await getImage(image.id);
+        if (fullImage) {
+            setImages((prev) =>
+                prev.map((img) => (img.id === fullImage.id ? fullImage : img)),
+            );
+            setSelectedImage(fullImage);
+        }
+    };
+
+    const handleCommentClick = async (image: ImageDetails) => {
+        const fullImage = await getImage(image.id);
+        if (fullImage) {
+            setImages((prev) =>
+                prev.map((img) => (img.id === fullImage.id ? fullImage : img)),
+            );
+            setSelectedImageForComments(fullImage);
+        }
+    };
+
+    const handleCommentPosted = async (updated: ImageDetails) => {
+        const freshImage = await getImage(updated.id);
+        if (freshImage) {
+            setImages((prev) =>
+                prev.map((img) =>
+                    img.id === freshImage.id ? freshImage : img,
+                ),
+            );
+            setSelectedImageForComments(freshImage);
+        }
+    };
+
+    const handleCommentDeleted = async (commentId: string) => {
+        if (!selectedImageForComments) return;
+        await removeComment(selectedImageForComments.id, commentId);
+        setSelectedImageForComments((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                comments: prev.comments.filter((c) => c.id !== commentId),
+            };
+        });
+    };
 
     if (!query) {
         return null;
@@ -141,16 +215,19 @@ export default function SearchResults() {
                             key={image.id}
                             role="button"
                             tabIndex={0}
-                            onClick={() => setSelectedImage(image)}
+                            onClick={() => handleImageClick(image)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' || e.key === ' ') {
-                                    setSelectedImage(image);
+                                    handleImageClick(image);
                                 }
                             }}
                             className="cursor-pointer"
                             title="Open image"
                         >
-                            <ImageCard image={image} />
+                            <ImageCard
+                                image={image}
+                                onCommentClick={() => handleCommentClick(image)}
+                            />
                         </div>
                     ))
                 )}
@@ -167,6 +244,17 @@ export default function SearchResults() {
                     imageId={selectedImage.id}
                     onClose={() => setSelectedImage(null)}
                     onDeleted={() => setSelectedImage(null)}
+                />
+            )}
+
+            {selectedImageForComments && (
+                <CommentsBottomSheet
+                    isOpen={!!selectedImageForComments}
+                    image={selectedImageForComments}
+                    onClose={() => setSelectedImageForComments(null)}
+                    userIdToUsername={userIdToUsername}
+                    onCommentDeleted={handleCommentDeleted}
+                    onCommentPosted={handleCommentPosted}
                 />
             )}
         </div>

@@ -2,7 +2,6 @@ import type {
     CreateImageRequest,
     ImageDetails,
     UpdateImageRequest,
-    ImageListItem,
 } from '../../types/image.ts';
 import {
     apiFetch,
@@ -11,14 +10,6 @@ import {
 } from '../http.ts';
 import { mapPostResponseToImageDetails } from './imagesMappers.ts';
 import type { PostResponseDto } from './imagesResponses.ts';
-
-const toImageListItem = (image: ImageDetails): ImageListItem => ({
-    id: image.id,
-    userId: image.userId,
-    imageUrl: image.imageUrl,
-    createdAt: image.createdAt,
-});
-
 const getCreateImageErrorMessage = async (
     response: Response,
 ): Promise<string> => {
@@ -37,7 +28,7 @@ const getCreateImageErrorMessage = async (
 export const getUserImages = async (
     userId: string,
     page: number = 1,
-): Promise<{ images: ImageListItem[]; hasMore: boolean }> => {
+): Promise<{ images: ImageDetails[]; hasMore: boolean }> => {
     const params = new URLSearchParams();
     params.append('page', String(page));
     params.append('limit', '20');
@@ -49,9 +40,7 @@ export const getUserImages = async (
 
     if (!res) return { images: [], hasMore: false };
     return {
-        images: res.data
-            .map(mapPostResponseToImageDetails)
-            .map(toImageListItem),
+        images: res.data.map(mapPostResponseToImageDetails),
         hasMore: res.hasMore,
     };
 };

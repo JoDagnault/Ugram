@@ -9,6 +9,7 @@ import ReactGA from 'react-ga4';
 import { config } from './config';
 import router from './router.tsx';
 import { AuthProvider } from './context/AuthContext.tsx';
+import { ImagesProvider } from './context/ImagesContext.tsx';
 import { SentryLogger } from './logger/logger-sentry.ts';
 import { LoggerProvider } from './logger/logger.context.tsx';
 
@@ -32,7 +33,9 @@ root.render(
                 locale="en"
             >
                 <AuthProvider>
-                    <RouterProvider router={router} />
+                    <ImagesProvider>
+                        <RouterProvider router={router} />
+                    </ImagesProvider>
                 </AuthProvider>
             </GoogleOAuthProvider>
         </LoggerProvider>

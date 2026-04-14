@@ -19,7 +19,6 @@ export default function CommentSection({
     const { me } = useAuth();
     return (
         <div className={`flex flex-col ${className}`}>
-            <hr className="border-t border-dark-gray mt-3" />
             {comments.length > 0 ? (
                 <p className="text-gray-400 text-xs uppercase tracking-widest mt-3">
                     Comments
@@ -28,7 +27,7 @@ export default function CommentSection({
                 <p className="text-gray-400 text-sm mt-3">No comments yet</p>
             )}
 
-            <div className="overflow-y-auto flex-1 min-h-0 space-y-2 py-2 custom-scrollbar">
+            <div className="overflow-y-auto flex-1 min-h-0 space-y-2 py-2 ml-2 custom-scrollbar">
                 {comments.map((c, i) => (
                     <div key={i} className="text-sm group">
                         <Link

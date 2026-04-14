@@ -5,16 +5,30 @@ import LikeButton from '../common/LikeButton.tsx';
 import CommentButton from '../common/CommentButton.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useUsers } from '../../hooks/useUsers.ts';
+import { useImages } from '../../context/ImagesContext.tsx';
+import { getImage } from '../../api/images/imagesService.ts';
 
 type Props = {
     image: ImageDetails;
+    onCommentClick?: () => void;
 };
 
 const dateFormat = (iso: string): string => new Date(iso).toLocaleDateString();
 
-export default function ImageCard({ image }: Props) {
+export default function ImageCard({ image, onCommentClick }: Props) {
     const users: UserListItem[] = useUsers();
     const { me, loading } = useAuth();
+    const { toggleLike, setImages } = useImages();
+
+    const handleToggleLike = async (liked: boolean) => {
+        const fullImage = await getImage(image.id);
+        if (fullImage) {
+            setImages((prev) =>
+                prev.map((img) => (img.id === fullImage.id ? fullImage : img)),
+            );
+            await toggleLike(fullImage.id, liked, me?.id);
+        }
+    };
 
     const userIdToUsername = useMemo(() => {
         const map = new Map<string, string>();
@@ -58,10 +72,14 @@ export default function ImageCard({ image }: Props) {
                     <LikeButton
                         imageId={image.id}
                         className="w-12"
-                        initialCount={image.likes.length}
-                        initialLiked={image.isLiked}
+                        count={image.likes.length}
+                        onToggle={handleToggleLike}
+                        liked={image.isLiked}
                     />
-                    <CommentButton count={image.comments.length} />
+                    <CommentButton
+                        count={image.comments.length}
+                        onClick={onCommentClick}
+                    />
                 </div>
 
                 <div className="flex flex-col justify-end h-1/4 p-2.5 min-[750px]:p-3 min-[1242px]:p-4 space-y-1.5 min-[750px]:space-y-2 text-xs min-[750px]:text-sm">
