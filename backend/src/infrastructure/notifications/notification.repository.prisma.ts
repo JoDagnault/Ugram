@@ -36,7 +36,11 @@ export class PrismaNotificationRepository implements NotificationRepository {
     }
 
     async delete(id: string): Promise<void> {
-        await this.prisma.notification.delete({ where: { id } });
+        try {
+            await this.prisma.notification.delete({ where: { id } });
+        } catch {
+            throw new NotFoundError('Notification not found');
+        }
     }
 
     async findByUserId(userId: string): Promise<Notification[]> {

@@ -53,7 +53,7 @@ export class PostController {
             for (const mentionedUserId of post.mentions) {
                 await this.createNotification.execute(
                     new Notification(
-                        crypto.randomUUID(),
+                        undefined,
                         mentionedUserId,
                         req.userId!,
                         post.id,

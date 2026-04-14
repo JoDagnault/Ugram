@@ -40,13 +40,21 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                 .then((notifs) => {
                     setNotifications(notifs);
                     if (notifs.length > 0) setHasUnread(true);
+                    console.info('[NotificationContext] Notifications loaded', {
+                        count: notifs.length,
+                    });
                 })
                 .catch(() => {});
 
             unsubscribe?.();
             unsubscribe = subscribeToNotifications(() => {
                 getMyNotifications()
-                    .then((notifs) => setNotifications(notifs))
+                    .then((notifs) => {
+                        setNotifications(notifs);
+                        console.info(
+                            '[NotificationContext] New notification received',
+                        );
+                    })
                     .catch(() => {});
                 setHasUnread(true);
             });

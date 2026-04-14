@@ -24,9 +24,10 @@ export class LikePostUseCase {
         }
         post.addLike(like);
         const updated = await this.postsRepository.update(post);
+        if (post.userId === userId) return updated;
         await this.createNotification.execute(
             new Notification(
-                crypto.randomUUID(),
+                undefined,
                 post.userId,
                 userId,
                 postId,

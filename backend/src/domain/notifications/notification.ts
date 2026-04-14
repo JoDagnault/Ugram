@@ -2,7 +2,7 @@ import { NotificationType } from './notification-type';
 
 export class Notification {
     constructor(
-        private readonly _id: string,
+        private readonly _id: string = crypto.randomUUID(),
         private readonly _userId: string,
         private readonly _fromUserId: string,
         private readonly _postId: string,

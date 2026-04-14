@@ -24,9 +24,10 @@ export class CommentPostUseCase {
         }
         post.addComment(comment);
         const updated = await this.postsRepository.update(post);
+        if (post.userId === userId) return updated;
         await this.createNotification.execute(
             new Notification(
-                crypto.randomUUID(),
+                undefined,
                 post.userId,
                 userId,
                 postId,
