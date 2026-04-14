@@ -6,6 +6,13 @@ import { PostComment } from '../../domain/posts/post-comment';
 import { PostLike } from '../../domain/posts/post-like';
 import { HashtagStats } from '../../domain/posts/hashtag-stats';
 
+const BASE_INCLUDE = {
+    hashtags: true,
+    mentions: true,
+    likes: true,
+    comments: true,
+};
+
 export class PrismaPostRepository implements PostRepository {
     constructor(private readonly prisma: PrismaClient) {}
 
@@ -21,12 +28,6 @@ export class PrismaPostRepository implements PostRepository {
                 },
                 mentions: {
                     create: post.mentions.map((userId) => ({ userId })),
-                },
-                likes: {
-                    create: [],
-                },
-                comments: {
-                    create: [],
                 },
                 createdAt: new Date(post.createdAt),
             },
@@ -51,22 +52,16 @@ export class PrismaPostRepository implements PostRepository {
                 comments: true,
             },
         });
-
         return posts.map((p) => this.toDomain(p));
     }
 
-    async findById(id: string): Promise<Post> {
+    async findById(id: string, requestingUserId?: string): Promise<Post> {
         const p = await this.prisma.post.findUnique({
             where: { id },
-            include: {
-                hashtags: true,
-                mentions: true,
-                likes: true,
-                comments: true,
-            },
+            include: BASE_INCLUDE,
         });
         if (!p) throw new NotFoundError('Post not found');
-        return this.toDomain(p);
+        return this.toDomain(p, requestingUserId);
     }
 
     async findByUserId(
@@ -85,7 +80,6 @@ export class PrismaPostRepository implements PostRepository {
                 comments: true,
             },
         });
-
         return posts.map((p) => this.toDomain(p));
     }
 
@@ -181,14 +175,8 @@ export class PrismaPostRepository implements PostRepository {
                     })),
                 },
             },
-            include: {
-                hashtags: true,
-                mentions: true,
-                likes: true,
-                comments: true,
-            },
+            include: BASE_INCLUDE,
         });
-
         return this.toDomain(updated);
     }
 
@@ -199,6 +187,7 @@ export class PrismaPostRepository implements PostRepository {
             throw new NotFoundError('Post not found');
         }
     }
+
     async getPopularHashtags(limit: number = 10): Promise<HashtagStats[]> {
         const result = await this.prisma.postHashtag.groupBy({
             by: ['name'],
@@ -226,7 +215,11 @@ export class PrismaPostRepository implements PostRepository {
         return result.map((r) => new HashtagStats(r.name, r._count.name));
     }
 
-    private toDomain(p: any): Post {
+    async removeMentionsOfUser(userId: string): Promise<void> {
+        await this.prisma.postMention.deleteMany({ where: { userId } });
+    }
+
+    private toDomain(p: any, requestingUserId?: string): Post {
         return new Post(
             p.id,
             p.authorId,
@@ -253,6 +246,11 @@ export class PrismaPostRepository implements PostRepository {
                     new PostLike(l.id, l.from, l.createdAt.toISOString()),
             ),
             p.createdAt.toISOString(),
+            requestingUserId
+                ? p.likes.some(
+                      (l: { from: string }) => l.from === requestingUserId,
+                  )
+                : false,
         );
     }
 }

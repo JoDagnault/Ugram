@@ -1,6 +1,7 @@
 import { PostRepository } from '../../domain/posts/post.repository';
 import { Post } from '../../domain/posts/post';
 import { NotFoundError } from '../../errors/not-found.error';
+import { HashtagStats } from '../../domain/posts/hashtag-stats';
 
 export class InMemoryPostsRepository implements PostRepository {
     private posts: Post[] = [];
@@ -26,25 +27,35 @@ export class InMemoryPostsRepository implements PostRepository {
         return sorted.slice(start, start + limit);
     }
 
-    async findById(id: string): Promise<Post> {
-        const post: Post | undefined = this.posts.find(
-            (post: Post) => post.id === id,
-        );
+    async findById(id: string, requestingUserId?: string): Promise<Post> {
+        const post: Post | undefined = this.posts.find((p) => p.id === id);
         if (!post) throw new NotFoundError('Post not found');
-        return post;
+
+        return new Post(
+            post.id,
+            post.userId,
+            post.imageURL,
+            post.description,
+            post.hashtags,
+            post.mentions,
+            post.comments,
+            post.likes,
+            post.createdAt,
+            requestingUserId
+                ? post.likes.some((l) => l.from === requestingUserId)
+                : false,
+        );
     }
 
     async update(post: Post): Promise<Post> {
-        const index: number = this.posts.findIndex(
-            (p: Post) => p.id === post.id,
-        );
+        const index: number = this.posts.findIndex((p) => p.id === post.id);
         if (index === -1) throw new NotFoundError('Post not found');
         this.posts[index] = post;
         return post;
     }
 
     async deleteById(id: string): Promise<void> {
-        const index: number = this.posts.findIndex((post) => post.id === id);
+        const index: number = this.posts.findIndex((p) => p.id === id);
         if (index === -1) throw new NotFoundError('Post not found');
         this.posts.splice(index, 1);
     }
@@ -54,7 +65,7 @@ export class InMemoryPostsRepository implements PostRepository {
         { page, limit }: { page: number; limit: number },
     ): Promise<Post[]> {
         const start = (page - 1) * limit;
-        return [...this.posts.filter((post: Post) => post.userId === userId)]
+        return [...this.posts.filter((p) => p.userId === userId)]
             .sort(
                 (a, b) =>
                     new Date(b.createdAt).getTime() -
@@ -69,8 +80,8 @@ export class InMemoryPostsRepository implements PostRepository {
     ): Promise<Post[]> {
         const start = (page - 1) * limit;
         return [
-            ...this.posts.filter((post) =>
-                post.hashtags.some(
+            ...this.posts.filter((p) =>
+                p.hashtags.some(
                     (tag) => tag.toLowerCase() === hashtag.toLowerCase(),
                 ),
             ),
@@ -90,8 +101,8 @@ export class InMemoryPostsRepository implements PostRepository {
         const normalized = matchingHashtag.toLowerCase();
         const start = (page - 1) * limit;
         return [
-            ...this.posts.filter((post) =>
-                post.hashtags.some((tag) =>
+            ...this.posts.filter((p) =>
+                p.hashtags.some((tag) =>
                     tag.toLowerCase().includes(normalized),
                 ),
             ),
@@ -111,8 +122,8 @@ export class InMemoryPostsRepository implements PostRepository {
         const normalized = query.toLowerCase();
         const start = (page - 1) * limit;
         return [
-            ...this.posts.filter((post) =>
-                post.description.toLowerCase().includes(normalized),
+            ...this.posts.filter((p) =>
+                p.description.toLowerCase().includes(normalized),
             ),
         ]
             .sort(
@@ -122,9 +133,8 @@ export class InMemoryPostsRepository implements PostRepository {
             )
             .slice(start, start + limit);
     }
-    async getPopularHashtags(
-        limit: number = 10,
-    ): Promise<{ name: string; count: number }[]> {
+
+    async getPopularHashtags(limit: number = 10): Promise<HashtagStats[]> {
         const counts: Record<string, number> = {};
         for (const post of this.posts) {
             for (const hashtag of post.hashtags) {
@@ -132,7 +142,7 @@ export class InMemoryPostsRepository implements PostRepository {
             }
         }
         return Object.entries(counts)
-            .map(([name, count]) => ({ name, count }))
+            .map(([name, count]) => new HashtagStats(name, count))
             .sort((a, b) => b.count - a.count)
             .slice(0, limit);
     }
@@ -140,7 +150,7 @@ export class InMemoryPostsRepository implements PostRepository {
     async searchHashtagsByQuery(
         query: string,
         limit: number = 20,
-    ): Promise<{ name: string; count: number }[]> {
+    ): Promise<HashtagStats[]> {
         const normalizedQuery = query.trim().toLowerCase();
         if (!normalizedQuery) return [];
 
@@ -155,7 +165,7 @@ export class InMemoryPostsRepository implements PostRepository {
             }
         }
         return Object.entries(counts)
-            .map(([name, count]) => ({ name, count }))
+            .map(([name, count]) => new HashtagStats(name, count))
             .sort((a, b) => b.count - a.count)
             .slice(0, limit);
     }

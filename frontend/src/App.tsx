@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router';
 import ReactGA from 'react-ga4';
 import Navbar from './components/layout/Navbar.tsx';
 import { config } from './config';
+import { NotificationProvider } from './context/NotificationContext.tsx';
 
 function App() {
     const location = useLocation();
@@ -18,12 +19,14 @@ function App() {
     }, [location.pathname, location.search]);
 
     return (
-        <div className="min-h-dvh bg-dark text-white">
-            {!hideNavbar && <Navbar />}
-            <main>
-                <Outlet />
-            </main>
-        </div>
+        <NotificationProvider>
+            <div className="min-h-dvh bg-dark text-white">
+                {!hideNavbar && <Navbar />}
+                <main>
+                    <Outlet />
+                </main>
+            </div>
+        </NotificationProvider>
     );
 }
 

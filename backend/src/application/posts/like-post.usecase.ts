@@ -3,9 +3,14 @@ import { NotFoundError } from '../../errors/not-found.error';
 import { Post } from '../../domain/posts/post';
 import { ForbiddenError } from '../../errors/forbidden.error';
 import { PostLike } from '../../domain/posts/post-like';
-
+import { CreateNotificationUsecase } from '../notifications/create-notification.usecase';
+import { NotificationType } from '../../domain/notifications/notification-type';
+import { Notification } from '../../domain/notifications/notification';
 export class LikePostUseCase {
-    constructor(private readonly postsRepository: PostRepository) {}
+    constructor(
+        private readonly postsRepository: PostRepository,
+        private readonly createNotification: CreateNotificationUsecase,
+    ) {}
 
     async execute(
         postId: string,
@@ -15,10 +20,21 @@ export class LikePostUseCase {
         const post = await this.postsRepository.findById(postId);
         if (!post) throw new NotFoundError('Post not found');
         if (userId !== like.from) {
-            throw new ForbiddenError('You are not allowed to comment post');
+            throw new ForbiddenError('You are not allowed to like post');
         }
         post.addLike(like);
-        return await this.postsRepository.update(post);
+        const updated = await this.postsRepository.update(post);
+        if (post.userId === userId) return updated;
+        await this.createNotification.execute(
+            new Notification(
+                undefined,
+                post.userId,
+                userId,
+                postId,
+                NotificationType.Like,
+            ),
+        );
+        return updated;
     }
 
     async executeDelete(postId: string, userId: string): Promise<Post> {

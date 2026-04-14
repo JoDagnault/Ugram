@@ -103,7 +103,9 @@ export default function ImageModal(props: Props) {
 
         getImage(imageId)
             .then((loadedImage) => {
-                if (!ignore) setImage(loadedImage ?? null);
+                if (!ignore) {
+                    setImage(loadedImage ?? null);
+                }
             })
             .finally(() => {
                 if (!ignore) setLoading(false);

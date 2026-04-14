@@ -11,6 +11,7 @@ import { DeletePostUsecase } from '../../application/posts/delete-post.usecase';
 import { PostFieldsValidator } from './assembler/post-fields-validator';
 import { SearchPostsByDescriptionUsecase } from '../../application/posts/search-posts-by-description.usecase';
 import { SearchPostsByHashtagUsecase } from '../../application/posts/search-posts-by-hashtag.usecase';
+import { CreateNotificationUsecase } from '../../application/notifications/create-notification.usecase';
 import { logger } from '../../logger';
 import { CommentPostUseCase } from '../../application/posts/comment-post.usecase';
 import { LikePostUseCase } from '../../application/posts/like-post.usecase';
@@ -19,6 +20,8 @@ import { PostLike } from '../../domain/posts/post-like';
 import { PostComment } from '../../domain/posts/post-comment';
 import { GetPopularHashtagsUsecase } from '../../application/posts/get-popular-hashtags.usecase';
 import { SearchHashtagsByQueryUsecase } from '../../application/posts/search-hashtags-by-query.usecase';
+import { NotificationType } from '../../domain/notifications/notification-type';
+import { Notification } from '../../domain/notifications/notification';
 
 export class PostController {
     constructor(
@@ -33,8 +36,10 @@ export class PostController {
         private readonly likePost: LikePostUseCase,
         private readonly getPopularHashtagsUsecase: GetPopularHashtagsUsecase,
         private readonly searchHashtagsByQueryUsecase: SearchHashtagsByQueryUsecase,
+        private readonly createNotification: CreateNotificationUsecase,
         private postAssembler: PostAssembler,
     ) {}
+
     createPostHandler = async (
         req: Request<{}, {}, PostFieldsDto>,
         res: Response,
@@ -44,6 +49,18 @@ export class PostController {
             const post: Post = this.postAssembler.toPost(req, req.userId!);
 
             await this.createPost.execute(post);
+
+            for (const mentionedUserId of post.mentions) {
+                await this.createNotification.execute(
+                    new Notification(
+                        undefined,
+                        mentionedUserId,
+                        req.userId!,
+                        post.id,
+                        NotificationType.Mention,
+                    ),
+                );
+            }
 
             const postDTO: ResponsePostDTO = this.postAssembler.toPostDTO(
                 post,
@@ -128,14 +145,14 @@ export class PostController {
     ) => {
         const { id: postId, userId: userIdParam } = req.params;
 
-        const ownerUserId: string | undefined =
-            userIdParam === 'me' ? req.userId : undefined;
-
         try {
             const post: Post = await this.getPostById.execute(
                 postId,
-                ownerUserId,
+                req.userId,
             );
+            if (userIdParam === 'me' && post.userId !== req.userId) {
+                return res.status(403).json({ message: 'Forbidden' });
+            }
             const responsePostDTO: ResponsePostDTO =
                 this.postAssembler.toPostDTO(post, req.userId);
             logger.debug('Post fetched', { postId });

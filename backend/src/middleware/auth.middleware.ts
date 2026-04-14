@@ -8,7 +8,9 @@ export const authMiddleware = (
     revokedTokenRepository: RevokedTokenRepository,
 ) => {
     return async (req: Request, res: Response, next: NextFunction) => {
-        const token = req.headers.authorization?.split(' ')[1];
+        const token =
+            req.headers.authorization?.split(' ')[1] ??
+            (req.query.token as string | undefined);
 
         if (!token) {
             logger.warn('Auth attempt with no token', { path: req.path });

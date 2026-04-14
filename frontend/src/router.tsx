@@ -7,6 +7,7 @@ import Users from './pages/search.tsx';
 import Login from './pages/login.tsx';
 import ProtectedRoute from './components/layout/ProtectedRoute.tsx';
 import SearchResults from './pages/searchResults.tsx';
+import Notifications from './pages/notifications.tsx';
 
 export const router = createBrowserRouter([
     {
@@ -30,6 +31,7 @@ export const router = createBrowserRouter([
                             },
                         ],
                     },
+                    { path: 'Notifications', element: <Notifications /> },
                     { path: '*', element: <NotFound /> },
                 ],
             },

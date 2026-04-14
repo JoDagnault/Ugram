@@ -20,7 +20,7 @@ export interface PostRepository {
         hashtag: string,
         pagination: { page: number; limit: number },
     ): Promise<Post[]>;
-    findById(id: string): Promise<Post>;
+    findById(id: string, requestingUserId?: string): Promise<Post>;
     update(post: Post): Promise<Post>;
     deleteById(id: string): Promise<void>;
     getPopularHashtags(limit: number): Promise<HashtagStats[]>;
@@ -28,4 +28,5 @@ export interface PostRepository {
         query: string,
         limit: number,
     ): Promise<HashtagStats[]>;
+    removeMentionsOfUser(userId: string): Promise<void>;
 }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { getFeedImages } from '../api/images/imagesService';
 import type { ImageDetails } from '../types/image';
 import ImageCard from '../components/image/ImageCard.tsx';
@@ -12,8 +13,12 @@ export default function Home() {
     const [images, setImages] = useState<ImageDetails[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showLoading, setShowLoading] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
     const [selectedImage, setSelectedImage] = useState<ImageDetails | null>(
         null,
+    );
+    const [selectedPostId, setSelectedPostId] = useState<string | null>(
+        searchParams.get('post'),
     );
     const [selectedHashtag, setSelectedHashtag] = useState<string | null>(null);
     const [exactMatch, setExactMatch] = useState<boolean>(false);
@@ -161,15 +166,19 @@ export default function Home() {
                 </div>
             </div>
 
-            {selectedImage && (
+            {(selectedImage || selectedPostId) && (
                 <ImageModal
-                    imageId={selectedImage.id}
+                    imageId={selectedImage?.id ?? selectedPostId!}
                     onClose={() => {
                         setSelectedImage(null);
+                        setSelectedPostId(null);
+                        setSearchParams({});
                         triggerTrendingRefresh();
                     }}
                     onDeleted={() => {
                         setSelectedImage(null);
+                        setSelectedPostId(null);
+                        setSearchParams({});
                         refreshFeed();
                         triggerTrendingRefresh();
                     }}
