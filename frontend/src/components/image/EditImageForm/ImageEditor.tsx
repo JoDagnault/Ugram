@@ -10,6 +10,18 @@ interface Props {
     onCancel: () => void;
 }
 
+interface ImageDimensions {
+    w: number;
+    h: number;
+}
+
+interface ImageDimensionInputs {
+    w: string;
+    h: string;
+}
+
+const JPEG_QUALITY = 0.82;
+
 interface SizePreset {
     label: string;
     description: string;
@@ -28,6 +40,42 @@ const SIZE_PRESETS: SizePreset[] = [
     { label: 'Thumbnail', description: 'Max 400 px', maxDimension: 400 },
 ];
 
+function LockClosedIcon() {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+    );
+}
+
+function LockOpenIcon() {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+        </svg>
+    );
+}
+
 function loadImage(src: string): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
         const img = new Image();
@@ -41,13 +89,18 @@ function fitDimensions(
     srcW: number,
     srcH: number,
     maxDimension: number | null,
-): { w: number; h: number } {
+): ImageDimensions {
     if (maxDimension === null) return { w: srcW, h: srcH };
     const scale = Math.min(maxDimension / Math.max(srcW, srcH), 1);
     return { w: Math.round(srcW * scale), h: Math.round(srcH * scale) };
 }
 
-function fitInside(w: number, h: number, maxW: number, maxH: number) {
+function fitInside(
+    w: number,
+    h: number,
+    maxW: number,
+    maxH: number,
+): ImageDimensions {
     const scale = Math.min(maxW / w, maxH / h, 1);
     return { w: Math.round(w * scale), h: Math.round(h * scale) };
 }
@@ -62,18 +115,16 @@ export default function ImageEditor({
     onCancel,
 }: Props) {
     const [srcUrl, setSrcUrl] = useState('');
-    const [naturalW, setNaturalW] = useState(0);
-    const [naturalH, setNaturalH] = useState(0);
+
+    const [natural, setNatural] = useState<ImageDimensions>({ w: 0, h: 0 });
+    const [output, setOutput] = useState<ImageDimensions>({ w: 0, h: 0 });
+    const [inputs, setInputs] = useState<ImageDimensionInputs>({
+        w: '',
+        h: '',
+    });
 
     const [selectedPreset, setSelectedPreset] = useState<number | null>(0);
-
-    const [inputW, setInputW] = useState('');
-    const [inputH, setInputH] = useState('');
     const [lockAspect, setLockAspect] = useState(true);
-
-    const [outputW, setOutputW] = useState(0);
-    const [outputH, setOutputH] = useState(0);
-
     const [previewUrl, setPreviewUrl] = useState('');
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -86,76 +137,70 @@ export default function ImageEditor({
     useEffect(() => {
         if (!srcUrl) return;
         loadImage(srcUrl).then((img) => {
-            const w = img.naturalWidth;
-            const h = img.naturalHeight;
-            setNaturalW(w);
-            setNaturalH(h);
-            setInputW(String(w));
-            setInputH(String(h));
-            setOutputW(w);
-            setOutputH(h);
+            const dims = { w: img.naturalWidth, h: img.naturalHeight };
+            setNatural(dims);
+            setOutput(dims);
+            setInputs({ w: String(dims.w), h: String(dims.h) });
         });
     }, [srcUrl]);
 
     useEffect(() => {
-        if (selectedPreset === null || !naturalW || !naturalH) return;
-        const { w, h } = fitDimensions(
-            naturalW,
-            naturalH,
+        if (selectedPreset === null || !natural.w || !natural.h) return;
+        const dims = fitDimensions(
+            natural.w,
+            natural.h,
             SIZE_PRESETS[selectedPreset].maxDimension,
         );
-        setOutputW(w);
-        setOutputH(h);
-        setInputW(String(w));
-        setInputH(String(h));
-    }, [selectedPreset, naturalW, naturalH]);
+        setOutput(dims);
+        setInputs({ w: String(dims.w), h: String(dims.h) });
+    }, [selectedPreset, natural]);
 
     useEffect(() => {
-        if (!srcUrl || !outputW || !outputH) return;
+        if (!srcUrl || !output.w || !output.h) return;
         const canvas = canvasRef.current;
         if (!canvas) return;
 
-        loadImage(srcUrl).then((img) => {
-            canvas.width = outputW;
-            canvas.height = outputH;
-            const ctx = canvas.getContext('2d')!;
-            ctx.clearRect(0, 0, outputW, outputH);
-            ctx.drawImage(img, 0, 0, outputW, outputH);
-            setPreviewUrl(canvas.toDataURL('image/jpeg', 0.82));
-        });
-    }, [srcUrl, outputW, outputH]);
+        const timer = setTimeout(() => {
+            loadImage(srcUrl).then((img) => {
+                canvas.width = output.w;
+                canvas.height = output.h;
+                const ctx = canvas.getContext('2d')!;
+                ctx.clearRect(0, 0, output.w, output.h);
+                ctx.drawImage(img, 0, 0, output.w, output.h);
+                setPreviewUrl(canvas.toDataURL('image/jpeg', JPEG_QUALITY));
+            });
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [srcUrl, output]);
 
     const handleWidthChange = (raw: string) => {
         setSelectedPreset(null);
-        setInputW(raw);
+        setInputs((prev) => ({ ...prev, w: raw }));
         const parsed = parseInt(raw, 10);
         if (!parsed || parsed <= 0) return;
         const w = clampDimension(parsed);
-        if (lockAspect && naturalW && naturalH) {
-            const h = clampDimension(Math.round((w / naturalW) * naturalH));
-            setOutputW(w);
-            setOutputH(h);
-            setInputH(String(h));
+        if (lockAspect && natural.w && natural.h) {
+            const h = clampDimension(Math.round((w / natural.w) * natural.h));
+            setOutput({ w, h });
+            setInputs({ w: String(w), h: String(h) });
         } else {
-            setOutputW(w);
-            setOutputH((prev) => prev);
+            setOutput((prev) => ({ ...prev, w }));
         }
     };
 
     const handleHeightChange = (raw: string) => {
         setSelectedPreset(null);
-        setInputH(raw);
+        setInputs((prev) => ({ ...prev, h: raw }));
         const parsed = parseInt(raw, 10);
         if (!parsed || parsed <= 0) return;
         const h = clampDimension(parsed);
-        if (lockAspect && naturalW && naturalH) {
-            const w = clampDimension(Math.round((h / naturalH) * naturalW));
-            setOutputW(w);
-            setOutputH(h);
-            setInputW(String(w));
+        if (lockAspect && natural.w && natural.h) {
+            const w = clampDimension(Math.round((h / natural.h) * natural.w));
+            setOutput({ w, h });
+            setInputs({ w: String(w), h: String(h) });
         } else {
-            setOutputH(h);
-            setOutputW((prev) => prev);
+            setOutput((prev) => ({ ...prev, h }));
         }
     };
 
@@ -173,13 +218,13 @@ export default function ImageEditor({
                 });
             },
             'image/jpeg',
-            0.82,
+            JPEG_QUALITY,
         );
     };
 
     const previewFit =
-        outputW && outputH
-            ? fitInside(outputW, outputH, 420, 260)
+        output.w && output.h
+            ? fitInside(output.w, output.h, 420, 260)
             : { w: 420, h: 260 };
 
     return (
@@ -200,9 +245,9 @@ export default function ImageEditor({
                 )}
             </div>
 
-            {outputW > 0 && outputH > 0 && (
+            {output.w > 0 && output.h > 0 && (
                 <p className="text-xs text-gray-500 text-center -mt-2">
-                    Output: {outputW} × {outputH} px
+                    Output: {output.w} × {output.h} px
                 </p>
             )}
 
@@ -246,7 +291,7 @@ export default function ImageEditor({
                             type="number"
                             min={1}
                             max={10000}
-                            value={inputW}
+                            value={inputs.w}
                             onChange={(e) => handleWidthChange(e.target.value)}
                             className="w-full border rounded p-2 bg-white dark:bg-dark text-sm"
                             placeholder="px"
@@ -270,42 +315,7 @@ export default function ImageEditor({
                             }
                         `}
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-4 h-4"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth={2}
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
-                            {lockAspect ? (
-                                <>
-                                    <rect
-                                        x="3"
-                                        y="11"
-                                        width="18"
-                                        height="11"
-                                        rx="2"
-                                        ry="2"
-                                    />
-                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                                </>
-                            ) : (
-                                <>
-                                    <rect
-                                        x="3"
-                                        y="11"
-                                        width="18"
-                                        height="11"
-                                        rx="2"
-                                        ry="2"
-                                    />
-                                    <path d="M7 11V7a5 5 0 0 1 9.9-1" />
-                                </>
-                            )}
-                        </svg>
+                        {lockAspect ? <LockClosedIcon /> : <LockOpenIcon />}
                     </button>
 
                     <div className="flex flex-col gap-1 flex-1">
@@ -314,7 +324,7 @@ export default function ImageEditor({
                             type="number"
                             min={1}
                             max={10000}
-                            value={inputH}
+                            value={inputs.h}
                             onChange={(e) => handleHeightChange(e.target.value)}
                             className="w-full border rounded p-2 bg-white dark:bg-dark text-sm"
                             placeholder="px"
