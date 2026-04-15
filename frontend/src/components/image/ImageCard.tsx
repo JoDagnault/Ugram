@@ -57,13 +57,13 @@ export default function ImageCard({ image, onCommentClick }: Props) {
     }
 
     return (
-        <div className="flex justify-center w-full h-135 min-[385px]:h-155 min-[1242px]:h-175">
+        <div className="flex justify-center w-full">
             <div className="flex flex-col border rounded-lg w-95/100 min-w-[290px] min-[750px]:w-7/10 min-[1242px]:w-9/10">
-                <div className="w-full flex-1 min-h-0 flex items-center justify-center">
+                <div className="w-full flex items-center justify-center overflow-hidden">
                     <img
                         src={image.imageUrl}
                         alt={image.id}
-                        className="w-full h-full object-contain"
+                        className="w-full h-auto max-w-full max-h-[70vh] object-contain block"
                         loading="lazy"
                     />
                 </div>
