@@ -1,12 +1,35 @@
 # ugram-h2026-team-01 - Livrable 3
 
+##  Application déployée
+Frontend : **https://d17rheqqdzq8va.cloudfront.net**  
+Backend : **https://d3lo2207kh86xk.cloudfront.net**
+
 ## Fonctionnalités avancées implémentées
-* L'usager doit pouvoir rechercher par mot clé ou description avec autocomplétion
-* L'usager doit pouvoir consulter les mots-clés les plus populaires
-* L'usager doit pouvoir appliquer des filtres sur ses photos lors du téléversement
+### (5) L'usager doit pouvoir rechercher par mot clé ou description avec autocomplétion
+Dans la page "Search", l'autocomplétion proposera des résultats de hashtags ou de descriptions contenant les 
+caractères déjà entrés.
+
+### (5) L'usager doit pouvoir consulter les mots-clés les plus populaires
+Une section "Trending" apparaît sur la page d'accueil, à côté du fil d'actualité.  Elle liste les 10 hashtags les plus populaires.
+L'usager peut cliquer sur un des hashtags de la liste pour filtrer le fil d'actualité et voir uniquement les posts avec ce hashtag.
+
+### (5) L'usager doit pouvoir appliquer des filtres sur ses photos lors du téléversement
+Lors de la création d'un post, l'usager peut choisir d'appliquer un filtre sur sa photo.
+
+## Stratégie de monitoring
+
+**Frontend — Sentry**  
+Sentry est intégré au frontend pour capturer les erreurs JavaScript en temps réel et tracer les performances des pages.
+
+**Infrastructure — AWS CloudWatch**  
+Les métriques par défaut d'Elastic Beanstalk (EC2) et RDS sont collectées automatiquement : utilisation CPU, connexions à la base de données, espace disque libre et mémoire disponible. Des alarmes simples sont configurées sur le CPU et les `StatusCheckFailed` pour alerter en cas de problème.
 
 ## Preuve du logging, du monitoring et des métriques de performance au sein de l'application  à l'intérieur de ce document: 
 https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/edit?usp=sharing
+
+
+
+# Pour travailler en local ou sur Docker
 
 ## Prérequis
 - Docker
@@ -14,7 +37,7 @@ https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/
 - Un fichier `frontend/.env`
 
 
-## Variables d'environnement pour travailler en local ou sur docker
+## Variables d'environnement
 
 Créer et utiliser les fichiers suivants :
 
@@ -46,7 +69,7 @@ VITE_MAX_IMAGE_SIZE_BYTES=10485760
 
 Les vraies valeurs à utiliser sont dans le document suivant : https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/edit?usp=sharing
 
-# 3. Exécution
+# Exécution
 
 ## Démarrer l'application
 Depuis la racine du projet :
@@ -79,13 +102,9 @@ docker compose --env-file backend/.env -f docker-compose.yml down -v
 
 ## Accès aux services
 
-### Localement
 - Backend : http://localhost:3000
 - Frontend : http://localhost:5173
 
-### aws
-- Backend: https://d3lo2207kh86xk.cloudfront.net
-- Frontend: https://d17rheqqdzq8va.cloudfront.net
 
 ## Comportement du docker-compose
 - Applique automatiquement les migrations Prisma
