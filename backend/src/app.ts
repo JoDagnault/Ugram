@@ -1,5 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger';
 import { authMiddleware } from './middleware/auth.middleware';
 import { UPLOAD_DIR } from './config/storage';
 import { UserModule } from './api/users/user.module';
@@ -26,6 +28,7 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/health', createHealthRouter());
 app.use('/uploads', express.static(UPLOAD_DIR));
 

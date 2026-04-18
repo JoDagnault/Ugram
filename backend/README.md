@@ -53,6 +53,15 @@ Comportement :
 - pour repartir de zéro (supprime DB + images) : `./down.sh -v`
 - commande manuelle équivalente : `docker compose --env-file backend/.env -f docker-compose.yml down -v`
 
+4## Documentation Swagger
+
+Une fois le backend démarré, la documentation Swagger est accessible aux adresses suivantes :
+
+```text
+Local : http://localhost:3000/api-docs
+Production : https://ugram-api.us-east-1.elasticbeanstalk.com/api-docs
+```
+
 ## Créer une migration Prisma après un changement de schéma
 
 Depuis la racine du dépôt, après une modification de `backend/prisma/schema.prisma` :

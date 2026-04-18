@@ -106,6 +106,18 @@ docker compose --env-file backend/.env -f docker-compose.yml down -v
 - Frontend : http://localhost:5173
 
 
+## Utilisation de Swagger
+
+Une fois le backend démarré, la documentation Swagger est accessible à `http://localhost:3000/api-docs`.
+
+Pour tester les routes protégées :
+
+1. Connectez-vous d'abord dans le frontend.
+2. Ouvrez les outils de développement du navigateur.
+3. Allez dans `Application` > `Local Storage`.
+4. Copiez la valeur associée à la clé `jwt`.
+5. Dans Swagger, cliquez sur `Authorize` et collez uniquement la valeur du token JWT.
+
 ## Comportement du docker-compose
 - Applique automatiquement les migrations Prisma
 - Exécute le seed

@@ -1,3 +1,15 @@
+/**
+ * @openapi
+ * /health:
+ *   get:
+ *     summary: Check server health
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: The server is healthy
+ *       503:
+ *         description: The server is unavailable
+ */
 import { Router } from 'express';
 import { getPrismaClient } from '../../infrastructure/prisma/client';
 import { logger } from '../../logger';
