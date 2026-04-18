@@ -157,7 +157,7 @@ const Profile = () => {
 
                 <div
                     ref={loaderRef}
-                    className="py-4 text-center text-dark-gray text-sm"
+                    className="py-4 text-center text-gray-400 text-sm"
                 >
                     {hasMore ? 'Loading...' : 'No other post'}
                 </div>

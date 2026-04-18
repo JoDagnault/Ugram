@@ -13,6 +13,7 @@ export default function Search() {
     const location = useLocation();
     const navigate = useNavigate();
     const onResultsPage = useMatch('/Search/results');
+    const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1242);
     const getCurrentTab = () => {
         const params = new URLSearchParams(location.search);
         return params.get('tab') ?? 'hashtags';
@@ -22,6 +23,27 @@ export default function Search() {
         const params = new URLSearchParams(location.search);
         return params.get('q')?.trim() ?? '';
     });
+
+    useEffect(() => {
+        const onResize = () => setIsDesktop(window.innerWidth >= 1242);
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, []);
+
+    // On desktop, immediately show the split-view results pane when landing on /Search.
+    useEffect(() => {
+        if (isDesktop && !onResultsPage) {
+            navigate(
+                `/Search/results?q=${encodeURIComponent(query.trim())}&tab=${getCurrentTab()}`,
+                { replace: true },
+            );
+        } else if (!isDesktop && onResultsPage) {
+            navigate(
+                `/Search?q=${encodeURIComponent(query.trim())}&tab=${getCurrentTab()}`,
+                { replace: true },
+            );
+        }
+    }, [isDesktop]);
 
     const users: UserListItem[] = useUsers();
     const [meId, setMeId] = useState<string | null>(null);

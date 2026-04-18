@@ -54,7 +54,7 @@ export default function Notifications() {
         <div className="max-w-xl mx-auto p-4 space-y-4">
             <h1 className="text-xl font-semibold">Notifications</h1>
             {notifications.length === 0 ? (
-                <p className="text-sm text-gray-500">No notifications.</p>
+                <p className="text-sm text-gray-500">No notifications</p>
             ) : (
                 notifications.map((n) => (
                     <div

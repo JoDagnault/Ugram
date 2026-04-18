@@ -83,6 +83,7 @@ export default [
             '**/.vite/**',
             'frontend/dist/**',
             'backend/dist/**',
+            'backend/src/generated/**',
         ],
     },
 ];

@@ -5,7 +5,7 @@ export interface GoogleTokenPayload {
     email: string;
     given_name: string;
     family_name: string;
-    picture: string;
+    picture?: string;
     email_verified: boolean;
 }
 

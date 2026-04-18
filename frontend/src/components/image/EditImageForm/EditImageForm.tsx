@@ -69,7 +69,7 @@ export default function EditImageForm({
     const [errors, setErrors] = useState<ImageFormErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const isSubmitDisabled = isSubmitting || (isCreateMode && !file);
+    const isSubmitDisabled = isSubmitting;
 
     const {
         hashtags,
@@ -174,6 +174,13 @@ export default function EditImageForm({
         if (hashtagsInput.trim()) {
             setErrors({
                 hashtags: 'Click "Add" to add your hashtags before posting',
+            });
+            return;
+        }
+
+        if (isCreateMode && pendingFile) {
+            setErrors({
+                file: 'Please confirm or cancel the image editor before posting',
             });
             return;
         }

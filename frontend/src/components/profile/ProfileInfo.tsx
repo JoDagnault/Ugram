@@ -43,7 +43,7 @@ const ProfileInfo = ({ user, isMyProfile, onUserUpdated }: Props) => {
 
     return (
         <>
-            <div className="p-3 mb-5 flex flex-wrap w-full justify-center">
+            <div className="p-3 mb-5 flex flex-col md:flex-row w-full items-center justify-center">
                 <img
                     src={user.profilePictureUrl}
                     alt={`${user.username} profile`}
@@ -66,14 +66,14 @@ const ProfileInfo = ({ user, isMyProfile, onUserUpdated }: Props) => {
                         )}
                     </div>
 
-                    <div className="mt-3">
+                    <div className="mt-3 w-full max-w-xs md:max-w-none">
                         {isMyProfile && 'email' in currentUser && (
                             <>
-                                <p>
+                                <p className="break-words">
                                     {currentUser.firstName}{' '}
                                     {currentUser.lastName}
                                 </p>
-                                <p>{currentUser.email}</p>
+                                <p className="break-all">{currentUser.email}</p>
                                 <p>{currentUser.phoneNumber}</p>
                             </>
                         )}

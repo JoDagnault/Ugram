@@ -41,18 +41,19 @@ export default function NavbarItemLogout({
     };
 
     return (
-        <div ref={ref} className="relative">
+        <div ref={ref} className="relative flex flex-col items-center mx-1">
             <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
-                className="w-9 h-9 flex items-center justify-center text-white hover:text-accent transition"
+                className="flex items-center flex-col justify-center text-white hover:text-accent transition"
                 aria-label="Menu"
             >
                 <Icon className="size-6" />
+                <p className="text-sm invisible md:hidden">{label}</p>
             </button>
 
             {open && (
-                <div className="absolute right-0 mt-2 w-40 border rounded-md bg-dark shadow">
+                <div className="absolute right-0 mt-2 w-40 border top-full rounded-md bg-dark shadow">
                     <button
                         type="button"
                         onClick={() => {

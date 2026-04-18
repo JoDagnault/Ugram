@@ -19,7 +19,7 @@ const RegisterSchema = z.object({
         .string()
         .trim()
         .min(1, 'First name cannot be empty')
-        .max(100, 'Maximum 100 characters for the first name')
+        .max(30, 'Maximum 30 characters for the first name')
         .regex(
             /^[\p{L} -]+$/u,
             'First name can only contain letters, spaces, and hyphens',
@@ -28,7 +28,7 @@ const RegisterSchema = z.object({
         .string()
         .trim()
         .min(1, 'Last name cannot be empty')
-        .max(100, 'Maximum 100 characters for the last name')
+        .max(30, 'Maximum 30 characters for the last name')
         .regex(
             /^[\p{L} -]+$/u,
             'Last name can only contain letters, spaces, and hyphens',

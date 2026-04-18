@@ -7,10 +7,6 @@ type Props = {
 };
 
 const UserGallery = ({ images, onImageClick }: Props) => {
-    if (images.length === 0) {
-        return <p>No posts yet</p>;
-    }
-
     return (
         <div className="w-full flex justify-center">
             <div className="grid grid-cols-3 gap-1 max-w-300">

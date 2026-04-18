@@ -22,8 +22,10 @@ export default function NavbarItem({ to, label, icon: Icon }: NavbarItemProps) {
                 <>
                     <Icon className="size-6 mx-1" />
                     <p
-                        className={`text-sm md:text-base ${
-                            isActive ? 'block' : 'hidden'
+                        className={`text-sm md:text-base  md:hidden${
+                            isActive
+                                ? 'invisible md:block'
+                                : 'invisible md:hidden'
                         }`}
                     >
                         {label}

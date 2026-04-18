@@ -59,7 +59,7 @@ export default function ImageCard({ image, onCommentClick }: Props) {
     return (
         <div className="flex justify-center w-full">
             <div className="flex flex-col border rounded-lg w-95/100 min-w-[290px] min-[750px]:w-7/10 min-[1242px]:w-9/10">
-                <div className="w-full flex items-center justify-center overflow-hidden">
+                <div className="w-full flex items-center justify-center  overflow-hidden rounded-t-lg">
                     <img
                         src={image.imageUrl}
                         alt={image.id}
@@ -68,7 +68,7 @@ export default function ImageCard({ image, onCommentClick }: Props) {
                     />
                 </div>
 
-                <div className="w-full flex space-x-3 min-[750px]:px-3 min-[1242px]:px-4 mt-2">
+                <div className="w-full flex space-x-3 px-2 min-[750px]:px-3 min-[1242px]:px-4 mt-2">
                     <LikeButton
                         imageId={image.id}
                         className="w-12"

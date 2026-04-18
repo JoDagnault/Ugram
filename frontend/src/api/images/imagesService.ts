@@ -25,6 +25,37 @@ const getCreateImageErrorMessage = async (
     }
 };
 
+export type PostPreview = {
+    id: string;
+    imageURL: string;
+    description: string;
+};
+
+export const searchPostsByDescriptionPreview = async (
+    query: string,
+    limit: number = 5,
+): Promise<PostPreview[]> => {
+    if (!query.trim()) return [];
+
+    const params = new URLSearchParams({
+        q: query,
+        page: '1',
+        limit: String(limit),
+    });
+    const res = await apiGetJsonOrUndefinedOn404<{
+        data: PostResponseDto[];
+        hasMore: boolean;
+    }>(`/posts?${params.toString()}`);
+
+    return (
+        res?.data.map((p) => ({
+            id: p.id,
+            imageURL: p.imageURL,
+            description: p.description,
+        })) ?? []
+    );
+};
+
 export const getUserImages = async (
     userId: string,
     page: number = 1,

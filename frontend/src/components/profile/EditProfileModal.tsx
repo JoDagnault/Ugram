@@ -17,13 +17,13 @@ const UserSchema = z.object({
         .string()
         .trim()
         .min(1, 'First name is required')
-        .max(100, 'Maximum 100 characters')
+        .max(30, 'Maximum 30 characters')
         .regex(/^[\p{L} -]+$/u, 'Only letters, spaces and hyphens are allowed'),
     lastName: z
         .string()
         .trim()
         .min(1, 'Last name is required')
-        .max(100, 'Maximum 100 characters')
+        .max(30, 'Maximum 30 characters')
         .regex(/^[\p{L} -]+$/u, 'Only letters, spaces and hyphens are allowed'),
     email: z.email('Invalid email format').min(1, 'Email is required'),
     phoneNumber: z

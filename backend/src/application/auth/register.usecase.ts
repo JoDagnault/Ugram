@@ -34,7 +34,7 @@ export class RegisterUsecase {
 
         const newUser = new UserProfile(
             crypto.randomUUID(),
-            googleUser.picture,
+            googleUser.picture ?? '',
             username,
             firstName,
             lastName,
