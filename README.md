@@ -1,45 +1,45 @@
-# ugram-h2026-team-01 - Livrable 3
+# UGram
 
-##  Application déployée
-Frontend : **https://d17rheqqdzq8va.cloudfront.net**  
-Backend : **https://d3lo2207kh86xk.cloudfront.net**
+Instagram-like social media app built for the GLO-3112 Web Development course.
 
-## Fonctionnalités avancées implémentées
-### (5) L'usager doit pouvoir rechercher par mot clé ou description avec autocomplétion
-Dans la page "Search", l'autocomplétion proposera des résultats de hashtags ou de descriptions contenant les 
-caractères déjà entrés.
+## Tech Stack
 
-### (5) L'usager doit pouvoir consulter les mots-clés les plus populaires
-Une section "Trending" apparaît sur la page d'accueil, à côté du fil d'actualité.  Elle liste les 10 hashtags les plus populaires.
-L'usager peut cliquer sur un des hashtags de la liste pour filtrer le fil d'actualité et voir uniquement les posts avec ce hashtag.
+**Frontend** — React 19, TypeScript, Tailwind CSS, Vite  
+**Backend** — Node.js, Express 5, TypeScript, Prisma, PostgreSQL  
+**Storage** — AWS S3  
+**Auth** — JWT, Google OAuth  
+**Monitoring** — Sentry, AWS CloudWatch
 
-### (5) L'usager doit pouvoir appliquer des filtres sur ses photos lors du téléversement
-Lors de la création d'un post, l'usager peut choisir d'appliquer un filtre sur sa photo.
+## Features
 
-## Stratégie de monitoring
+- Create and browse posts with image upload and filters
+- Search by keyword or hashtag with autocomplete
+- Trending hashtags on the home feed
+- User profiles and notifications
+- Google OAuth login
+- REST API with Swagger documentation
 
-**Frontend — Sentry**  
-Sentry est intégré au frontend pour capturer les erreurs JavaScript en temps réel et tracer les performances des pages.
+## Running Locally
 
-**Infrastructure — AWS CloudWatch**  
-Les métriques par défaut d'Elastic Beanstalk (EC2) et RDS sont collectées automatiquement : utilisation CPU, connexions à la base de données, espace disque libre et mémoire disponible. Des alarmes simples sont configurées sur le CPU et les `StatusCheckFailed` pour alerter en cas de problème.
+**Prerequisites:** Docker, Node.js 20+, pnpm
 
-## Preuve du logging, du monitoring et des métriques de performance au sein de l'application  à l'intérieur de ce document: 
-https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/edit?usp=sharing
+1. Create `backend/.env` and `frontend/.env` from the templates below.
+2. From the project root:
 
+```bash
+./up.sh
+```
 
+- Frontend: http://localhost:5173
+- Backend: http://localhost:3000
+- Swagger: http://localhost:3000/api-docs
 
-# Pour travailler en local ou sur Docker
+```bash
+./down.sh        # stop
+./down.sh -v     # stop and wipe data
+```
 
-## Prérequis
-- Docker
-- Un fichier `backend/.env`
-- Un fichier `frontend/.env`
-
-
-## Variables d'environnement
-
-Créer et utiliser les fichiers suivants :
+## Environment Variables
 
 ```env
 # backend/.env
@@ -62,65 +62,6 @@ MAX_IMAGE_SIZE_BYTES=10485760
 ```env
 # frontend/.env
 VITE_API_URL=http://localhost:3000
-VITE_SENTRY_DSN=your_sentry_dsn
 VITE_GOOGLE_CLIENT_ID=your_google_client_id
 VITE_MAX_IMAGE_SIZE_BYTES=10485760
 ```
-
-Les vraies valeurs à utiliser sont dans le document suivant : https://docs.google.com/document/d/1b3VBW1q2rY5xbbitgMbQq0nhOOXRXNK4Jxo-QLy0vk0/edit?usp=sharing
-
-# Exécution
-
-## Démarrer l'application
-Depuis la racine du projet :
-
-```bash
-./up.sh
-```
-ou manuellement :
-```bash
-docker compose --env-file backend/.env -f docker-compose.yml up -d --build
-```
-
-## Arrêter l'application
-```bash
-./down.sh
-```
-ou manuellement :
-```bash
-docker compose --env-file backend/.env -f docker-compose.yml down
-```
-
-## Réinitialiser complètement (Database + uploads)
-```bash
-./down.sh -v
-```
-ou manuellement :
-```bash
-docker compose --env-file backend/.env -f docker-compose.yml down -v
-```
-
-## Accès aux services
-
-- Backend : http://localhost:3000
-- Frontend : http://localhost:5173
-
-
-## Utilisation de Swagger
-
-Une fois le backend démarré, la documentation Swagger est accessible à `http://localhost:3000/api-docs`.
-
-Pour tester les routes protégées :
-
-1. Connectez-vous d'abord dans le frontend.
-2. Ouvrez les outils de développement du navigateur.
-3. Allez dans `Application` > `Local Storage`.
-4. Copiez la valeur associée à la clé `jwt`.
-5. Dans Swagger, cliquez sur `Authorize` et collez uniquement la valeur du token JWT.
-
-## Comportement du docker-compose
-- Applique automatiquement les migrations Prisma
-- Exécute le seed
-- Démarre le backend après la base de données, les migrations et le seed
-- Persiste les données PostgreSQL dans un volume Docker (`postgres_data`)
-- Persiste les images uploadées dans un volume Docker (`uploads_data`)
